@@ -1,0 +1,6 @@
+{
+  "watch": ["packages"],
+  "ext": "ts,tsx",
+  "exec": "yarn workspace cli start",
+  "verbose": true
+}

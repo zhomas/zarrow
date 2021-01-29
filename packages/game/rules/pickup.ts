@@ -14,6 +14,6 @@ export const pickup = (state: GameState, ...cards: CardModel[]) => {
 
   const toPickup = state.stack.map((c) => ({ card: c, tier: 2 }))
   player.cards = [...player.cards, ...toPickup]
-  state.turnIndex -= 1
+  state.queue.shift()
   state.stack = []
 }

@@ -56,8 +56,10 @@ export const dealCards = (state: GameState, action: GameInitialiser) => {
     playerIndex++
   }
 
+  state.factions = factions
   state.players = players
   state.pickupPile = deck
+  state.queue = [playerIds[0]]
   state.burnt = []
   state.stack = []
 }

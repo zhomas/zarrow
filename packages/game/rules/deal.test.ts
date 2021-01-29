@@ -1,6 +1,6 @@
 import it from 'ava'
 import { createDeck } from '../deck'
-import { initialState } from '../game.slice'
+import { activePlayerSelector, initialState } from '../game.slice'
 import { dealCards } from './deal'
 
 it('deals a fresh game', (t) => {
@@ -24,6 +24,22 @@ it('deals a fresh game', (t) => {
     t.is(p.cards.filter((c) => c.tier === 1).length, 4)
     t.is(p.cards.filter((c) => c.tier === 2).length, 4)
   })
+})
+
+it('sets the first player', (t) => {
+  const state = { ...initialState }
+  const deck = createDeck()
+  const initialiser = {
+    factions: [
+      ['a', 'b'],
+      ['c', 'd'],
+    ],
+    deck,
+  }
+
+  dealCards(state, initialiser)
+
+  t.is(activePlayerSelector(state).id, 'a')
 })
 
 it('weaves two factions', (t) => {

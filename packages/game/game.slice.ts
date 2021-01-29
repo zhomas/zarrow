@@ -4,10 +4,11 @@ import { dealCards } from './rules/deal'
 import { pickup } from './rules/pickup'
 import { playCard as play } from './rules/play'
 import { CardModel, PlayerModel } from './types'
-import { getWrappedIndex } from './utils'
 
 export interface GameState {
-  turnIndex: number
+  direction: number
+  queue: string[]
+  factions: string[][]
   players: PlayerModel[]
   stack: CardModel[]
   burnt: CardModel[]
@@ -15,7 +16,9 @@ export interface GameState {
 }
 
 export const initialState: GameState = {
-  turnIndex: 0,
+  direction: 1,
+  queue: [],
+  factions: [],
   players: [],
   stack: [],
   burnt: [],
@@ -23,14 +26,17 @@ export const initialState: GameState = {
 }
 
 export const activePlayerSelector = (state: GameState) => {
-  const inPlay = state.players.filter((p) => p.cards.length > 0)
-
-  const idx = getWrappedIndex(state.turnIndex, inPlay.length)
-  return inPlay[idx]
+  const id = state.queue[0]
+  return state.players.find((p) => p.id === id)
 }
 
 export const topOfStackSelector = (state: GameState) => {
-  return state.stack[0]
+  for (const card of state.stack) {
+    if (card.value === '8') continue
+    return card
+  }
+
+  return undefined
 }
 
 export const activeTierSelector = (state: GameState) => {

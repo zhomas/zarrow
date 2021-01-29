@@ -14,6 +14,9 @@ import {
   pickupStack,
   playCard,
 } from 'game/game.slice'
+import { PlayerList } from './components/playerList'
+import { gameStatusSelector, winnersSelector } from 'game/rules/win'
+import { CardPick } from './components/cardPick'
 
 interface CardsInput {
   value: CardModel[]
@@ -24,42 +27,18 @@ const Main: FC<GameState & D> = (props) => {
 
   if (props.players.length === 0) return null
 
-  const player = activePlayerSelector(props)
+  const status = gameStatusSelector(props)
 
-  const playCard = (item: CardsInput) => {
-    props.pushToStack(item.value)
-  }
-
-  const pickupCard = (item: CardsInput) => {
-    props.pickup(item.value)
-  }
-
-  const renderInputs = () => {
-    const mustPickup = mustPickUpSelector(props)
-    const cards = activeTierSelector(props)
-    const x = Object.values(_.groupBy(cards, (c) => c.card.value)).map(
-      (cards) => {
-        return {
-          label: cards.map((c) => c.card.label).join(', '),
-          value: cards.map((c) => c.card),
-          key: cards.map((c) => c.card.label).join(', '),
-        }
-      },
-    )
-
-    const items = activeTierSelector(props).map((c) => ({
-      label: c.card.label,
-      value: c.card,
-      key: c.card.label,
-    }))
-
+  if (status.status === 'complete') {
     return (
       <Box flexDirection="column">
-        {mustPickup && <Text>You can't go! Choose card(s) to pick up</Text>}
-        <SelectInput items={x} onSelect={mustPickup ? pickupCard : playCard} />
+        <Text>Game is complete!</Text>
+        <Text>Winners: {status.winners.join(', ')}</Text>
       </Box>
     )
   }
+
+  const player = activePlayerSelector(props)
 
   return (
     <Box alignItems="stretch" justifyContent="space-between">
@@ -68,12 +47,25 @@ const Main: FC<GameState & D> = (props) => {
         <Player {...player} />
         <Text>Player ID: {player.id}</Text>
       </Box>
+      <Box flexBasis="30%">
+        <PlayerList
+          activeID={props.queue[0]}
+          players={props.players}
+          winners={winnersSelector(props)}
+        />
+      </Box>
       <Box
         flexDirection="column"
         flexBasis="30%"
         justifyContent="space-between"
       >
-        <Box>{renderInputs()}</Box>
+        <Box>
+          <CardPick
+            state={props}
+            pickup={props.pickup}
+            pushToStack={props.pushToStack}
+          />
+        </Box>
         <Box>
           <Text>Cards left in pickup pile: {props.pickupPile.length}</Text>
         </Box>

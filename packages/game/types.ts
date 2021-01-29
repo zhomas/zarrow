@@ -28,6 +28,6 @@ interface PlayerCard {
 }
 
 export interface PlayerModel {
-  id: string | number
+  id: string
   cards: PlayerCard[]
 }

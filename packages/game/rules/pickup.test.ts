@@ -1,4 +1,5 @@
 import it from 'ava'
+import { activePlayerSelector, GameState } from '../game.slice'
 import { CardModel } from '../types'
 import { pickup } from './pickup'
 
@@ -8,13 +9,19 @@ const card: CardModel = {
   label: '',
 }
 
-const getState = () => ({
-  turnIndex: 0,
+const getState = (): GameState => ({
+  factions: [],
+  direction: 1,
+  queue: ['a', 'b'],
   pickupPile: [],
   burnt: [],
   players: [
     {
       id: 'a',
+      cards: [{ card, tier: 1 }],
+    },
+    {
+      id: 'b',
       cards: [{ card, tier: 1 }],
     },
   ],
@@ -37,4 +44,9 @@ it('adds a face up card to hand upon pickup', (t) => {
   t.is(inHand.length, 4)
 })
 
-//it('reverts to the last player that played', (t) => {})
+it('reverts to the last player that played', (t) => {
+  const state = getState()
+  t.is(activePlayerSelector(state).id, 'a')
+  pickup(state, card)
+  t.is(activePlayerSelector(state).id, 'b')
+})

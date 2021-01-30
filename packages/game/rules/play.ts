@@ -90,11 +90,11 @@ export const playCard = (state: GameState, ...cards: CardModel[]) => {
     if (shouldBurn(state)) {
       state.burnt = [...state.stack]
       state.stack = []
-    }
-
-    // Consider reverse
-    if (cards.length % 2 === 1 && cards.find((c) => c.value === '7')) {
-      state.direction *= -1
+    } else {
+      // Consider reverse
+      if (cards.length % 2 === 1 && cards.find((c) => c.value === '7')) {
+        state.direction *= -1
+      }
     }
 
     while (

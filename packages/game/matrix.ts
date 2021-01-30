@@ -38,9 +38,10 @@ export const canCardPlay = (
   destination: CardModel,
 ): boolean => {
   if (!destination) return true
-  console.log(`Try to play :: ${card.value} => ${destination.value}`)
+  if (card.value === '8') return true
+  if (destination.value === 'J') {
+    return card.suit === destination.suit || card.value === 'J'
+  }
 
-  const row = y[card.value]
-
-  return row[destination.value]
+  return y[card.value][destination.value]
 }

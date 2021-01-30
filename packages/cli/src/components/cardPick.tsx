@@ -4,14 +4,17 @@ import {
   mustPickUpSelector,
   playCard,
 } from 'game'
+import { createCard } from 'game/deck'
 import { CardModel } from 'game/types'
 import { Box, Text } from 'ink'
 import SelectInput from 'ink-select-input'
 import _ from 'lodash'
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
+import { TargetPick } from './targetPick'
 
 interface Props {
   state: GameState
+  aceThatSucka: (cards: CardModel[], targetID: string) => void
   pushToStack: (x: CardModel[]) => void
   pickup: (x: CardModel[]) => void
 }
@@ -20,8 +23,22 @@ interface CardsInput {
   value: CardModel[]
 }
 
-export const CardPick: FC<Props> = ({ state, pushToStack, pickup }) => {
+export const CardPick: FC<Props> = ({
+  state,
+  pushToStack,
+  pickup,
+  aceThatSucka,
+}) => {
+  const [mode, setMode] = useState<string>()
+  const [tmpCards, setTmpCards] = useState<CardModel[]>([])
+
   const playCard = (item: CardsInput) => {
+    if (item.value.find((c) => c.value === 'A')) {
+      setMode('target')
+      setTmpCards(item.value)
+      return
+    }
+
     pushToStack(item.value)
   }
 
@@ -40,6 +57,15 @@ export const CardPick: FC<Props> = ({ state, pushToStack, pickup }) => {
       }
     },
   )
+
+  if (mode === 'target') {
+    return (
+      <TargetPick
+        state={state}
+        handleSelect={(id) => aceThatSucka(tmpCards, id)}
+      />
+    )
+  }
 
   return (
     <Box flexDirection="column">

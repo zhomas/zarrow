@@ -170,6 +170,30 @@ it('can play a 3 on a 3', (t) => {
   t.is(state.players[0].cards.length, 0)
 })
 
+it('can play a 3D on a JD', (t) => {
+  const state = { ...getState(), stack: [createCard('J', 'D')] }
+  playCard(state, createCard('3', 'D'))
+  t.is(state.stack.length, 2)
+})
+
+it('cannot play a QC on a JD', (t) => {
+  const state = { ...getState(), stack: [createCard('J', 'D')] }
+  playCard(state, createCard('Q', 'C'))
+  t.is(state.stack.length, 1)
+})
+
+it('can play 2 jacks on a JD', (t) => {
+  const state = { ...getState(), stack: [createCard('J', 'D')] }
+  playCard(state, createCard('J', 'C'), createCard('J', 'S'))
+  t.is(state.stack.length, 3)
+})
+
+it('can play an 8 on a JD', (t) => {
+  const state = { ...getState(), stack: [createCard('J', 'D')] }
+  playCard(state, createCard('8', 'H'))
+  t.is(state.stack.length, 2)
+})
+
 it('cannot play a 3 on a 4', (t) => {
   const four: CardModel = {
     value: '4',

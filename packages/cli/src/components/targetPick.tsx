@@ -1,21 +1,20 @@
 import React, { FC } from 'react'
-import { Box } from 'ink'
+import { Box, Spacer, Text } from 'ink'
 import { activePlayerSelector, GameState } from 'game'
 import _ from 'lodash'
 import SelectInput from 'ink-select-input'
 
 interface Props {
   state: GameState
+  handleSelect: (id: string) => void
 }
 
 interface Option {
   value: string
 }
 
-export const TargetPick: FC<Props> = ({ state }) => {
+export const TargetPick: FC<Props> = ({ state, handleSelect }) => {
   const active = activePlayerSelector(state)
-
-  const handleSelect = (option: Option) => {}
 
   const p = state.players
     .filter((pl) => pl.id !== active.id)
@@ -29,7 +28,9 @@ export const TargetPick: FC<Props> = ({ state }) => {
 
   return (
     <Box flexDirection="column">
-      <SelectInput items={p} onSelect={handleSelect} />
+      <Text>Who will you target?</Text>
+      <Spacer />
+      <SelectInput items={p} onSelect={(x) => handleSelect(x.value)} />
     </Box>
   )
 }

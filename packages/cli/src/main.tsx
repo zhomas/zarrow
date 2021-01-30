@@ -12,6 +12,7 @@ import {
   activeTierSelector,
   mustPickUpSelector,
   pickupStack,
+  playAce,
   playCard,
 } from 'game/game.slice'
 import { PlayerList } from './components/playerList'
@@ -61,9 +62,11 @@ const Main: FC<GameState & D> = (props) => {
       >
         <Box>
           <CardPick
+            key={player.id}
             state={props}
             pickup={props.pickup}
             pushToStack={props.pushToStack}
+            aceThatSucka={props.aceTarget}
           />
         </Box>
         <Box>
@@ -81,7 +84,7 @@ const mapState = (state: GameState) => {
 const mapDispatch = (dispatch: GameDispatch) => {
   return {
     deal: () => {
-      const cards = createDeck(12)
+      const cards = createDeck()
       const action = deal({
         factions: [
           ['Barry', 'Joe'],
@@ -102,6 +105,10 @@ const mapDispatch = (dispatch: GameDispatch) => {
     },
     pickup: (cards: CardModel[]) => {
       const action = pickupStack(cards)
+      dispatch(action)
+    },
+    aceTarget: (cards: CardModel[], targetID: string) => {
+      const action = playAce({ cards, targetID })
       dispatch(action)
     },
   }

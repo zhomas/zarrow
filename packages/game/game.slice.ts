@@ -1,8 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { canCardPlay } from './matrix'
+import { PlayAce } from './rules/ace'
 import { dealCards } from './rules/deal'
 import { pickup } from './rules/pickup'
 import { playCard as play } from './rules/play'
+import { playAce as ace } from './rules/ace'
+
 import { CardModel, PlayerModel } from './types'
 
 export interface GameState {
@@ -75,8 +78,11 @@ const counterSlice = createSlice({
     pickupStack(state, action: PayloadAction<CardModel[]>) {
       pickup(state, ...action.payload)
     },
+    playAce(state, action: PayloadAction<PlayAce>) {
+      ace(state, action.payload)
+    },
   },
 })
 
-export const { deal, playCard, pickupStack } = counterSlice.actions
+export const { deal, playCard, pickupStack, playAce } = counterSlice.actions
 export default counterSlice.reducer

@@ -4,7 +4,8 @@
     "dev": "nodemon --no-stdin"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/functions"
   ],
   "devDependencies": {
     "nodemon": "^2.0.7",

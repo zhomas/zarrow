@@ -1,7 +1,9 @@
 {
   "name": "functions",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
+    "dev": "nodemon",
     "build": "tsc",
     "serve": "yarn build && firebase emulators:start --only functions",
     "shell": "yarn build && firebase functions:shell",
@@ -14,12 +16,15 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@types/cors": "^2.8.9",
+    "cors": "^2.8.5",
     "firebase-admin": "^9.2.0",
-    "firebase-functions": "^3.11.0"
+    "firebase-functions": "^3.11.0",
+    "game": "1.0.0"
   },
   "devDependencies": {
-    "typescript": "^3.8.0",
-    "firebase-functions-test": "^0.2.0"
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^3.8.0"
   },
   "private": true
 }

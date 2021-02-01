@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { Box, Spacer, Text } from 'ink'
-import { activePlayerSelector, GameState } from 'game'
+import { activePlayerSelector, GameState } from '../../../game/dist/src'
 import _ from 'lodash'
 import SelectInput from 'ink-select-input'
 

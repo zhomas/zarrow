@@ -1,11 +1,13 @@
 {
   "private": true,
   "scripts": {
-    "dev": "nodemon --no-stdin"
+    "compile": "tsc --build --force tsconfig.json",
+    "dev:server": "firebase emulators:start",
+    "dev": "yarn workspace web start",
+    "cli": "nodemon --no-stdin"
   },
   "workspaces": [
-    "packages/*",
-    "packages/functions"
+    "packages/*"
   ],
   "devDependencies": {
     "nodemon": "^2.0.7",

@@ -9,6 +9,7 @@ export const store = configureStore({
 type StoreType = typeof store
 
 export { createDeck } from './deck'
-export { PlayerModel, CardModel as Card } from './types'
+export type { PlayerModel, CardModel as Card } from './types'
 
 export type GameDispatch = StoreType['dispatch']
+export * from './rules/create'

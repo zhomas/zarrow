@@ -3,7 +3,7 @@ import {
   GameState,
   mustPickUpSelector,
   playCard,
-} from 'game'
+} from '../../../game/dist/src'
 import { createCard } from 'game/deck'
 import { CardModel } from 'game/types'
 import { Box, Text } from 'ink'

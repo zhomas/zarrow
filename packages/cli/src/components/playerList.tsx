@@ -1,4 +1,4 @@
-import { PlayerModel } from 'game'
+import { PlayerModel } from '../../../game/dist/src'
 import { Box, Text } from 'ink'
 import React, { FC } from 'react'
 

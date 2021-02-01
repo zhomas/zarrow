@@ -11,7 +11,6 @@ import { CardModel, PlayerModel } from './types'
 export interface GameState {
   direction: number
   queue: string[]
-  factions: string[][]
   players: PlayerModel[]
   stack: CardModel[]
   burnt: CardModel[]
@@ -21,7 +20,6 @@ export interface GameState {
 export const initialState: GameState = {
   direction: 1,
   queue: [],
-  factions: [],
   players: [],
   stack: [],
   burnt: [],
@@ -68,8 +66,9 @@ const counterSlice = createSlice({
   name: 'counter',
   initialState,
   reducers: {
+    create(state, action: PayloadAction<string>) {},
     deal(state, action: PayloadAction<GameInitialiser>) {
-      dealCards(state, action.payload)
+      dealCards(state, action.payload.deck)
     },
     playCard(state, action: PayloadAction<PlayCard>) {
       const { cards } = action.payload

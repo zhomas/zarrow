@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { store } from 'game'
+import { store } from '../../game/dist/src'
 import { Provider } from 'react-redux'
 import UI from './main'
 

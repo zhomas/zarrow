@@ -22,12 +22,13 @@ export interface CardModel {
   label: string
 }
 
-interface PlayerCard {
+export interface PlayerCard {
   card: CardModel
   tier: number
 }
 
 export interface PlayerModel {
   id: string
+  faction: number
   cards: PlayerCard[]
 }

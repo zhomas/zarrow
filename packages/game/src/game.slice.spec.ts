@@ -16,7 +16,6 @@ it('chooses from the active tier', (t) => {
   }
 
   const a = activeTierSelector({
-    factions: [],
     pickupPile: [],
     burnt: [],
     direction: 1,
@@ -24,6 +23,7 @@ it('chooses from the active tier', (t) => {
     players: [
       {
         id: 'a',
+        faction: 0,
         cards: [
           { card, tier: 0 },
           { card, tier: 0 },

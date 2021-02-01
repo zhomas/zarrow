@@ -10,7 +10,6 @@ const card: CardModel = {
 }
 
 const getState = (): GameState => ({
-  factions: [],
   direction: 1,
   queue: ['a', 'b'],
   pickupPile: [],
@@ -18,10 +17,12 @@ const getState = (): GameState => ({
   players: [
     {
       id: 'a',
+      faction: 0,
       cards: [{ card, tier: 1 }],
     },
     {
       id: 'b',
+      faction: 0,
       cards: [{ card, tier: 1 }],
     },
   ],

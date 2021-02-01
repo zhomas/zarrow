@@ -1,10 +1,10 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { GameState } from '..'
+import { GameState } from '../game.slice'
+import { modeSelector } from '../selectors/status'
 import { CardModel, PlayerModel } from '../types'
 import { getWrappedIndex } from '../utils'
 
 interface GameInitialiser {
-  factions: string[][]
   deck: CardModel[]
 }
 
@@ -37,27 +37,24 @@ const interweave = (...arrays: string[][]) => {
     }, [])
 }
 
-export const dealCards = (state: GameState, action: GameInitialiser) => {
-  const { deck, factions } = action
-  const playerIds = interweave(...factions)
+export const dealCards = (state: GameState, deck: CardModel[]) => {
+  const mode = modeSelector(state)
+
+  if (mode !== 'lobby:valid') return
+
+  const playerIds = state.players.map((p) => p.id)
   let playerIndex = 0
-  const players = playerIds.map((id) => ({
-    id,
-    cards: [],
-  }))
 
   while (deck.length > 0) {
-    if (players.every((p) => p.cards.length === 12)) break
+    if (state.players.every((p) => p.cards.length === 12)) break
     const card = deck.shift()
-    const i = getWrappedIndex(playerIndex, playerIds.length)
-    const player = players[i]
+    const i = getWrappedIndex(playerIndex, state.players.length)
+    const player = state.players[i]
     const target = findFreeTier(player)
     player.cards.push({ card, tier: target })
     playerIndex++
   }
 
-  state.factions = factions
-  state.players = players
   state.pickupPile = deck
   state.queue = [playerIds[0]]
   state.burnt = []

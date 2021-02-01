@@ -1,7 +1,13 @@
 import React, { FC, useEffect } from 'react'
 import { Box, Text, Static } from 'ink'
 import _ from 'lodash'
-import { deal, GameState, GameDispatch, createDeck, PlayerModel } from 'game'
+import {
+  deal,
+  GameState,
+  GameDispatch,
+  createDeck,
+  PlayerModel,
+} from '../../game/dist/src'
 import { connect } from 'react-redux'
 import { Player } from './components/player'
 import { Stack } from './components/stack'

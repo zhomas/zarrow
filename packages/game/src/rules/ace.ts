@@ -1,4 +1,4 @@
-import { GameState } from '..'
+import { GameState } from '../game.slice'
 import { CardModel } from '../types'
 import { playCard } from './play'
 

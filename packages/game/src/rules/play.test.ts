@@ -7,7 +7,6 @@ import { playCard } from './play'
 const card = createCard('3', 'H')
 
 const getState = (): GameState => ({
-  factions: [],
   direction: 1,
   pickupPile: [],
   burnt: [],
@@ -15,18 +14,22 @@ const getState = (): GameState => ({
   players: [
     {
       id: 'a',
+      faction: 0,
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'b',
+      faction: 0,
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'c',
+      faction: 0,
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'd',
+      faction: 0,
       cards: [{ card, tier: 2 }],
     },
   ],
@@ -124,14 +127,17 @@ it('does not move to players that are out', (t) => {
     players: [
       {
         id: 'a',
+        faction: 0,
         cards: [{ card, tier: 2 }],
       },
       {
         id: 'b',
+        faction: 0,
         cards: [{ card, tier: 2 }],
       },
       {
         id: 'c',
+        faction: 0,
         cards: [],
       },
     ],
@@ -150,6 +156,7 @@ it('plays multiple cards at once', (t) => {
     players: [
       {
         id: 'a',
+        faction: 0,
         cards: [
           { card: s, tier: 2 },
           { card: h, tier: 2 },

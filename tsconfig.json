@@ -1,7 +1,9 @@
 {
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "jsx": "react"
-  },
-  "exclude": []
+  "references": [
+    { "path": "./packages/functions" },
+    { "path": "./packages/game" }
+  ],
+  "files": [],
+  "include": [],
+  "exclude": ["**/node_modules"]
 }

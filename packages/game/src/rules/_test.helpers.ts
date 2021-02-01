@@ -1,10 +1,9 @@
-import { GameState } from '..'
+import { GameState } from '../game.slice'
 import { createCard } from '../deck'
 
 const card = createCard('3', 'C')
 
 export const getDummyState = (): GameState => ({
-  factions: [],
   direction: 1,
   pickupPile: [],
   burnt: [],
@@ -12,18 +11,22 @@ export const getDummyState = (): GameState => ({
   players: [
     {
       id: 'a',
+      faction: 0,
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'b',
+      faction: 1,
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'c',
+      faction: 0,
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'd',
+      faction: 1,
       cards: [{ card, tier: 2 }],
     },
   ],

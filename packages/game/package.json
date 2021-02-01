@@ -1,8 +1,10 @@
 {
   "name": "game",
   "version": "1.0.0",
+  "main": "dist/index",
   "scripts": {
-    "test": "ava"
+    "test": "ava",
+    "build": "tsc"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.5.0",

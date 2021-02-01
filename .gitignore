@@ -95,4 +95,4 @@ node_modules/
 lib/**/*.js
 lib/**/*.js.map
 
-.tsbuildinfo
+tsconfig.tsbuildinfo

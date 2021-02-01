@@ -94,3 +94,5 @@ node_modules/
 # Compiled JavaScript files
 lib/**/*.js
 lib/**/*.js.map
+
+.tsbuildinfo

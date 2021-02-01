@@ -1,7 +1,7 @@
 import { CardModel } from './types'
 import parse from 'csv-parse/lib/sync'
-import path from 'path'
-import fs from 'fs'
+import * as path from 'path'
+import * as fs from 'fs'
 
 const pathTo = path.resolve(__dirname, './matrix.csv')
 

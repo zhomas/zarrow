@@ -1,18 +1,45 @@
 import React from 'react'
-import logo from './logo.svg'
 import './App.css'
-import axios from 'axios'
+import firebase from 'firebase'
+import { Router } from '@reach/router'
+import { Game } from './pages/Game'
+import { Home } from './pages/Home'
+import { useEffect } from 'react'
+import { useState } from 'react'
+
+firebase.initializeApp({
+  apiKey: 'AIzaSyCLam-c7ihiHBe-8lbIz7yERTpqxJse8PY',
+  authDomain: 'zarrow-a706c.firebaseapp.com',
+  projectId: 'zarrow-a706c',
+  storageBucket: 'zarrow-a706c.appspot.com',
+  messagingSenderId: '399489894980',
+  appId: '1:399489894980:web:b2565a1f826805e102ca11',
+})
+
+firebase.functions().useEmulator('localhost', 5001)
+firebase.firestore().useEmulator('localhost', 8081)
 
 function App() {
-  const createLobby = async () => {
-    const url = 'http://localhost:5001/zarrow-a706c/us-central1/createLobby'
-    const response = await axios.post(url, { owner: 'abc' })
-    console.log(response)
-  }
+  const [uid, setUID] = useState<string>()
+
+  useEffect(() => {
+    const stuff = async () => {
+      const x = await firebase.auth().signInAnonymously()
+      console.log('signed in', x)
+      setUID(x.user?.uid)
+    }
+
+    stuff()
+  }, [])
 
   return (
     <div className="App">
-      <button onClick={createLobby}>Create lobby</button>
+      {uid && (
+        <Router>
+          <Game path="/game/:gameID" userID={uid} />
+          <Home default />
+        </Router>
+      )}
     </div>
   )
 }

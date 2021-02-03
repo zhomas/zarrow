@@ -2,6 +2,8 @@
   "files.exclude": {
     "**/.cache": true,
     "**/public": true,
-    "**/node_modules": false // this excludes all folders
+    "**/*.log": true,
+    "**/*.tsbuildinfo": true,
+    "**/node_modules": true // this excludes all folders
   }
 }

@@ -1,20 +1,24 @@
 import { GameState } from '../game.slice'
 
-export const createGame = (hostID: string): GameState => {
+export const createGame = (): GameState => {
   return {
+    next: '',
     queue: [],
     stack: [],
     burnt: [],
     direction: 1,
     pickupPile: [],
-    players: [{ id: hostID, faction: -1, cards: [] }],
+    players: [],
   }
 }
 
-export const joinGame = (state: GameState, playerID: string) => {
+export const joinGame = (state: GameState, playerID: string, name: string) => {
+  if (state.players.find((p) => p.id === playerID)) return
+
   state.players.push({
     id: playerID,
-    faction: -1,
+    displayName: name,
+    faction: 0,
     cards: [],
   })
 }

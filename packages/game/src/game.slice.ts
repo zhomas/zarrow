@@ -5,10 +5,13 @@ import { dealCards } from './rules/deal'
 import { pickup } from './rules/pickup'
 import { playCard as play } from './rules/play'
 import { playAce as ace } from './rules/ace'
+import { endTurn as end } from './rules/endTurn'
 
 import { CardModel, PlayerModel } from './types'
+import { joinGame as join, changeFaction as faction } from './rules/create'
 
 export interface GameState {
+  next: string
   direction: number
   queue: string[]
   players: PlayerModel[]
@@ -18,6 +21,7 @@ export interface GameState {
 }
 
 export const initialState: GameState = {
+  next: '',
   direction: 1,
   queue: [],
   players: [],
@@ -62,11 +66,26 @@ interface PlayCard {
   cards: CardModel[]
 }
 
+interface Join {
+  uid: string
+  displayName: string
+}
+
+interface Faction {
+  uid: string
+  faction: number
+}
+
 const counterSlice = createSlice({
   name: 'counter',
   initialState,
   reducers: {
-    create(state, action: PayloadAction<string>) {},
+    joinGame(state, action: PayloadAction<Join>) {
+      join(state, action.payload.uid, action.payload.displayName)
+    },
+    setFaction(state, action: PayloadAction<Faction>) {
+      faction(state, action.payload.uid, action.payload.faction)
+    },
     deal(state, action: PayloadAction<GameInitialiser>) {
       dealCards(state, action.payload.deck)
     },
@@ -80,8 +99,19 @@ const counterSlice = createSlice({
     playAce(state, action: PayloadAction<PlayAce>) {
       ace(state, action.payload)
     },
+    endTurn(state) {
+      end(state)
+    },
   },
 })
 
-export const { deal, playCard, pickupStack, playAce } = counterSlice.actions
+export const {
+  deal,
+  playCard,
+  pickupStack,
+  playAce,
+  joinGame,
+  setFaction,
+  endTurn,
+} = counterSlice.actions
 export default counterSlice.reducer

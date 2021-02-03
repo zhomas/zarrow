@@ -1,6 +1,7 @@
 {
   "watch": ["packages"],
+  "ignore": ["**/dist/*", "packages/web"],
   "ext": "ts,tsx",
-  "exec": "yarn workspace cli start",
+  "exec": "yarn compile && yarn workspace game copy && firebase emulators:start",
   "verbose": true
 }

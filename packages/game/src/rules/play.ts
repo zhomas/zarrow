@@ -75,11 +75,10 @@ const shouldBurn = (state: GameState) => {
 export const playCard = (state: GameState, ...cards: CardModel[]) => {
   if (state.players.length < 1) return
   const destination = topOfStackSelector(state)
-  const ok = cards.every((c) => canCardPlay(c, destination))
+  const ok = !state.next && cards.every((c) => canCardPlay(c, destination))
 
   if (ok) {
     const player = activePlayerSelector(state)
-    const [card] = cards
 
     cards.forEach((card) => {
       player.cards = player.cards.filter((c) => c.card.label !== card.label)
@@ -97,14 +96,6 @@ export const playCard = (state: GameState, ...cards: CardModel[]) => {
       }
     }
 
-    while (
-      state.pickupPile.length > 0 &&
-      player.cards.filter((c) => c.tier === 2).length < 4
-    ) {
-      player.cards.push({ card: state.pickupPile.shift(), tier: 2 })
-    }
-
-    const next = getNextPlayer(player.id, state.players, cards, state.direction)
-    state.queue.unshift(next)
+    state.next = getNextPlayer(player.id, state.players, cards, state.direction)
   }
 }

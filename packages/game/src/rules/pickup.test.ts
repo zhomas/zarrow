@@ -11,6 +11,7 @@ const card: CardModel = {
 
 const getState = (): GameState => ({
   direction: 1,
+  next: '',
   queue: ['a', 'b'],
   pickupPile: [],
   burnt: [],
@@ -18,22 +19,27 @@ const getState = (): GameState => ({
     {
       id: 'a',
       faction: 0,
+      displayName: '',
       cards: [{ card, tier: 1 }],
     },
     {
       id: 'b',
       faction: 0,
+      displayName: '',
       cards: [{ card, tier: 1 }],
     },
   ],
   stack: [card, card, card],
 })
 
-it('transfers cards to player hand upon pickup', (t) => {
+it('transfers cards to current player hand upon pickup', (t) => {
   const state = getState()
-  pickup(state, card)
-  const inHand = state.players[0].cards.filter((c) => c.tier === 2)
-  t.is(inHand.length, 4)
+  const player = activePlayerSelector(state)
+  pickup(state)
+
+  const inHand = player.cards.filter((c) => c.tier === 2)
+  t.is(inHand.length, 3)
+  t.is(state.stack.length, 0)
 })
 
 it('adds a face up card to hand upon pickup', (t) => {
@@ -48,6 +54,6 @@ it('adds a face up card to hand upon pickup', (t) => {
 it('reverts to the last player that played', (t) => {
   const state = getState()
   t.is(activePlayerSelector(state).id, 'a')
-  pickup(state, card)
+  pickup(state)
   t.is(activePlayerSelector(state).id, 'b')
 })

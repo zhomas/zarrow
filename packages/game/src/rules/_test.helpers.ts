@@ -5,6 +5,7 @@ const card = createCard('3', 'C')
 
 export const getDummyState = (): GameState => ({
   direction: 1,
+  next: undefined,
   pickupPile: [],
   burnt: [],
   queue: ['a'],
@@ -12,21 +13,25 @@ export const getDummyState = (): GameState => ({
     {
       id: 'a',
       faction: 0,
+      displayName: '',
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'b',
       faction: 1,
+      displayName: '',
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'c',
       faction: 0,
+      displayName: '',
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'd',
       faction: 1,
+      displayName: '',
       cards: [{ card, tier: 2 }],
     },
   ],

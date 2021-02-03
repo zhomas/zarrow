@@ -5,29 +5,31 @@ import { changeFaction, createGame, joinGame } from './create'
 import { dealCards } from './deal'
 
 it('creates a game with an owner', (t) => {
-  const state = createGame('a')
-  t.is(state.players.length, 1)
-  t.is(state.players[0].id, 'a')
-  t.is(state.players[0].cards.length, 0)
+  const state = createGame()
+  t.is(state.players.length, 0)
 })
 
 it('lets others join a game before it has started', (t) => {
-  const state = createGame('a')
-  joinGame(state, 'b')
+  const state = createGame()
+  joinGame(state, 'a', '')
+  joinGame(state, 'b', 'Quentin')
   t.is(state.players.length, 2)
+  t.is(state.players[1].displayName, 'Quentin')
 })
 
 it('lets players switch factions', (t) => {
-  const state = createGame('a')
+  const state = createGame()
+  joinGame(state, 'a', '')
   changeFaction(state, 'a', 1)
   t.is(state.players[0].faction, 1)
 })
 
 it('can only deal a game when in a valid lobby', (t) => {
-  const state = createGame('a')
-  joinGame(state, 'b')
-  joinGame(state, 'c')
-  joinGame(state, 'd')
+  const state = createGame()
+  joinGame(state, 'a', ' ')
+  joinGame(state, 'b', '')
+  joinGame(state, 'c', '')
+  joinGame(state, 'd', '')
 
   dealCards(state, createDeck())
 

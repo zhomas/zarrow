@@ -12,6 +12,9 @@ const inLobbySelector = (state: GameState) => {
 const isLobbyValid = (state: GameState) => {
   if (state.players.length < 2) return false
   if (state.players.find((p) => p.faction < 0)) return false
+  if (state.players.every((p) => p.faction === 0)) return false
+  if (state.players.every((p) => p.faction === 1)) return false
+
   return true
 }
 

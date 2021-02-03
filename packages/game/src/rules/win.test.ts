@@ -7,6 +7,7 @@ const card = createCard('3', 'S')
 
 it('marks a player as a winner when all cards played', (t) => {
   const state: GameState = {
+    next: '',
     pickupPile: [],
     burnt: [],
     queue: ['a'],
@@ -15,16 +16,19 @@ it('marks a player as a winner when all cards played', (t) => {
       {
         id: 'a',
         faction: 0,
+        displayName: '',
         cards: [{ card, tier: 2 }],
       },
       {
         id: 'b',
         faction: 0,
+        displayName: '',
         cards: [{ card, tier: 0 }],
       },
       {
         id: 'c',
         faction: 0,
+        displayName: '',
         cards: [],
       },
     ],
@@ -38,6 +42,7 @@ it('marks a player as a winner when all cards played', (t) => {
 
 it('ends the game when all members of a faction are out', (t) => {
   const status = gameStatusSelector({
+    next: '',
     direction: 1,
     pickupPile: [],
     burnt: [],
@@ -46,21 +51,25 @@ it('ends the game when all members of a faction are out', (t) => {
       {
         id: 'a',
         faction: 0,
+        displayName: '',
         cards: [{ card, tier: 2 }],
       },
       {
         id: 'b',
         faction: 0,
+        displayName: '',
         cards: [{ card, tier: 0 }],
       },
       {
         id: 'c',
         faction: 1,
+        displayName: '',
         cards: [],
       },
       {
         id: 'd',
         faction: 1,
+        displayName: '',
         cards: [],
       },
     ],

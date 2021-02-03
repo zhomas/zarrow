@@ -8,6 +8,7 @@ const card = createCard('3', 'H')
 
 const getState = (): GameState => ({
   direction: 1,
+  next: '',
   pickupPile: [],
   burnt: [],
   queue: ['a'],
@@ -15,21 +16,25 @@ const getState = (): GameState => ({
     {
       id: 'a',
       faction: 0,
+      displayName: '',
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'b',
       faction: 0,
+      displayName: '',
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'c',
       faction: 0,
+      displayName: '',
       cards: [{ card, tier: 2 }],
     },
     {
       id: 'd',
       faction: 0,
+      displayName: '',
       cards: [{ card, tier: 2 }],
     },
   ],
@@ -43,42 +48,32 @@ it('can play a 3 on an empty stack', (t) => {
   t.is(state.players[0].cards.length, 0)
 })
 
-it('replenishes the hand from the pickup pile', (t) => {
-  const state = {
-    ...getState(),
-    pickupPile: [card, card, card, card],
-  }
-
-  playCard(state, card)
-  t.is(state.players[0].cards.length, 4)
-})
-
 it('moves to the next player when a card is played', (t) => {
   const state = { ...getState() }
   t.is(activePlayerSelector(state).id, 'a')
   playCard(state, card)
-  t.is(activePlayerSelector(state).id, 'b')
+  t.is(state.next, 'b')
 })
 
 it('moves to the previous player when a card is played and the order is reversed', (t) => {
   const state = { ...getState(), direction: -1 }
   t.is(activePlayerSelector(state).id, 'a')
   playCard(state, card)
-  t.is(activePlayerSelector(state).id, 'd')
+  t.is(state.next, 'd')
 })
 
 it('skips the next player when a 5 is played', (t) => {
   const state = { ...getState() }
   t.is(activePlayerSelector(state).id, 'a')
   playCard(state, createCard('5', 'D'))
-  t.is(activePlayerSelector(state).id, 'c')
+  t.is(state.next, 'c')
 })
 
 it('remains on the same player when a 10 is played', (t) => {
   const state = { ...getState() }
   t.is(activePlayerSelector(state).id, 'a')
   playCard(state, createCard('10', 'D'))
-  t.is(activePlayerSelector(state).id, 'a')
+  t.is(state.next, 'a')
 })
 
 it('burns the stack when a 10 is played', (t) => {
@@ -93,9 +88,7 @@ it('reverses direction when a 7 is played', (t) => {
   t.is(activePlayerSelector(state).id, 'a')
   playCard(state, createCard('7', 'D'))
   t.is(state.direction, -1)
-  t.is(activePlayerSelector(state).id, 'd')
-  playCard(state, createCard('2', 'D'))
-  t.is(activePlayerSelector(state).id, 'c')
+  t.is(state.next, 'd')
 })
 
 it('preserves direction on double whacky 7s', (t) => {
@@ -103,7 +96,7 @@ it('preserves direction on double whacky 7s', (t) => {
   t.is(activePlayerSelector(state).id, 'a')
   playCard(state, createCard('7', 'D'), createCard('7', 'H'))
   t.is(state.direction, 1)
-  t.is(activePlayerSelector(state).id, 'b')
+  t.is(state.next, 'b')
 })
 
 it('reverses direction on triple whacky 7s', (t) => {
@@ -116,7 +109,7 @@ it('reverses direction on triple whacky 7s', (t) => {
     createCard('7', 'S'),
   )
   t.is(state.direction, -1)
-  t.is(activePlayerSelector(state).id, 'd')
+  t.is(state.next, 'd')
 })
 
 it('does not move to players that are out', (t) => {
@@ -128,23 +121,26 @@ it('does not move to players that are out', (t) => {
       {
         id: 'a',
         faction: 0,
+        displayName: '',
         cards: [{ card, tier: 2 }],
       },
       {
         id: 'b',
         faction: 0,
+        displayName: '',
         cards: [{ card, tier: 2 }],
       },
       {
         id: 'c',
         faction: 0,
+        displayName: '',
         cards: [],
       },
     ],
   }
   t.is(activePlayerSelector(state).id, 'b')
   playCard(state, card)
-  t.is(activePlayerSelector(state).id, 'a')
+  t.is(state.next, 'a')
 })
 
 it('plays multiple cards at once', (t) => {
@@ -157,6 +153,7 @@ it('plays multiple cards at once', (t) => {
       {
         id: 'a',
         faction: 0,
+        displayName: '',
         cards: [
           { card: s, tier: 2 },
           { card: h, tier: 2 },

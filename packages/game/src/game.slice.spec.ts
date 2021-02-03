@@ -1,10 +1,4 @@
-import reducer, {
-  activeTierSelector,
-  deal,
-  initialState,
-  pickupStack,
-  playCard,
-} from './game.slice'
+import reducer, { activeTierSelector } from './game.slice'
 import it from 'ava'
 import { CardModel } from './types'
 
@@ -16,6 +10,7 @@ it('chooses from the active tier', (t) => {
   }
 
   const a = activeTierSelector({
+    next: '',
     pickupPile: [],
     burnt: [],
     direction: 1,
@@ -24,6 +19,7 @@ it('chooses from the active tier', (t) => {
       {
         id: 'a',
         faction: 0,
+        displayName: '',
         cards: [
           { card, tier: 0 },
           { card, tier: 0 },

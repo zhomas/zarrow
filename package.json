@@ -3,9 +3,8 @@
   "scripts": {
     "compile": "tsc --build --force tsconfig.json",
     "cp": "cpx 'packages/game/src/**/*.csv'  ",
-    "dev:server": "firebase emulators:start",
-    "dev": "yarn workspace web start",
-    "cli": "nodemon --no-stdin"
+    "dev:server": "nodemon",
+    "dev": "yarn workspace web start"
   },
   "workspaces": [
     "packages/*"

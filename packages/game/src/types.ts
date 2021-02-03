@@ -29,6 +29,7 @@ export interface PlayerCard {
 
 export interface PlayerModel {
   id: string
+  displayName: string
   faction: number
   cards: PlayerCard[]
 }

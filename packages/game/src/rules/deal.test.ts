@@ -7,10 +7,10 @@ import { getDummyState } from './_test.helpers'
 const getState = () => ({
   ...getDummyState(),
   players: [
-    { id: 'a', faction: 1, cards: [] },
-    { id: 'b', faction: 1, cards: [] },
-    { id: 'c', faction: 2, cards: [] },
-    { id: 'd', faction: 2, cards: [] },
+    { id: 'a', faction: 1, cards: [], displayName: '' },
+    { id: 'b', faction: 1, cards: [], displayName: '' },
+    { id: 'c', faction: 2, cards: [], displayName: '' },
+    { id: 'd', faction: 2, cards: [], displayName: '' },
   ],
 })
 

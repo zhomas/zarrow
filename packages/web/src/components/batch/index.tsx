@@ -1,8 +1,8 @@
 import React, { FC } from 'react'
 import { CardModel, DerivedPlayer, DerivedCardModel } from 'game'
-import { Card } from './Card'
 import { useState } from 'react'
 import { useEffect } from 'react'
+import { BatchCard } from './batch.card'
 
 interface Props {
   player: DerivedPlayer
@@ -16,7 +16,7 @@ function getToggled<T>(list: T[], item: T) {
     : [...list, item]
 }
 
-export const PlayerHand: FC<Props> = ({ player, playCards, highlighted }) => {
+export const Batch: FC<Props> = ({ player, playCards, highlighted }) => {
   const [selected, setSelected] = useState<DerivedCardModel[]>([])
   const [hovered, setHovered] = useState<DerivedCardModel[]>()
 
@@ -27,41 +27,6 @@ export const PlayerHand: FC<Props> = ({ player, playCards, highlighted }) => {
 
   const playSelected = () => {
     playCards(selected.map((c) => c.card))
-  }
-
-  const renderCard = (c: DerivedCardModel) => {
-    const handleClick = (e: React.SyntheticEvent) => {
-      e.preventDefault()
-      const matching = hand
-        .filter((h) => h.card.value === c.card.value)
-        .map((h) => h.card)
-
-      playCards(matching)
-    }
-
-    const handleContextMenu = (e: React.SyntheticEvent) => {
-      e.preventDefault()
-      const n = getToggled(selected, c)
-      setSelected(n)
-    }
-
-    return (
-      <div
-        style={{
-          width: 120,
-          position: 'relative',
-          top: selected.includes(c) ? -20 : 0,
-        }}
-        onClick={handleClick}
-        onContextMenu={handleContextMenu}
-        key={c.card.label}
-      >
-        <Card
-          {...c.card}
-          uiState={highlighted && !c.canPlay ? 'greyed' : 'default'}
-        />
-      </div>
-    )
   }
 
   return (
@@ -79,7 +44,14 @@ export const PlayerHand: FC<Props> = ({ player, playCards, highlighted }) => {
           justifyContent: 'center',
         }}
       >
-        {hand.map((c) => renderCard(c))}
+        {hand.map((c) => (
+          <BatchCard
+            card={c}
+            selected={selected.includes(c)}
+            toggleSelected={() => setSelected(getToggled(selected, c))}
+            playAll={() => {}}
+          />
+        ))}
       </div>
       {selected.length > 0 && <button onClick={playSelected}>Play em!</button>}
     </div>

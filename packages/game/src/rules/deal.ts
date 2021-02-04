@@ -1,4 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit'
+import { createCard } from '../deck'
 import { GameState } from '../game.slice'
 import { modeSelector } from '../selectors/status'
 import { CardModel, PlayerModel } from '../types'
@@ -38,15 +39,21 @@ const interweave = (...arrays: string[][]) => {
 }
 
 export const dealCards = (state: GameState, deck: CardModel[]) => {
-  const mode = modeSelector(state)
-
-  if (mode !== 'lobby:valid') return
-
   const playerIds = state.players.map((p) => p.id)
   let playerIndex = 0
 
+  state.players = state.players.map((p) => {
+    return {
+      ...p,
+      cards: [
+        { card: createCard('3', 'D'), tier: 2 },
+        { card: createCard('3', 'S'), tier: 2 },
+      ],
+    }
+  })
+
   while (deck.length > 0) {
-    if (state.players.every((p) => p.cards.length === 12)) break
+    if (state.players.every((p) => p.cards.length >= 12)) break
     const card = deck.shift()
     const i = getWrappedIndex(playerIndex, state.players.length)
     const player = state.players[i]

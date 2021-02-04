@@ -1,5 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import gameReducer, { GameState } from './game.slice'
+import { getResolved } from './mappers/card'
+import { getSorted } from './mappers/sort'
 import { promptSelector } from './selectors/prompt'
 import { modeSelector } from './selectors/status'
 export * from './game.slice'
@@ -28,6 +30,7 @@ export const getDerivedState = (s: GameState) => {
   const prompt = promptSelector(s)
   return {
     ...s,
+    players: s.players.map((p) => getResolved(getSorted(p), s)),
     focus: s.queue.length > 0 ? s.queue[0] : '',
     mode,
     prompt,
@@ -35,3 +38,5 @@ export const getDerivedState = (s: GameState) => {
 }
 
 export type DerivedGameState = ReturnType<typeof getDerivedState>
+export type DerivedPlayer = DerivedGameState['players'][number]
+export type DerivedCardModel = DerivedPlayer['cards'][number]

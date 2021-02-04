@@ -2,9 +2,12 @@ import React, { FC } from 'react'
 import { CardModel } from 'game'
 import { relative } from 'path'
 
-type Props = CardModel & { faceDown?: boolean }
+type Props = CardModel & {
+  uiState?: 'greyed' | 'default'
+  faceDown?: boolean
+}
 
-export const Card: FC<Props> = ({ suit, value, faceDown, label }) => {
+export const Card: FC<Props> = ({ suit, value, faceDown, uiState }) => {
   if (faceDown) {
     return (
       <div
@@ -26,7 +29,7 @@ export const Card: FC<Props> = ({ suit, value, faceDown, label }) => {
         width: 140,
         borderRadius: 10,
         border: '1px solid black',
-        background: 'white',
+        background: uiState === 'greyed' ? 'grey' : 'white',
         position: 'relative',
         padding: 10,
         color: suit === 'D' || suit === 'H' ? 'red' : 'black',

@@ -1,5 +1,5 @@
-import React, { FC, useState } from 'react'
-import { useParams, RouteComponentProps } from '@reach/router'
+import React, { FC } from 'react'
+import { RouteComponentProps } from '@reach/router'
 
 import { useGame } from '../api/useGame'
 import { useGameDispatch } from '../api/useGameDispatch'

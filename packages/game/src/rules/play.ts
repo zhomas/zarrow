@@ -6,6 +6,7 @@ import {
 import { canCardPlay } from '../matrix'
 import { CardModel, PlayerModel } from '../types'
 import { getWrappedIndex } from '../utils'
+import { endTurn } from './endTurn'
 
 const getNextPlayer = (
   currentID: string,
@@ -97,5 +98,9 @@ export const playCard = (state: GameState, ...cards: CardModel[]) => {
     }
 
     state.next = getNextPlayer(player.id, state.players, cards, state.direction)
+
+    if (state.pickupPile.length === 0) {
+      endTurn(state)
+    }
   }
 }

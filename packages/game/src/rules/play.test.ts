@@ -9,7 +9,7 @@ const card = createCard('3', 'H')
 const getState = (): GameState => ({
   direction: 1,
   next: '',
-  pickupPile: [],
+  pickupPile: [card],
   burnt: [],
   queue: ['a'],
   players: [
@@ -258,4 +258,16 @@ it('burns when four 8s are played', (t) => {
   playCard(state, createCard('8', 'D'))
 
   t.is(state.stack.length, 0)
+})
+
+it('ends the turn when there are no cards to pick up', (t) => {
+  const state: GameState = {
+    ...getState(),
+    pickupPile: [],
+  }
+
+  const original = activePlayerSelector(state)
+  playCard(state, createCard('8', 'D'))
+
+  t.not(activePlayerSelector(state).id, original.id)
 })

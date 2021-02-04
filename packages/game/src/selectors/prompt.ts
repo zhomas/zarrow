@@ -6,14 +6,7 @@ import {
 } from '../game.slice'
 import { modeSelector } from './status'
 
-type PromptLocation =
-  | 'null'
-  | 'hand'
-  | 'ups'
-  | 'downs'
-  | 'stack'
-  | 'pickupPile'
-  | 'endTurn'
+type PromptLocation = 'null' | 'hand' | 'ups' | 'downs' | 'stack' | 'pickupPile'
 
 export const promptSelector = (state: GameState): PromptLocation => {
   const mode = modeSelector(state)
@@ -43,5 +36,5 @@ export const promptSelector = (state: GameState): PromptLocation => {
     }
   }
 
-  return 'endTurn'
+  throw 'impossible'
 }

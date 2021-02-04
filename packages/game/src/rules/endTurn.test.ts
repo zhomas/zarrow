@@ -41,14 +41,14 @@ const getState = (): GameState => ({
   stack: [],
 })
 
-it('does not proceed until the turn is ended', (t) => {
-  const state = getState()
-  const original = activePlayerSelector(state)
-  playCard(state, card)
-  const expected = state.next
-  t.is(activePlayerSelector(state).id, original.id)
+it('moves to the next player', (t) => {
+  const state = {
+    ...getState(),
+    next: 'b',
+  }
+
   endTurn(state)
-  t.is(activePlayerSelector(state).id, expected)
+  t.is(activePlayerSelector(state).id, 'b')
   t.falsy(state.next)
 })
 

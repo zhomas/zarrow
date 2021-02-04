@@ -9,6 +9,7 @@ import { Stack } from '../components/Stack'
 import './Zarrow.css'
 import { GameUpdatePayload } from 'functions'
 import { useEffect } from 'react'
+import { Region } from '../components'
 
 interface Props {
   state: DerivedGameState
@@ -32,8 +33,8 @@ export const Zarrow: FC<Props> = ({ state, uid, emit }) => {
     return { t: undefined, b: undefined }
   }
 
-  const playCard = (c: CardModel) => {
-    emit({ verb: 'play', cards: [c] })
+  const playCards = (c: CardModel[]) => {
+    emit({ verb: 'play', cards: c })
   }
 
   const pickupStack = () => {
@@ -81,10 +82,15 @@ export const Zarrow: FC<Props> = ({ state, uid, emit }) => {
       <div></div>
       <div>
         {map.b && (
-          <PlayerVisibleCards
-            player={map.b}
-            hasFocus={state.focus === map.b.id}
-          />
+          <>
+            <PlayerVisibleCards
+              player={map.b}
+              hasFocus={state.focus === map.b.id}
+            />
+            <div style={{ width: 400, height: 200, position: 'relative' }}>
+              <Region />
+            </div>
+          </>
         )}
       </div>
       <div></div>
@@ -93,12 +99,14 @@ export const Zarrow: FC<Props> = ({ state, uid, emit }) => {
         {me && (
           <PlayerHand
             player={me}
-            onClick={playCard}
+            playCards={playCards}
             highlighted={myTurn && state.prompt === 'hand'}
           />
         )}
       </div>
-      <div></div>
+      <div>
+        <button onClick={() => emit({ verb: 'deal' })}>Deal</button>
+      </div>
     </div>
   )
 }

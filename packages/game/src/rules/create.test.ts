@@ -23,24 +23,3 @@ it('lets players switch factions', (t) => {
   changeFaction(state, 'a', 1)
   t.is(state.players[0].faction, 1)
 })
-
-it('can only deal a game when in a valid lobby', (t) => {
-  const state = createGame()
-  joinGame(state, 'a', ' ')
-  joinGame(state, 'b', '')
-  joinGame(state, 'c', '')
-  joinGame(state, 'd', '')
-
-  dealCards(state, createDeck())
-
-  t.is(state.pickupPile.length, 0)
-
-  changeFaction(state, 'a', 0)
-  changeFaction(state, 'b', 0)
-  changeFaction(state, 'c', 1)
-  changeFaction(state, 'd', 1)
-
-  dealCards(state, createDeck())
-
-  t.is(modeSelector(state), 'running')
-})

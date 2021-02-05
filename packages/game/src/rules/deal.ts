@@ -22,22 +22,6 @@ const findFreeTier = (player: PlayerModel) => {
 const weave = (a: string[], b: string[]) =>
   a.length ? [a[0], ...weave(b, a.slice(1))] : b
 
-const interweave = (...arrays: string[][]) => {
-  const maxLength = Math.max(...arrays.map(({ length }) => length))
-
-  return Array(maxLength)
-    .fill(undefined)
-    .reduce((acc, _, i) => {
-      arrays.forEach((arr) => {
-        if (arr.length - 1 >= i) {
-          acc.push(arr[i])
-        }
-      })
-
-      return acc
-    }, [])
-}
-
 export const dealCards = (state: GameState, deck: CardModel[]) => {
   const playerIds = state.players.map((p) => p.id)
   let playerIndex = 0
@@ -45,10 +29,7 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
   state.players = state.players.map((p) => {
     return {
       ...p,
-      cards: [
-        { card: createCard('3', 'D'), tier: 2 },
-        { card: createCard('3', 'S'), tier: 2 },
-      ],
+      cards: [],
     }
   })
 
@@ -66,4 +47,5 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
   state.queue = [playerIds[0]]
   state.burnt = []
   state.stack = []
+  state.next = ''
 }

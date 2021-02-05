@@ -80,6 +80,12 @@ const counterSlice = createSlice({
   name: 'counter',
   initialState,
   reducers: {
+    replace(state, action: PayloadAction<GameState>) {
+      console.log('REPLACE')
+      state.players = action.payload.players
+      state.stack = action.payload.stack
+      state.queue = action.payload.queue
+    },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)
     },
@@ -91,6 +97,7 @@ const counterSlice = createSlice({
     },
     playCard(state, action: PayloadAction<PlayCard>) {
       const { cards } = action.payload
+      console.log('PLAY CARD!', cards)
       play(state, ...cards)
     },
     pickupStack(state, action: PayloadAction<CardModel[]>) {
@@ -113,5 +120,6 @@ export const {
   joinGame,
   setFaction,
   endTurn,
+  replace,
 } = counterSlice.actions
 export default counterSlice.reducer

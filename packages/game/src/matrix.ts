@@ -1,37 +1,202 @@
 import { CardModel } from './types'
-import * as parse from 'csv-parse/lib/sync'
-import * as path from 'path'
-import * as fs from 'fs'
 
-const pathTo = path.resolve(__dirname, './matrix.csv')
-
-const data = fs.readFileSync(pathTo)
-
-type CardMap = {
-  [K in CardModel['value']]: {
-    [K in CardModel['value']]: boolean
-  }
+const mtrx = {
+  '2': {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': true,
+    '8': true,
+    '9': true,
+    '10': true,
+    J: true,
+    Q: true,
+    K: true,
+    A: true,
+  },
+  '3': {
+    '2': true,
+    '3': true,
+    '4': false,
+    '5': false,
+    '6': false,
+    '7': true,
+    '8': false,
+    '9': false,
+    '10': false,
+    J: false,
+    Q: false,
+    K: false,
+    A: false,
+  },
+  '4': {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': false,
+    '6': false,
+    '7': true,
+    '8': false,
+    '9': false,
+    '10': false,
+    J: false,
+    Q: false,
+    K: false,
+    A: false,
+  },
+  '5': {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': true,
+    '8': true,
+    '9': true,
+    '10': true,
+    J: true,
+    Q: true,
+    K: true,
+    A: false,
+  },
+  '6': {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': true,
+    '8': false,
+    '9': false,
+    '10': false,
+    J: false,
+    Q: false,
+    K: false,
+    A: false,
+  },
+  '7': {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': true,
+    '8': true,
+    '9': true,
+    '10': true,
+    J: true,
+    Q: true,
+    K: true,
+    A: false,
+  },
+  '8': {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': true,
+    '8': true,
+    '9': true,
+    '10': true,
+    J: true,
+    Q: true,
+    K: true,
+    A: true,
+  },
+  '9': {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': false,
+    '8': true,
+    '9': true,
+    '10': false,
+    J: false,
+    Q: false,
+    K: false,
+    A: false,
+  },
+  '10': {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': false,
+    '8': true,
+    '9': true,
+    '10': true,
+    J: true,
+    Q: true,
+    K: true,
+    A: false,
+  },
+  J: {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': false,
+    '8': true,
+    '9': true,
+    '10': true,
+    J: true,
+    Q: false,
+    K: false,
+    A: false,
+  },
+  Q: {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': false,
+    '8': true,
+    '9': true,
+    '10': true,
+    J: true,
+    Q: true,
+    K: false,
+    A: false,
+  },
+  K: {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': false,
+    '8': true,
+    '9': true,
+    '10': true,
+    J: true,
+    Q: true,
+    K: true,
+    A: false,
+  },
+  A: {
+    '2': true,
+    '3': true,
+    '4': true,
+    '5': true,
+    '6': true,
+    '7': true,
+    '8': true,
+    '9': true,
+    '10': true,
+    J: true,
+    Q: true,
+    K: true,
+    A: true,
+  },
 }
-
-const x = parse(data, {
-  columns: true,
-  skip_empty_lines: true,
-}) as any[]
-
-const y = x.reduce((obj, row) => {
-  const { CARD, ...rest } = row
-  const values = Object.entries(rest).reduce((o, [card, canPlay]) => {
-    return {
-      ...o,
-      [card]: canPlay === 'TRUE',
-    }
-  }, {})
-
-  return {
-    ...obj,
-    [CARD]: values,
-  }
-}, {}) as CardMap
 
 export const canCardPlay = (
   card: CardModel,
@@ -43,5 +208,5 @@ export const canCardPlay = (
     return card.suit === destination.suit || card.value === 'J'
   }
 
-  return y[card.value][destination.value]
+  return mtrx[card.value][destination.value]
 }

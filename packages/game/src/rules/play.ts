@@ -74,11 +74,14 @@ const shouldBurn = (state: GameState) => {
 }
 
 export const playCard = (state: GameState, ...cards: CardModel[]) => {
+  console.log('1')
   if (state.players.length < 1) return
+  console.log('2')
   const destination = topOfStackSelector(state)
   const ok = !state.next && cards.every((c) => canCardPlay(c, destination))
-
+  console.log('3')
   if (ok) {
+    console.log('4')
     const player = activePlayerSelector(state)
 
     cards.forEach((card) => {

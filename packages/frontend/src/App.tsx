@@ -1,11 +1,11 @@
 import React from 'react'
 import './App.css'
+import { UserGate } from './wrappers/UserGate'
 import firebase from 'firebase'
+import { EntryPage } from './pages/Entry'
+import { GamePage } from './pages/Game'
+
 import { Router } from '@reach/router'
-import { Game } from './pages/Game'
-import { Home } from './pages/Home'
-import { useEffect } from 'react'
-import { useState } from 'react'
 
 firebase.initializeApp({
   apiKey: 'AIzaSyCLam-c7ihiHBe-8lbIz7yERTpqxJse8PY',
@@ -20,26 +20,16 @@ firebase.functions().useEmulator('localhost', 5001)
 firebase.firestore().useEmulator('localhost', 8081)
 
 function App() {
-  const [uid, setUID] = useState<string>()
-
-  useEffect(() => {
-    const stuff = async () => {
-      const x = await firebase.auth().signInAnonymously()
-      console.log('signed in', x)
-      setUID(x.user?.uid)
-    }
-
-    stuff()
-  }, [])
-
   return (
     <div className="App">
-      {uid && (
-        <Router>
-          <Game path="/game/:gameID" userID={uid} />
-          <Home default />
-        </Router>
-      )}
+      <UserGate>
+        {(uid) => (
+          <Router>
+            <GamePage path=":gid" uid={uid} />
+            <EntryPage default />
+          </Router>
+        )}
+      </UserGate>
     </div>
   )
 }

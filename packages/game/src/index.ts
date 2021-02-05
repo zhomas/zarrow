@@ -36,19 +36,3 @@ export const createGameStore = (s: GameState) => {
     preloadedState: s,
   })
 }
-
-export const getDerivedState = (s: GameState) => {
-  const mode = modeSelector(s)
-  const prompt = promptSelector(s)
-  return {
-    ...s,
-    players: s.players.map((p) => getResolved(getSorted(p), s)),
-    focus: s.queue.length > 0 ? s.queue[0] : '',
-    mode,
-    prompt,
-  }
-}
-
-export type DerivedGameState = ReturnType<typeof getDerivedState>
-export type DerivedPlayer = DerivedGameState['players'][number]
-export type DerivedCardModel = DerivedPlayer['cards'][number]

@@ -8,7 +8,6 @@ import {
   deal as dealCards,
   createDeck,
   playCard,
-  getDerivedState,
   pickupStack,
   endTurn,
 } from 'game'
@@ -103,11 +102,7 @@ const updateGame = async (req, res) => {
     const rawState = getState()
     console.log({ rawState })
 
-    await admin
-      .firestore()
-      .collection('games')
-      .doc(data.gid)
-      .set(getDerivedState(getState()))
+    await admin.firestore().collection('games').doc(data.gid).set(getState())
 
     res.json({ result: 'ok' })
   })

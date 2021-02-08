@@ -10,7 +10,6 @@ it('marks a player as a winner when all cards played', (t) => {
     pickupPile: [],
     burnt: [],
     queue: ['a'],
-    deck: {},
     direction: 1,
     players: [
       {
@@ -46,7 +45,6 @@ it('ends the game when all members of a faction are out', (t) => {
     pickupPile: [],
     burnt: [],
     queue: ['a'],
-    deck: {},
     players: [
       {
         id: 'a',

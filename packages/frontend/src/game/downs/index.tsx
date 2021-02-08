@@ -60,10 +60,7 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     cards: myCards.filter((c) => c.tier === 0),
     active: getMode(state) === 'play:downs',
     canCardPlay: (c: CardModel) => canCardPlay(c, dest),
-    isFocused: (c: CardModel) =>
-      !!state.focused &&
-      state.focused.suit === c.suit &&
-      state.focused.value === c.value,
+    isFocused: (c: CardModel) => !!state.focused && state.focused === c.label,
   }
 }
 
@@ -74,7 +71,7 @@ const mapDispatch = (dispatch: GameDispatch) => {
       dispatch(action)
     },
     focusCard: (c: CardModel) => {
-      const action = focus(c)
+      const action = focus(c.label)
       dispatch(action)
     },
     pickup: (c: CardModel) => {},

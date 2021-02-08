@@ -19,11 +19,7 @@ export interface GameState {
   burnt: CardModel[]
   pickupPile: CardModel[]
   turnIsFresh?: boolean
-  deck: Dictionary<CardModel>
-  focused?: {
-    suit: CardModel['suit'] | ''
-    value: CardModel['value'] | ''
-  }
+  focused?: string
 }
 
 export const initialState: GameState = {
@@ -34,7 +30,6 @@ export const initialState: GameState = {
   burnt: [],
   pickupPile: [],
   turnIsFresh: true,
-  deck: {},
 }
 
 export const activePlayerSelector = (state: GameState) => {
@@ -117,7 +112,7 @@ const counterSlice = createSlice({
     endTurn(state) {
       end(state)
     },
-    focus(state, action: PayloadAction<CardModel>) {
+    focus(state, action: PayloadAction<string>) {
       state.focused = action.payload
     },
   },

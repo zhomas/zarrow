@@ -9,7 +9,6 @@ it('requires playing from the face ups when a card can play', (t) => {
     direction: 1,
     pickupPile: [],
     queue: ['abc'],
-    deck: {},
     turnIsFresh: true,
     stack: [createCard('A', 'S')],
     players: [
@@ -35,7 +34,6 @@ it('prompts a pickup when no face up card can play', (t) => {
     direction: 1,
     pickupPile: [],
     queue: ['abc'],
-    deck: {},
     turnIsFresh: true,
     stack: [createCard('A', 'S')],
     players: [
@@ -63,7 +61,6 @@ it('requires playing from the face downs even when no card can play', (t) => {
     queue: ['abc'],
     turnIsFresh: true,
     stack: [createCard('A', 'S')],
-    deck: {},
     players: [
       {
         id: 'abc',
@@ -87,13 +84,6 @@ it('requires pickup when the revealed facedown card cannot play on the stack', (
     direction: 1,
     pickupPile: [],
     queue: ['abc'],
-    deck: {
-      '3S': {
-        value: '3',
-        suit: 'S',
-        label: '3S',
-      },
-    },
     turnIsFresh: true,
     stack: [createCard('A', 'S')],
     players: [
@@ -107,10 +97,7 @@ it('requires pickup when the revealed facedown card cannot play on the stack', (
         ],
       },
     ],
-    focused: {
-      value: '3',
-      suit: 'S',
-    },
+    focused: '3S',
   })
 
   t.is(mode, 'pickup:stack')
@@ -123,13 +110,6 @@ it('requires no pickup with a falsy focus card', (t) => {
     direction: 1,
     pickupPile: [],
     queue: ['abc'],
-    deck: {
-      '3S': {
-        value: '3',
-        suit: 'S',
-        label: '3S',
-      },
-    },
     turnIsFresh: true,
     stack: [createCard('A', 'S')],
     players: [
@@ -143,10 +123,7 @@ it('requires no pickup with a falsy focus card', (t) => {
         ],
       },
     ],
-    focused: {
-      value: '',
-      suit: '',
-    },
+    focused: '',
   })
 
   t.is(mode, 'play:downs')

@@ -28,8 +28,6 @@ it('deals a fresh game', (t) => {
     t.is(p.cards.filter((c) => c.tier === 1).length, 4)
     t.is(p.cards.filter((c) => c.tier === 2).length, 4)
   })
-
-  t.is(Object.values(state.deck).length, 52)
 })
 
 it('sets the first player', (t) => {

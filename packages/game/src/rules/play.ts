@@ -66,7 +66,7 @@ export const playCard = (state: GameState, ...cards: CardModel[]) => {
     }
 
     state.turnIsFresh = false
-    state.focused = { suit: '', value: '' }
+    state.focused = ''
 
     if (state.pickupPile.length === 0) {
       endTurn(state)

@@ -24,14 +24,6 @@ const weave = (a: string[], b: string[]) =>
 export const dealCards = (state: GameState, deck: CardModel[]) => {
   const playerIds = state.players.map((p) => p.id)
   let playerIndex = 0
-
-  state.deck = deck.reduce((obj, c) => {
-    return {
-      ...obj,
-      [c.label]: c,
-    }
-  }, {})
-
   state.players = state.players.map((p) => {
     return {
       ...p,

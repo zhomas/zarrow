@@ -1,17 +1,18 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { GameState, stackDestinationSelector, canCardPlay } from '..'
+import { createCardByID, createDeck } from '../deck'
 import { CardModel } from '../types'
 
 const failedFaceDownFlip = (uid: string, state: GameState) => {
   const myCards = state.players.find((p) => p.id === uid)?.cards || []
   const max = Math.max(...myCards.map((c) => c.tier))
 
-  if (state.focused && max === 0) {
-    const key = `${state.focused.value}${state.focused.suit}`
-    const card = state.deck[key]
+  const { focused } = state
+  if (!!focused && max === 0) {
+    const card = createCardByID(focused)
     const dest = stackDestinationSelector(state)
 
-    console.log({ key })
+    console.log({ focused })
 
     if (!card) return false
 

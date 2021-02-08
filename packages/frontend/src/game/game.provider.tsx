@@ -23,7 +23,7 @@ export const GameProvider: FC<ProviderProps> = ({
         const state: GameState = api.getState()
         const data: GameState = {
           ...state,
-          focused: state.focused || { suit: '', value: '' },
+          focused: state.focused || '',
         }
 
         firebase.firestore().collection('games').doc(gid).set(data)

@@ -1,11 +1,22 @@
 import { getWrappedIndex } from './utils'
 import { CardModel, suits, values } from './types'
+import { Dictionary } from '@reduxjs/toolkit'
 
 type Value = typeof values[number]
 type Suit = typeof suits[number]
 
 export const createCard = (value: Value, suit: Suit): CardModel => {
   return { suit, value, label: `${value}${suit}` }
+}
+
+export const createCardByID = (cID: string) => {
+  const deck: Dictionary<CardModel> = createDeck(52).reduce((obj, item) => {
+    return {
+      ...obj,
+      [item.label]: item,
+    }
+  }, {})
+  return deck[cID]
 }
 
 export const createDeck = (size: number = 52): CardModel[] => {

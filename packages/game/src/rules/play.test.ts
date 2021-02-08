@@ -11,7 +11,6 @@ const getState = (): GameState => ({
   pickupPile: [card],
   burnt: [],
   queue: ['a'],
-  deck: {},
   players: [
     {
       id: 'a',

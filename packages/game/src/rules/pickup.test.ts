@@ -14,7 +14,6 @@ const getState = (): GameState => ({
   queue: ['a', 'b'],
   pickupPile: [],
   burnt: [],
-  deck: {},
   players: [
     {
       id: 'a',
@@ -56,4 +55,14 @@ it('reverts to the last player that played', (t) => {
   t.is(activePlayerSelector(state).id, 'a')
   pickup(state)
   t.is(activePlayerSelector(state).id, 'b')
+})
+
+it('adds the focus card upon pickup', (t) => {
+  const state: GameState = {
+    ...getState(),
+    focused: '9C',
+  }
+  t.falsy(state.players[0].cards.find((c) => c.card.label == state.focused))
+  pickup(state)
+  t.truthy(state.players[0].cards.find((c) => c.card.label == state.focused))
 })

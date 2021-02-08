@@ -1,4 +1,11 @@
-import { GameDispatch, GameState, modeSelector, replace } from 'game'
+import {
+  GameDispatch,
+  GameState,
+  gameModeSelector,
+  replace,
+  deal,
+  createDeck,
+} from 'game'
 import React, { FC, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { Lobby } from './game.lobby'
@@ -7,7 +14,7 @@ import firebase from 'firebase'
 
 type Props = ReduxProps & { uid: string; gid: string }
 
-const Root: FC<Props> = ({ mode, uid, gid, replace }) => {
+const Root: FC<Props> = ({ mode, uid, gid, replace, dealNewGame }) => {
   useEffect(() => {
     const unsub = firebase
       .firestore()
@@ -31,19 +38,24 @@ const Root: FC<Props> = ({ mode, uid, gid, replace }) => {
     case 'lobby':
     case 'lobby:valid':
       return <Lobby uid={uid} />
+
     default:
       return <GameView uid={uid} />
   }
 }
 
 const mapState = (state: GameState) => {
-  return { mode: modeSelector(state) }
+  return { mode: gameModeSelector(state) }
 }
 
 const mapDispatch = (dispatch: GameDispatch) => {
   return {
     replace: (s: GameState) => {
       dispatch(replace(s))
+    },
+    dealNewGame: () => {
+      const action = deal({ deck: createDeck(26) })
+      dispatch(action)
     },
   }
 }

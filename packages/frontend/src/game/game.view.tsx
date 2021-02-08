@@ -175,7 +175,7 @@ const mapDispatch = (d: GameDispatch) => {
       d(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck(8) })
+      const action = deal({ deck: createDeck(3) })
       d(action)
     },
     endTurn: () => {

@@ -89,6 +89,7 @@ const counterSlice = createSlice({
       state.burnt = action.payload.burnt
       state.direction = action.payload.direction
       state.turnIsFresh = action.payload.turnIsFresh
+      state.focused = action.payload.focused
     },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)

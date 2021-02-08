@@ -4,7 +4,7 @@ import {
   GameDispatch,
   GameState,
   joinGame,
-  modeSelector,
+  gameModeSelector,
   setFaction,
 } from 'game'
 import React, { FC, useState } from 'react'
@@ -57,7 +57,7 @@ const GameLobby: FC<Props> = ({
 const mapState = (state: GameState) => {
   return {
     players: state.players,
-    mode: modeSelector(state),
+    mode: gameModeSelector(state),
   }
 }
 

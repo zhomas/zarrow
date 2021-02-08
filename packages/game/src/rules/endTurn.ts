@@ -12,6 +12,8 @@ export const getNextPlayer = (state: GameState) => {
     return currentID
   }
 
+  if (players.length < 2) return currentID
+
   const topOfStack = state.stack[0]
   let index = players.findIndex((p) => p.id === currentID) + 1 * dir
 

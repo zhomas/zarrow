@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import { GameState, stackDestinationSelector, canCardPlay } from '..'
 import { createCardByID, createDeck } from '../deck'
 import { CardModel } from '../types'
+import { gameModeSelector, winnersSelector } from './status'
 
 const failedFaceDownFlip = (uid: string, state: GameState) => {
   const myCards = state.players.find((p) => p.id === uid)?.cards || []
@@ -33,14 +34,24 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
     .filter((c) => c.tier === max)
     .some((c) => canCardPlay(c.card, destination))
 
-  if (turnActive) {
-    if (failedFaceDownFlip(uid, state)) return 'pickup:stack'
-    if (max === 0) return 'play:downs'
-    if (!canPlay) return 'pickup:stack'
-    if (!state.turnIsFresh) return 'pickup:replenish'
-    if (max === 1) return 'play:ups'
-    return 'play:hand'
-  }
+  const gameMode = gameModeSelector(state)
 
-  return 'idle'
+  switch (gameMode) {
+    case 'complete':
+      const winners = winnersSelector(state)
+      return winners.includes(uid) ? 'idle:victory' : 'idle:defeat'
+    default:
+      if (turnActive) {
+        if (failedFaceDownFlip(uid, state)) return 'pickup:stack'
+        if (max === 0) return 'play:downs'
+        if (!canPlay) return 'pickup:stack'
+        if (!state.turnIsFresh) return 'pickup:replenish'
+        if (max === 1) return 'play:ups'
+        return 'play:hand'
+      }
+
+      if (myCards.length === 0) return 'idle:complete'
+
+      return 'idle'
+  }
 }

@@ -1,7 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { createCard } from '../deck'
 import { GameState } from '../game.slice'
-import { modeSelector } from '../selectors/status'
+import { gameModeSelector } from '../selectors/status'
 import { CardModel, PlayerModel } from '../types'
 import { getWrappedIndex } from '../utils'
 

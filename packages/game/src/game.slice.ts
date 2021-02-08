@@ -9,25 +9,26 @@ import { endTurn as end } from './rules/endTurn'
 
 import { CardModel, PlayerModel } from './types'
 import { joinGame as join, changeFaction as faction } from './rules/create'
+import { createCard } from './deck'
 
 export interface GameState {
-  next: string
   direction: number
   queue: string[]
   players: PlayerModel[]
   stack: CardModel[]
   burnt: CardModel[]
   pickupPile: CardModel[]
+  turnIsFresh?: boolean
 }
 
 export const initialState: GameState = {
-  next: '',
   direction: 1,
   queue: [],
   players: [],
   stack: [],
   burnt: [],
   pickupPile: [],
+  turnIsFresh: true,
 }
 
 export const activePlayerSelector = (state: GameState) => {
@@ -35,13 +36,13 @@ export const activePlayerSelector = (state: GameState) => {
   return state.players.find((p) => p.id === id)
 }
 
-export const topOfStackSelector = (state: GameState) => {
+export const stackDestinationSelector = (state: GameState) => {
   for (const card of state.stack) {
     if (card.value === '8') continue
     return card
   }
 
-  return undefined
+  return createCard('3', 'H') // Anything can play on a 3
 }
 
 export const activeTierSelector = (state: GameState) => {
@@ -51,7 +52,7 @@ export const activeTierSelector = (state: GameState) => {
 }
 
 export const mustPickUpSelector = (state: GameState) => {
-  const dest = topOfStackSelector(state)
+  const dest = stackDestinationSelector(state)
   const options = activeTierSelector(state)
   return !options.some((c) => canCardPlay(c.card, dest))
 }
@@ -85,6 +86,10 @@ const counterSlice = createSlice({
       state.players = action.payload.players
       state.stack = action.payload.stack
       state.queue = action.payload.queue
+      state.pickupPile = action.payload.pickupPile
+      state.burnt = action.payload.burnt
+      state.direction = action.payload.direction
+      state.turnIsFresh = action.payload.turnIsFresh
     },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)

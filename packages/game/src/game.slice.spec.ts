@@ -10,7 +10,6 @@ it('chooses from the active tier', (t) => {
   }
 
   const a = activeTierSelector({
-    next: '',
     pickupPile: [],
     burnt: [],
     direction: 1,

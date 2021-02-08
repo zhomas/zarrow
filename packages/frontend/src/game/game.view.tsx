@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState } from 'react'
+import React, { FC } from 'react'
 import {
   CardModel,
   createDeck,
@@ -7,65 +7,78 @@ import {
   GameDispatch,
   GameState,
   playCard,
+  stackDestinationSelector,
+  canCardPlay,
+  userModeSelector,
+  pickupStack,
 } from 'game'
-import {
-  DragDropContext,
-  Droppable,
-  DropResult,
-  SensorAPI,
-} from 'react-beautiful-dnd'
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd'
 import { connect, ConnectedProps } from 'react-redux'
 import { Card, DraggableCard, EmptyCard } from '../components'
+import { FaceDowns } from './downs'
 
 const _GameView: FC<Props> = ({
   hand,
+  ups,
+  downs,
   stack,
-  turnActive,
   uid,
+  replenishPile,
   playCards,
   deal,
   endTurn,
   proceed,
   mode,
+  pickupStack,
 }) => {
-  const sensorAPIRef = useRef<SensorAPI | null>(null)
-
   const onDragEnd = (r: DropResult) => {
     console.log(r)
-    const card = hand.find((c) => c.card.label === r.draggableId)
+    const card = [...hand, ...downs, ...ups].find(
+      (c) => c.card.label === r.draggableId,
+    )
     if (
       card &&
       r.destination?.droppableId === 'stack' &&
-      r.source.droppableId === 'hand'
+      ['hand', 'ups', 'downs'].includes(r.source.droppableId)
     ) {
+      console.log(r)
       playCards([card.card])
+      console.log('playing card : ', card.card)
     }
   }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <h1>{uid}</h1>
+      <h1>
+        {uid} :: {mode}
+      </h1>
       <div style={{ backgroundColor: 'turquoise', display: 'flex' }}>
         <Droppable droppableId="stack" direction="horizontal">
-          {(provided, snapshot) => (
+          {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {stack.length > 0 ? <Card card={stack[0]} /> : <EmptyCard />}
               <span style={{ display: 'none' }}>{provided.placeholder}</span>
             </div>
           )}
         </Droppable>
-        {mode === 'replenish' && <button onClick={endTurn}>Replenish</button>}
+        {mode === 'pickupStack' && (
+          <button onClick={pickupStack}>Pick up stack</button>
+        )}
+        <button disabled={mode !== 'replenish'} onClick={endTurn}>
+          Replenish ({replenishPile.length} cards remaining)
+        </button>
       </div>
       <div>
         <Droppable droppableId="hand" direction="horizontal">
-          {(provided, snapshot) => (
+          {(provided) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
               style={{
                 padding: 10,
                 display: 'flex',
-                backgroundColor: turnActive ? 'yellow' : 'transparent',
+                backgroundColor:
+                  mode === 'play:hand' ? 'yellow' : 'transparent',
               }}
             >
               {hand.map((c, i) => (
@@ -73,13 +86,42 @@ const _GameView: FC<Props> = ({
                   key={c.card.label}
                   card={c.card}
                   index={i}
-                  disabled={!turnActive}
+                  disabled={mode !== 'play:hand'}
                 />
               ))}
               {provided.placeholder}
             </div>
           )}
         </Droppable>
+      </div>
+      <div>
+        <Droppable droppableId="ups" direction="horizontal">
+          {(provided) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              style={{
+                padding: 10,
+                display: 'flex',
+                backgroundColor:
+                  mode === 'play:ups' ? 'thistle' : 'transparent',
+              }}
+            >
+              {ups.map((c, i) => (
+                <DraggableCard
+                  key={c.card.label}
+                  card={c.card}
+                  index={i}
+                  disabled={mode !== 'play:ups'}
+                />
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </div>
+      <div>
+        <FaceDowns uid={uid} />
       </div>
       <button onClick={deal}>Re-deal</button>
       <button
@@ -97,14 +139,24 @@ const _GameView: FC<Props> = ({
 
 const mapState = (state: GameState, ownProps: OwnProps) => {
   console.log(state)
+
+  const destination = stackDestinationSelector(state)
   const myCards = state.players.find((p) => p.id === ownProps.uid)?.cards || []
-  const mode = state.next ? 'replenish' : 'play'
+  const getMode = userModeSelector(ownProps.uid)
+  const canPlay = (c: CardModel) => {
+    return canCardPlay(c, destination)
+  }
+
   return {
     turnActive: state.queue[0] === ownProps.uid,
-    mode,
+    mode: getMode(state),
     hand: myCards.filter((c) => c.tier === 2),
+    ups: myCards.filter((c) => c.tier === 1),
+    downs: myCards.filter((c) => c.tier === 0),
     stack: state.stack,
     players: state.players,
+    replenishPile: state.pickupPile,
+    canPlay,
   } as const
 }
 
@@ -115,16 +167,20 @@ const mapDispatch = (d: GameDispatch) => {
       d(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck(20), factions: [] })
+      const action = deal({ deck: createDeck(10), factions: [] })
       d(action)
     },
     endTurn: () => {
       const action = endTurn()
       d(action)
     },
+    pickupStack: () => {
+      const action = pickupStack([])
+      d(action)
+    },
     proceed: () => {
       const action = playCard({
-        cards: [{ suit: 'D', value: '2', label: '2D' }],
+        cards: [{ suit: 'D', value: '8', label: '8D' }],
         playerIndex: 0,
       })
 

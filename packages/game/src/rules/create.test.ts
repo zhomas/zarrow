@@ -1,8 +1,5 @@
 import it from 'ava'
-import { createDeck } from '../deck'
-import { modeSelector } from '../selectors/status'
 import { changeFaction, createGame, joinGame } from './create'
-import { dealCards } from './deal'
 
 it('creates a game with an owner', (t) => {
   const state = createGame()

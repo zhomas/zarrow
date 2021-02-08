@@ -1,10 +1,5 @@
 import { configureStore, Middleware } from '@reduxjs/toolkit'
 import gameReducer, { GameState } from './game.slice'
-import { getResolved } from './mappers/card'
-import { getSorted } from './mappers/sort'
-import { promptSelector } from './selectors/prompt'
-import { modeSelector } from './selectors/status'
-import { CardModel } from './types'
 export * from './game.slice'
 export * from './selectors/status'
 
@@ -29,6 +24,9 @@ export const getStore = (preloaded: GameState, ...cb: Middleware[]) => {
     middleware: [...cb],
   })
 }
+
+export * from './matrix'
+export * from './selectors'
 
 export const createGameStore = (s: GameState) => {
   return configureStore({

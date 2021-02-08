@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { CardModel } from 'game'
-import { Draggable, DraggableProps } from 'react-beautiful-dnd'
+import { Draggable } from 'react-beautiful-dnd'
 
 type Props = {
   card: CardModel
@@ -27,7 +27,21 @@ export const EmptyCard = () => {
   )
 }
 
-export const Card = ({ card }: { card: CardModel }) => {
+export const FaceDownCard = () => {
+  return (
+    <div
+      style={{
+        height: 200,
+        width: 140,
+        background: 'red',
+        borderRadius: 10,
+        border: '1px solid black',
+      }}
+    ></div>
+  )
+}
+
+export const Card: FC<{ card: CardModel }> = ({ card, children }) => {
   return (
     <div
       style={{
@@ -45,6 +59,7 @@ export const Card = ({ card }: { card: CardModel }) => {
         {card.value}
         {card.suit}
       </span>
+      <div>{children}</div>
     </div>
   )
 }
@@ -53,7 +68,6 @@ export const DraggableCard: FC<Props> = ({
   index,
   card,
   faceDown,
-  uiState,
   onClick,
   disabled = false,
 }) => {
@@ -73,14 +87,14 @@ export const DraggableCard: FC<Props> = ({
 
   return (
     <Draggable draggableId={card.label} index={index} isDragDisabled={disabled}>
-      {(provided, snapshot) => (
+      {(provided) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           onClick={onClick}
         >
-          <Card card={card} />
+          {faceDown ? <FaceDownCard /> : <Card card={card} />}
         </div>
       )}
     </Draggable>

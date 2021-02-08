@@ -2,13 +2,13 @@ import { GameState } from '../game.slice'
 
 export const createGame = (): GameState => {
   return {
-    next: '',
     queue: [],
     stack: [],
     burnt: [],
     direction: 1,
     pickupPile: [],
     players: [],
+    turnIsFresh: true,
   }
 }
 

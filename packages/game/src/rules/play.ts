@@ -1,42 +1,11 @@
 import {
   activePlayerSelector,
   GameState,
-  topOfStackSelector,
+  stackDestinationSelector,
 } from '../game.slice'
 import { canCardPlay } from '../matrix'
-import { CardModel, PlayerModel } from '../types'
-import { getWrappedIndex } from '../utils'
+import { CardModel } from '../types'
 import { endTurn } from './endTurn'
-
-const getNextPlayer = (
-  currentID: string,
-  players: PlayerModel[],
-  cards: CardModel[],
-  direction: number,
-) => {
-  const [card, ...rest] = cards
-  const dir = Math.sign(direction)
-
-  if (players.length === 1) return currentID
-  if (card.value === '10') return currentID
-
-  let index = players.findIndex((p) => p.id === currentID) + 1 * dir
-
-  if (card.value === '5') {
-    index += 1 * dir
-  }
-
-  while (true) {
-    const next = getWrappedIndex(index, players.length)
-    const nextPlayer = players[next]
-
-    if (nextPlayer.cards.length > 0) {
-      return nextPlayer.id
-    }
-
-    index += 1 * dir
-  }
-}
 
 const shouldBurn = (state: GameState) => {
   const { stack } = state
@@ -77,8 +46,8 @@ export const playCard = (state: GameState, ...cards: CardModel[]) => {
   console.log('1')
   if (state.players.length < 1) return
   console.log('2')
-  const destination = topOfStackSelector(state)
-  const ok = !state.next && cards.every((c) => canCardPlay(c, destination))
+  const destination = stackDestinationSelector(state)
+  const ok = cards.every((c) => canCardPlay(c, destination))
   console.log('3')
   if (ok) {
     console.log('4')
@@ -100,7 +69,7 @@ export const playCard = (state: GameState, ...cards: CardModel[]) => {
       }
     }
 
-    state.next = getNextPlayer(player.id, state.players, cards, state.direction)
+    state.turnIsFresh = false
 
     if (state.pickupPile.length === 0) {
       endTurn(state)

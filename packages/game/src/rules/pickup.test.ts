@@ -11,7 +11,6 @@ const card: CardModel = {
 
 const getState = (): GameState => ({
   direction: 1,
-  next: '',
   queue: ['a', 'b'],
   pickupPile: [],
   burnt: [],

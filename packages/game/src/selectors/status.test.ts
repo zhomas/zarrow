@@ -6,7 +6,6 @@ import { modeSelector } from './status'
 it('is in the lobby when only one player present', (t) => {
   const mode = modeSelector({
     burnt: [],
-    next: '',
     direction: 0,
     pickupPile: [],
     queue: [],
@@ -20,7 +19,6 @@ it('is in the lobby when only one player present', (t) => {
 it('is in the lobby when players are not divided into factions', (t) => {
   const mode = modeSelector({
     burnt: [],
-    next: '',
     direction: 0,
     pickupPile: [],
     queue: [],
@@ -36,7 +34,6 @@ it('is in the lobby when players are not divided into factions', (t) => {
 
 it('is in a valid lobby when 4 players are in 2 factions and no cards are dealt', (t) => {
   const mode = modeSelector({
-    next: '',
     burnt: [],
     direction: 0,
     pickupPile: [],
@@ -55,7 +52,6 @@ it('is in a valid lobby when 4 players are in 2 factions and no cards are dealt'
 
 it('is a valid lobby when 2 players are in 2 factions', (t) => {
   const mode = modeSelector({
-    next: '',
     burnt: [],
     direction: 1,
     pickupPile: [],
@@ -97,7 +93,6 @@ it('is a valid lobby when players are split in 2 factions', (t) => {
 it('is able to start when 4 players are in 4 factions', (t) => {
   const mode = modeSelector({
     burnt: [],
-    next: '',
     direction: 0,
     pickupPile: [],
     queue: [],
@@ -117,7 +112,6 @@ it('is running when the cards are dealt', (t) => {
   const card = createCard('3', 'C')
   const mode = modeSelector({
     burnt: [],
-    next: '',
     direction: 0,
     pickupPile: [],
     queue: [],

@@ -47,5 +47,5 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
   state.queue = [playerIds[0]]
   state.burnt = []
   state.stack = []
-  state.next = ''
+  state.turnIsFresh = true
 }

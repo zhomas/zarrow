@@ -14,6 +14,7 @@ it('chooses from the active tier', (t) => {
     burnt: [],
     direction: 1,
     queue: ['a'],
+    deck: {},
     players: [
       {
         id: 'a',

@@ -202,6 +202,9 @@ export const canCardPlay = (
   card: CardModel,
   destination: CardModel,
 ): boolean => {
+  if (!card) return false
+  if (!card.value) return false
+  if (!card.suit) return false
   if (!destination) return true
   if (card.value === '8') return true
   if (destination.value === 'J') {

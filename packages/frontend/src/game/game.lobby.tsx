@@ -61,17 +61,18 @@ const mapState = (state: GameState) => {
   }
 }
 
-const mapDispatch = (dispatch: GameDispatch, ownProps: OwnProps) => {
+const mapDispatch = (dispatch: GameDispatch, { uid }: OwnProps) => {
   return {
     join: (displayName: string) => {
-      dispatch(joinGame({ uid: ownProps.uid, displayName }))
+      const action = joinGame({ uid, displayName })
+      dispatch(action)
     },
     setFaction: (faction: number) => {
-      const action = setFaction({ faction, uid: ownProps.uid })
+      const action = setFaction({ faction, uid })
       dispatch(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck(), factions: [] })
+      const action = deal({ deck: createDeck() })
       dispatch(action)
     },
   }

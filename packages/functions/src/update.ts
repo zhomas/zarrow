@@ -73,7 +73,7 @@ const getAction = (data: GameUpdate) => {
 
   if (data.payload.verb === 'deal') {
     const deck = createDeck(28)
-    return dealCards({ deck, factions: [] })
+    return dealCards({ deck })
   }
 
   if (data.payload.verb === 'changeFaction') {
@@ -90,7 +90,7 @@ const getAction = (data: GameUpdate) => {
   }
 
   const { cards } = data.payload
-  return playCard({ cards, playerIndex: 0 })
+  return playCard({ cards })
 }
 
 const updateGame = async (req, res) => {

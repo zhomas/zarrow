@@ -4,6 +4,7 @@ import { UserGate } from './wrappers/UserGate'
 import firebase from 'firebase'
 import { EntryPage } from './pages/Entry'
 import { GamePage } from './pages/Game'
+import { Test } from './Test'
 
 import { Router } from '@reach/router'
 
@@ -25,6 +26,7 @@ function App() {
       <UserGate>
         {(uid) => (
           <Router>
+            <Test path="/test" />
             <GamePage path=":gid" uid={uid} />
             <EntryPage default />
           </Router>

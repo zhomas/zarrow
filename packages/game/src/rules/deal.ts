@@ -12,7 +12,6 @@ interface GameInitialiser {
 const findFreeTier = (player: PlayerModel) => {
   const downs = player.cards.filter((c) => c.tier == 0)
   const ups = player.cards.filter((c) => c.tier === 1)
-  const hand = player.cards.filter((c) => c.tier === 2)
 
   if (downs.length < 4) return 0
   if (ups.length < 4) return 1
@@ -25,6 +24,13 @@ const weave = (a: string[], b: string[]) =>
 export const dealCards = (state: GameState, deck: CardModel[]) => {
   const playerIds = state.players.map((p) => p.id)
   let playerIndex = 0
+
+  state.deck = deck.reduce((obj, c) => {
+    return {
+      ...obj,
+      [c.label]: c,
+    }
+  }, {})
 
   state.players = state.players.map((p) => {
     return {

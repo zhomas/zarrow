@@ -1,30 +1,38 @@
 import {
   canCardPlay,
   CardModel,
+  createDeck,
+  GameDispatch,
   GameState,
+  playCard,
   stackDestinationSelector,
   userModeSelector,
+  focus,
 } from 'game'
 import React, { FC, useEffect, useState } from 'react'
-import { Droppable } from 'react-beautiful-dnd'
 import { connect, ConnectedProps } from 'react-redux'
 
-import { Card, DraggableCard, FaceDownCard } from '../../components/card'
+import { FluidCard } from '../../components/card'
 
-const _FaceDowns: FC<Props> = ({ cards, canCardPlay, active }) => {
-  const [revealed, setRevealed] = useState('')
-
+const _FaceDowns: FC<Props> = ({
+  cards,
+  canCardPlay,
+  active,
+  playCard,
+  focusCard,
+  isFocused,
+}) => {
   const handleClick = (c: CardModel) => {
     const ok = canCardPlay(c)
-    setRevealed(c.label)
     console.log('revealed!')
+    if (ok) {
+      playCard(c)
+    } else {
+      focusCard(c)
+    }
     //alert(`You clicked :: ${c.label}`)
     //alert(ok ? 'It CAN play on the stack' : 'It cannot play on the stack!')
   }
-
-  useEffect(() => {
-    setRevealed('')
-  }, [cards])
 
   return (
     <div
@@ -33,26 +41,13 @@ const _FaceDowns: FC<Props> = ({ cards, canCardPlay, active }) => {
         padding: 10,
       }}
     >
-      <Droppable droppableId={'downs'}>
-        {(provided) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            style={{ display: 'flex' }}
-          >
-            {cards.map(({ card }) => (
-              <div onMouseDown={() => handleClick(card)}>
-                <DraggableCard
-                  card={card}
-                  index={0}
-                  faceDown={card.label !== revealed}
-                />
-                {provided.placeholder}
-              </div>
-            ))}
+      <div style={{ display: 'flex' }}>
+        {cards.map(({ card }) => (
+          <div onMouseDown={() => handleClick(card)} key={card.label}>
+            <FluidCard card={card} faceDown={!isFocused(card)} />
           </div>
-        )}
-      </Droppable>
+        ))}
+      </div>
     </div>
   )
 }
@@ -65,10 +60,28 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     cards: myCards.filter((c) => c.tier === 0),
     active: getMode(state) === 'play:downs',
     canCardPlay: (c: CardModel) => canCardPlay(c, dest),
+    isFocused: (c: CardModel) =>
+      !!state.focused &&
+      state.focused.suit === c.suit &&
+      state.focused.value === c.value,
   }
 }
 
-const connector = connect(mapState)
+const mapDispatch = (dispatch: GameDispatch) => {
+  return {
+    playCard: (c: CardModel) => {
+      const action = playCard({ cards: [c] })
+      dispatch(action)
+    },
+    focusCard: (c: CardModel) => {
+      const action = focus(c)
+      dispatch(action)
+    },
+    pickup: (c: CardModel) => {},
+  }
+}
+
+const connector = connect(mapState, mapDispatch)
 
 interface OwnProps {
   uid: string

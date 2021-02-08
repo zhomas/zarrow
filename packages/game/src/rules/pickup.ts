@@ -16,4 +16,5 @@ export const pickup = (state: GameState, ...cards: CardModel[]) => {
   player.cards = [...player.cards, ...toPickup]
   state.queue.shift()
   state.stack = []
+  state.focused = { suit: '', value: '' }
 }

@@ -12,10 +12,10 @@ import {
   userModeSelector,
   pickupStack,
 } from 'game'
-import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd'
 import { connect, ConnectedProps } from 'react-redux'
-import { Card, DraggableCard, EmptyCard } from '../components'
+import { FluidCard, EmptyCard } from '../components'
 import { FaceDowns } from './downs'
+import { AnimatePresence, AnimateSharedLayout } from 'framer-motion'
 
 const _GameView: FC<Props> = ({
   hand,
@@ -31,94 +31,102 @@ const _GameView: FC<Props> = ({
   mode,
   pickupStack,
 }) => {
-  const onDragEnd = (r: DropResult) => {
-    console.log(r)
-    const card = [...hand, ...downs, ...ups].find(
-      (c) => c.card.label === r.draggableId,
-    )
-    if (
-      card &&
-      r.destination?.droppableId === 'stack' &&
-      ['hand', 'ups', 'downs'].includes(r.source.droppableId)
-    ) {
-      console.log(r)
-      playCards([card.card])
-      console.log('playing card : ', card.card)
+  const playCard = (c: CardModel) => {
+    playCards([c])
+  }
+
+  const onHandClick = mode === 'play:hand' ? playCard : () => {}
+
+  const getCardHandler = (c: CardModel, m: Props['mode']) => {
+    if (m === mode) {
+      return () => playCards([c])
     }
+
+    return () => {}
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <AnimateSharedLayout>
       <h1>
         {uid} :: {mode}
       </h1>
       <div style={{ backgroundColor: 'turquoise', display: 'flex' }}>
-        <Droppable droppableId="stack" direction="horizontal">
-          {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
-              {stack.length > 0 ? <Card card={stack[0]} /> : <EmptyCard />}
-              <span style={{ display: 'none' }}>{provided.placeholder}</span>
+        <div style={{ position: 'relative' }}>
+          {stack.map((c, i) => (
+            <div
+              key={c.label}
+              data-card={c.label}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                zIndex: stack.length - i,
+              }}
+            >
+              <FluidCard key={c.label} card={c} />
             </div>
-          )}
-        </Droppable>
-        {mode === 'pickupStack' && (
+          ))}
+          <div style={{ position: 'relative', zIndex: -1 }}>
+            <EmptyCard />
+          </div>
+        </div>
+        {mode === 'pickup:stack' && (
           <button onClick={pickupStack}>Pick up stack</button>
         )}
-        <button disabled={mode !== 'replenish'} onClick={endTurn}>
+        <button disabled={mode !== 'pickup:replenish'} onClick={endTurn}>
           Replenish ({replenishPile.length} cards remaining)
         </button>
+        <div style={{ width: 200, height: 200, position: 'relative' }}>
+          {replenishPile.map((c, i) => (
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                zIndex: -i,
+              }}
+              key={c.label}
+            >
+              <FluidCard card={c} faceDown />
+            </div>
+          ))}
+        </div>
       </div>
       <div>
-        <Droppable droppableId="hand" direction="horizontal">
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              style={{
-                padding: 10,
-                display: 'flex',
-                backgroundColor:
-                  mode === 'play:hand' ? 'yellow' : 'transparent',
-              }}
-            >
-              {hand.map((c, i) => (
-                <DraggableCard
-                  key={c.card.label}
-                  card={c.card}
-                  index={i}
-                  disabled={mode !== 'play:hand'}
-                />
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+        <div
+          style={{
+            padding: 10,
+            display: 'flex',
+            backgroundColor: mode === 'play:hand' ? 'yellow' : 'transparent',
+          }}
+        >
+          {hand.map((c, i) => (
+            <FluidCard
+              key={c.card.label}
+              onClick={getCardHandler(c.card, 'play:hand')}
+              card={c.card}
+              disabled={mode !== 'play:hand'}
+            />
+          ))}
+        </div>
       </div>
       <div>
-        <Droppable droppableId="ups" direction="horizontal">
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              style={{
-                padding: 10,
-                display: 'flex',
-                backgroundColor:
-                  mode === 'play:ups' ? 'thistle' : 'transparent',
-              }}
-            >
-              {ups.map((c, i) => (
-                <DraggableCard
-                  key={c.card.label}
-                  card={c.card}
-                  index={i}
-                  disabled={mode !== 'play:ups'}
-                />
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+        <div
+          style={{
+            padding: 10,
+            display: 'flex',
+            backgroundColor: mode === 'play:ups' ? 'thistle' : 'transparent',
+          }}
+        >
+          {ups.map((c, i) => (
+            <FluidCard
+              key={c.card.label}
+              onClick={getCardHandler(c.card, 'play:ups')}
+              card={c.card}
+              disabled={mode !== 'play:ups'}
+            />
+          ))}
+        </div>
       </div>
       <div>
         <FaceDowns uid={uid} />
@@ -133,7 +141,7 @@ const _GameView: FC<Props> = ({
       <div>
         <button onClick={proceed}>Next!</button>
       </div>
-    </DragDropContext>
+    </AnimateSharedLayout>
   )
 }
 
@@ -163,11 +171,11 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
 const mapDispatch = (d: GameDispatch) => {
   return {
     playCards: (cards: CardModel[]) => {
-      const action = playCard({ cards, playerIndex: 0 })
+      const action = playCard({ cards })
       d(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck(10), factions: [] })
+      const action = deal({ deck: createDeck(8) })
       d(action)
     },
     endTurn: () => {
@@ -181,7 +189,6 @@ const mapDispatch = (d: GameDispatch) => {
     proceed: () => {
       const action = playCard({
         cards: [{ suit: 'D', value: '8', label: '8D' }],
-        playerIndex: 0,
       })
 
       d(action)

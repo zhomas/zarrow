@@ -9,6 +9,7 @@ export const createGame = (): GameState => {
     pickupPile: [],
     players: [],
     turnIsFresh: true,
+    deck: {},
   }
 }
 

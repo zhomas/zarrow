@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, Dictionary, PayloadAction } from '@reduxjs/toolkit'
 import { canCardPlay } from './matrix'
 import { PlayAce } from './rules/ace'
 import { dealCards } from './rules/deal'
@@ -19,6 +19,11 @@ export interface GameState {
   burnt: CardModel[]
   pickupPile: CardModel[]
   turnIsFresh?: boolean
+  deck: Dictionary<CardModel>
+  focused?: {
+    suit: CardModel['suit'] | ''
+    value: CardModel['value'] | ''
+  }
 }
 
 export const initialState: GameState = {
@@ -29,6 +34,7 @@ export const initialState: GameState = {
   burnt: [],
   pickupPile: [],
   turnIsFresh: true,
+  deck: {},
 }
 
 export const activePlayerSelector = (state: GameState) => {
@@ -58,12 +64,10 @@ export const mustPickUpSelector = (state: GameState) => {
 }
 
 interface GameInitialiser {
-  factions: string[][]
   deck: CardModel[]
 }
 
 interface PlayCard {
-  playerIndex: number
   cards: CardModel[]
 }
 
@@ -102,7 +106,6 @@ const counterSlice = createSlice({
     },
     playCard(state, action: PayloadAction<PlayCard>) {
       const { cards } = action.payload
-      console.log('PLAY CARD!', cards)
       play(state, ...cards)
     },
     pickupStack(state, action: PayloadAction<CardModel[]>) {
@@ -113,6 +116,9 @@ const counterSlice = createSlice({
     },
     endTurn(state) {
       end(state)
+    },
+    focus(state, action: PayloadAction<CardModel>) {
+      state.focused = action.payload
     },
   },
 })
@@ -126,5 +132,6 @@ export const {
   setFaction,
   endTurn,
   replace,
+  focus,
 } = counterSlice.actions
 export default counterSlice.reducer

@@ -7,6 +7,7 @@ export const getDummyState = (): GameState => ({
   direction: 1,
   pickupPile: [],
   burnt: [],
+  deck: {},
   queue: ['a'],
   players: [
     {

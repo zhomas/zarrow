@@ -19,7 +19,14 @@ export const GameProvider: FC<ProviderProps> = ({
       console.log('dispatch', action)
       if (action.type !== 'counter/replace') {
         console.log('Next state', api.getState())
-        firebase.firestore().collection('games').doc(gid).set(api.getState())
+
+        const state: GameState = api.getState()
+        const data: GameState = {
+          ...state,
+          focused: state.focused || { suit: '', value: '' },
+        }
+
+        firebase.firestore().collection('games').doc(gid).set(data)
       }
 
       return result

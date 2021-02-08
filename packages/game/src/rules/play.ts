@@ -43,14 +43,10 @@ const shouldBurn = (state: GameState) => {
 }
 
 export const playCard = (state: GameState, ...cards: CardModel[]) => {
-  console.log('1')
   if (state.players.length < 1) return
-  console.log('2')
   const destination = stackDestinationSelector(state)
   const ok = cards.every((c) => canCardPlay(c, destination))
-  console.log('3')
   if (ok) {
-    console.log('4')
     const player = activePlayerSelector(state)
 
     cards.forEach((card) => {
@@ -70,6 +66,7 @@ export const playCard = (state: GameState, ...cards: CardModel[]) => {
     }
 
     state.turnIsFresh = false
+    state.focused = { suit: '', value: '' }
 
     if (state.pickupPile.length === 0) {
       endTurn(state)

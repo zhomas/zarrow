@@ -12,6 +12,7 @@ it('moves to the next player when a card is on the stack', (t) => {
     pickupPile: [],
     burnt: [],
     queue: ['a'],
+    deck: {},
     players: [
       {
         id: 'a',
@@ -39,6 +40,7 @@ it('replenishes cards', (t) => {
     pickupPile: [card, card, card],
     burnt: [],
     queue: ['a'],
+    deck: {},
     players: [
       {
         id: 'a',
@@ -66,6 +68,7 @@ it('stays on the same player when the stack is empty', (t) => {
     direction: 1,
     pickupPile: [],
     burnt: [],
+    deck: {},
     queue: ['a'],
     players: [
       {
@@ -94,6 +97,7 @@ it('skips a go', (t) => {
     pickupPile: [],
     burnt: [],
     queue: ['a'],
+    deck: {},
     players: [
       {
         id: 'a',
@@ -121,6 +125,7 @@ it('skips a go in reverse', (t) => {
     pickupPile: [],
     burnt: [],
     queue: ['a'],
+    deck: {},
     players: [
       {
         id: 'a',
@@ -153,6 +158,7 @@ it('marks the turn as fresh', (t) => {
     direction: -1,
     pickupPile: [],
     burnt: [],
+    deck: {},
     queue: ['a'],
     players: [
       {

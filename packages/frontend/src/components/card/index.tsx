@@ -4,10 +4,14 @@ import { motion } from 'framer-motion'
 
 type Props = {
   card: CardModel
-  uiState?: 'greyed' | 'default'
+  uiState?: 'highlight' | 'lowlight' | 'greyed' | 'default'
   faceDown?: boolean
   disabled?: boolean
   onClick?: () => void
+  onRightClick?: () => void
+  onMouseEnter?: () => void
+  onMouseExit?: () => void
+  multiSelected?: boolean
 }
 
 export const EmptyCard = () => {
@@ -39,15 +43,40 @@ export const FluidCard: FC<Props> = ({
   card,
   faceDown,
   onClick,
-  disabled = false,
+  onRightClick,
+  onMouseEnter,
+  onMouseExit,
+  uiState = 'default',
 }) => {
+  const onContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault()
+    !!onRightClick && onRightClick()
+  }
+
+  const getBGColor = () => {
+    switch (uiState) {
+      case 'greyed':
+        return 'grey'
+      case 'lowlight':
+        return 'teal'
+      case 'highlight':
+        return 'blue'
+      default:
+        return 'white'
+    }
+  }
+
   return (
     <motion.div
-      layoutId={card.label}
+      layoutId={card.id}
       onClick={onClick}
+      onContextMenu={onContextMenu}
+      onMouseOverCapture={onMouseEnter}
+      onMouseOutCapture={onMouseExit}
       style={{
         width: 140,
         height: 200,
+        cursor: !!onClick ? 'pointer' : 'default',
         position: 'relative',
         transformStyle: 'preserve-3d',
       }}
@@ -63,7 +92,8 @@ export const FluidCard: FC<Props> = ({
           height: 200,
           top: 0,
           left: 0,
-          backgroundColor: 'white',
+          backgroundColor: getBGColor(),
+          textAlign: 'left',
           padding: 10,
           zIndex: 2,
           color: card.suit === 'D' || card.suit === 'H' ? 'red' : 'black',

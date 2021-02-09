@@ -19,7 +19,7 @@ export const values = [
 export interface CardModel {
   suit: typeof suits[number]
   value: typeof values[number]
-  label: string
+  id: string
 }
 
 export interface PlayerCard {

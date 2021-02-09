@@ -145,7 +145,7 @@ it('cannot play a 3 on a 4', (t) => {
   const four: CardModel = {
     value: '4',
     suit: 'D',
-    label: '',
+    id: '',
   }
 
   const state = { ...getState(), stack: [four] }

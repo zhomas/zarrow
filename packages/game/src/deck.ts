@@ -6,14 +6,14 @@ type Value = typeof values[number]
 type Suit = typeof suits[number]
 
 export const createCard = (value: Value, suit: Suit): CardModel => {
-  return { suit, value, label: `${value}${suit}` }
+  return { suit, value, id: `${value}${suit}` }
 }
 
 export const createCardByID = (cID: string) => {
   const deck: Dictionary<CardModel> = createDeck(52).reduce((obj, item) => {
     return {
       ...obj,
-      [item.label]: item,
+      [item.id]: item,
     }
   }, {})
   return deck[cID]

@@ -12,7 +12,7 @@ export const pickup = (state: GameState, ...cards: CardModel[]) => {
 
   cards.forEach((card) => {
     // Remove card from player
-    player.cards = player.cards.filter((c) => c.card.label !== card.label)
+    player.cards = player.cards.filter((c) => c.card.id !== card.id)
 
     // Add it to the stack
     state.stack.push(card)

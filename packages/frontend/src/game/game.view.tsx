@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import {
   CardModel,
   createDeck,
@@ -15,12 +15,30 @@ import {
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCard, EmptyCard } from '../components'
 import { FaceDowns } from './downs'
-import { AnimatePresence, AnimateSharedLayout } from 'framer-motion'
+import { AnimateSharedLayout } from 'framer-motion'
+
+const useFluidCardHandlers = (currentMode: string) => {
+  const [selected, setSelected] = useState<CardModel[]>([])
+  const [hovered, setHovered] = useState<CardModel[]>([])
+
+  return {
+    getCardProps: (c: CardModel, m: string) => {
+      if (m !== currentMode) {
+        return {
+          uiState: 'default',
+          onClick: undefined,
+          onRightClick: undefined,
+          onMouseEnter: undefined,
+          onMouseExit: undefined,
+        }
+      }
+    },
+  }
+}
 
 const _GameView: FC<Props> = ({
   hand,
   ups,
-  downs,
   stack,
   uid,
   replenishPile,
@@ -30,19 +48,73 @@ const _GameView: FC<Props> = ({
   proceed,
   mode,
   pickupStack,
+  canPlay,
 }) => {
-  const playCard = (c: CardModel) => {
-    playCards([c])
+  const [selected, setSelected] = useState<CardModel[]>([])
+  const [hovered, setHovered] = useState<CardModel[]>([])
+
+  useEffect(() => {
+    setSelected([])
+  }, [mode])
+
+  const onMouseOver = (c: CardModel) => {
+    return () => setHovered([...hovered, c])
   }
 
-  const onHandClick = mode === 'play:hand' ? playCard : () => {}
+  const onMouseExit = (c: CardModel) => {
+    return () => setHovered(hovered.filter((h) => h.id !== c.id))
+  }
 
-  const getCardHandler = (c: CardModel, m: Props['mode']) => {
+  const selectAll = (c: CardModel, m: Props['mode']) => {
     if (m === mode) {
       return () => playCards([c])
     }
 
-    return () => {}
+    return undefined
+  }
+
+  const selectMulti = (c: CardModel, m: Props['mode']) => {
+    if (m === mode && canPlay(c)) {
+      if (selected.includes(c)) {
+        return () => setSelected((sel) => sel.filter((se) => se.id !== c.id))
+      }
+
+      if (selected.length === 0) {
+        return () => {
+          setSelected([c])
+        }
+      }
+
+      if (selected.findIndex((sel) => sel.value === c.value) > -1) {
+        return () => {
+          const next = [...selected, c]
+          setSelected(next)
+        }
+      }
+    }
+    return undefined
+  }
+
+  const stateGetter = (c: CardModel, m: Props['mode']) => {
+    if (mode === m) {
+      if (!canPlay(c)) {
+        return 'greyed'
+      }
+
+      if (hovered.length === 1) {
+        if (hovered[0].id === c.id) return 'highlight'
+        if (c.value === hovered[0].value) return 'lowlight'
+      }
+
+      if (selected.includes(c)) {
+        return 'lowlight'
+      }
+
+      if (hovered.includes(c)) {
+        return 'highlight'
+      }
+    }
+    return 'default'
   }
 
   return (
@@ -54,8 +126,8 @@ const _GameView: FC<Props> = ({
         <div style={{ position: 'relative' }}>
           {stack.map((c, i) => (
             <div
-              key={c.label}
-              data-card={c.label}
+              key={c.id}
+              data-card={c.id}
               style={{
                 position: 'absolute',
                 top: 0,
@@ -63,7 +135,7 @@ const _GameView: FC<Props> = ({
                 zIndex: stack.length - i,
               }}
             >
-              <FluidCard key={c.label} card={c} />
+              <FluidCard key={c.id} card={c} />
             </div>
           ))}
           <div style={{ position: 'relative', zIndex: -1 }}>
@@ -85,7 +157,7 @@ const _GameView: FC<Props> = ({
                 left: 0,
                 zIndex: -i,
               }}
-              key={c.label}
+              key={c.id}
             >
               <FluidCard card={c} faceDown />
             </div>
@@ -93,6 +165,15 @@ const _GameView: FC<Props> = ({
         </div>
       </div>
       <div>
+        <button
+          disabled={!selected.length}
+          onClick={() => {
+            playCards(selected)
+          }}
+        >
+          Play em
+        </button>
+
         <div
           style={{
             padding: 10,
@@ -100,10 +181,15 @@ const _GameView: FC<Props> = ({
             backgroundColor: mode === 'play:hand' ? 'yellow' : 'transparent',
           }}
         >
-          {hand.map((c, i) => (
+          {hand.map((c) => (
             <FluidCard
-              key={c.card.label}
-              onClick={getCardHandler(c.card, 'play:hand')}
+              key={c.card.id}
+              onClick={selectMulti(c.card, 'play:hand')}
+              onRightClick={selectAll(c.card, 'play:hand')}
+              onMouseEnter={onMouseOver(c.card)}
+              onMouseExit={onMouseExit(c.card)}
+              multiSelected={selected.includes(c.card)}
+              uiState={stateGetter(c.card, 'play:hand')}
               card={c.card}
               disabled={mode !== 'play:hand'}
             />
@@ -118,10 +204,10 @@ const _GameView: FC<Props> = ({
             backgroundColor: mode === 'play:ups' ? 'thistle' : 'transparent',
           }}
         >
-          {ups.map((c, i) => (
+          {ups.map((c) => (
             <FluidCard
-              key={c.card.label}
-              onClick={getCardHandler(c.card, 'play:ups')}
+              key={c.card.id}
+              onClick={selectAll(c.card, 'play:ups')}
               card={c.card}
               disabled={mode !== 'play:ups'}
             />
@@ -132,9 +218,7 @@ const _GameView: FC<Props> = ({
         <FaceDowns uid={uid} />
       </div>
       <button onClick={deal}>Re-deal</button>
-      <button
-        onClick={() => playCards([{ suit: 'C', value: '5', label: '5C' }])}
-      >
+      <button onClick={() => playCards([{ suit: 'C', value: '5', id: '5C' }])}>
         Test
       </button>
 
@@ -164,6 +248,7 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     stack: state.stack,
     players: state.players,
     replenishPile: state.pickupPile,
+    myCards,
     canPlay,
   } as const
 }
@@ -175,7 +260,7 @@ const mapDispatch = (d: GameDispatch) => {
       d(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck(3) })
+      const action = deal({ deck: createDeck(34) })
       d(action)
     },
     endTurn: () => {
@@ -188,7 +273,7 @@ const mapDispatch = (d: GameDispatch) => {
     },
     proceed: () => {
       const action = playCard({
-        cards: [{ suit: 'D', value: '8', label: '8D' }],
+        cards: [{ suit: 'D', value: '8', id: '8D' }],
       })
 
       d(action)

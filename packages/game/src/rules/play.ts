@@ -50,7 +50,7 @@ export const playCard = (state: GameState, ...cards: CardModel[]) => {
     const player = activePlayerSelector(state)
 
     cards.forEach((card) => {
-      player.cards = player.cards.filter((c) => c.card.label !== card.label)
+      player.cards = player.cards.filter((c) => c.card.id !== card.id)
       state.stack.unshift(card)
     })
 

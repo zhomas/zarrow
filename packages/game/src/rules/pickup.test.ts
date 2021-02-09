@@ -6,7 +6,7 @@ import { pickup } from './pickup'
 const card: CardModel = {
   value: '3',
   suit: 'D',
-  label: '',
+  id: '',
 }
 
 const getState = (): GameState => ({
@@ -62,7 +62,7 @@ it('adds the focus card upon pickup', (t) => {
     ...getState(),
     focused: '9C',
   }
-  t.falsy(state.players[0].cards.find((c) => c.card.label == state.focused))
+  t.falsy(state.players[0].cards.find((c) => c.card.id == state.focused))
   pickup(state)
-  t.truthy(state.players[0].cards.find((c) => c.card.label == state.focused))
+  t.truthy(state.players[0].cards.find((c) => c.card.id == state.focused))
 })

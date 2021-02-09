@@ -7,8 +7,8 @@ import { FluidCard } from './components'
 
 const CardWrapper: FC<{ card: CardModel }> = ({ card }) => {
   return (
-    <motion.div layoutId={card.label}>
-      <span>{card.label}</span>
+    <motion.div layoutId={card.id}>
+      <span>{card.id}</span>
     </motion.div>
   )
 }
@@ -20,10 +20,7 @@ export const Test: FC<RouteComponentProps> = () => {
 
   return (
     <>
-      <FluidCard
-        card={{ suit: 'S', value: 'A', label: 'AS' }}
-        faceDown={down}
-      />
+      <FluidCard card={{ suit: 'S', value: 'A', id: 'AS' }} faceDown={down} />
       <button onClick={() => setDown((d) => !d)}>Flip</button>
     </>
   )

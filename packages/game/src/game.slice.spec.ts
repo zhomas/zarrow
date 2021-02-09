@@ -6,7 +6,7 @@ it('chooses from the active tier', (t) => {
   const card: CardModel = {
     value: '3',
     suit: 'D',
-    label: '',
+    id: '',
   }
 
   const a = activeTierSelector({

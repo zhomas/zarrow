@@ -34,6 +34,20 @@ const _FaceDowns: FC<Props> = ({
     //alert(ok ? 'It CAN play on the stack' : 'It cannot play on the stack!')
   }
 
+  const getClickHandler = (card: CardModel) => {
+    if (active) {
+      const ok = canCardPlay(card)
+      console.log('revealed!')
+      if (ok) {
+        return () => playCard(card)
+      } else {
+        return () => focusCard(card)
+      }
+    }
+
+    return undefined
+  }
+
   return (
     <div
       style={{
@@ -43,8 +57,12 @@ const _FaceDowns: FC<Props> = ({
     >
       <div style={{ display: 'flex' }}>
         {cards.map(({ card }) => (
-          <div onMouseDown={() => handleClick(card)} key={card.label}>
-            <FluidCard card={card} faceDown={!isFocused(card)} />
+          <div key={card.id}>
+            <FluidCard
+              onClick={getClickHandler(card)}
+              card={card}
+              faceDown={!isFocused(card)}
+            />
           </div>
         ))}
       </div>
@@ -60,7 +78,7 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     cards: myCards.filter((c) => c.tier === 0),
     active: getMode(state) === 'play:downs',
     canCardPlay: (c: CardModel) => canCardPlay(c, dest),
-    isFocused: (c: CardModel) => !!state.focused && state.focused === c.label,
+    isFocused: (c: CardModel) => !!state.focused && state.focused === c.id,
   }
 }
 
@@ -71,7 +89,7 @@ const mapDispatch = (dispatch: GameDispatch) => {
       dispatch(action)
     },
     focusCard: (c: CardModel) => {
-      const action = focus(c.label)
+      const action = focus(c.id)
       dispatch(action)
     },
     pickup: (c: CardModel) => {},

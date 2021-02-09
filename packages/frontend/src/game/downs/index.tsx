@@ -22,18 +22,6 @@ const _FaceDowns: FC<Props> = ({
   focusCard,
   isFocused,
 }) => {
-  const handleClick = (c: CardModel) => {
-    const ok = canCardPlay(c)
-    console.log('revealed!')
-    if (ok) {
-      playCard(c)
-    } else {
-      focusCard(c)
-    }
-    //alert(`You clicked :: ${c.label}`)
-    //alert(ok ? 'It CAN play on the stack' : 'It cannot play on the stack!')
-  }
-
   const getClickHandler = (card: CardModel) => {
     if (active) {
       const ok = canCardPlay(card)
@@ -61,6 +49,7 @@ const _FaceDowns: FC<Props> = ({
             <FluidCard
               onClick={getClickHandler(card)}
               card={card}
+              variant="default"
               faceDown={!isFocused(card)}
             />
           </div>

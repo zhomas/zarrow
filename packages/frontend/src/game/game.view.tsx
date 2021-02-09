@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import {
   CardModel,
   createDeck,
@@ -11,30 +11,14 @@ import {
   canCardPlay,
   userModeSelector,
   pickupStack,
+  activeTierSelector,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCard, EmptyCard } from '../components'
 import { FaceDowns } from './downs'
 import { AnimateSharedLayout } from 'framer-motion'
-
-const useFluidCardHandlers = (currentMode: string) => {
-  const [selected, setSelected] = useState<CardModel[]>([])
-  const [hovered, setHovered] = useState<CardModel[]>([])
-
-  return {
-    getCardProps: (c: CardModel, m: string) => {
-      if (m !== currentMode) {
-        return {
-          uiState: 'default',
-          onClick: undefined,
-          onRightClick: undefined,
-          onMouseEnter: undefined,
-          onMouseExit: undefined,
-        }
-      }
-    },
-  }
-}
+import { getCardProps, useGameViewModel } from './game.view.model'
+import { FluidCardProps } from '../typings'
 
 const _GameView: FC<Props> = ({
   hand,
@@ -49,72 +33,52 @@ const _GameView: FC<Props> = ({
   mode,
   pickupStack,
   canPlay,
+  destination,
+  activeCards,
 }) => {
   const [selected, setSelected] = useState<CardModel[]>([])
   const [hovered, setHovered] = useState<CardModel[]>([])
 
   useEffect(() => {
     setSelected([])
-  }, [mode])
+    setHovered([])
+  }, [mode, stack.length])
 
-  const onMouseOver = (c: CardModel) => {
-    return () => setHovered([...hovered, c])
-  }
+  useEffect(() => {
+    setHovered([])
+  }, [selected])
 
-  const onMouseExit = (c: CardModel) => {
-    return () => setHovered(hovered.filter((h) => h.id !== c.id))
-  }
+  const curried = (c: CardModel, isActiveMode: boolean) => {
+    return getCardProps({
+      active: isActiveMode,
+      destID: destination.id,
+      selected: selected.map((c) => c.id),
+      hovered: hovered.map((h) => h.id),
+      id: c.id,
+      toggleHover: () => {
+        const next = hovered.includes(c)
+          ? hovered.filter((h) => h.id !== c.id)
+          : [...hovered, c]
 
-  const selectAll = (c: CardModel, m: Props['mode']) => {
-    if (m === mode) {
-      return () => playCards([c])
-    }
+        setHovered(next)
+      },
+      toggleSelected: () => {
+        const next = selected.includes(c)
+          ? selected.filter((h) => h.id !== c.id)
+          : [...selected, c]
 
-    return undefined
-  }
+        console.log('toggle selected!', next)
+        setSelected(next)
+      },
+      playAllSiblings: () => {
+        const siblings = activeCards
+          .filter((a) => a.card.value === c.value)
+          .map((a) => a.card)
 
-  const selectMulti = (c: CardModel, m: Props['mode']) => {
-    if (m === mode && canPlay(c)) {
-      if (selected.includes(c)) {
-        return () => setSelected((sel) => sel.filter((se) => se.id !== c.id))
-      }
-
-      if (selected.length === 0) {
-        return () => {
-          setSelected([c])
-        }
-      }
-
-      if (selected.findIndex((sel) => sel.value === c.value) > -1) {
-        return () => {
-          const next = [...selected, c]
-          setSelected(next)
-        }
-      }
-    }
-    return undefined
-  }
-
-  const stateGetter = (c: CardModel, m: Props['mode']) => {
-    if (mode === m) {
-      if (!canPlay(c)) {
-        return 'greyed'
-      }
-
-      if (hovered.length === 1) {
-        if (hovered[0].id === c.id) return 'highlight'
-        if (c.value === hovered[0].value) return 'lowlight'
-      }
-
-      if (selected.includes(c)) {
-        return 'lowlight'
-      }
-
-      if (hovered.includes(c)) {
-        return 'highlight'
-      }
-    }
-    return 'default'
+        playCards(...siblings)
+      },
+      hand: activeCards.map((a) => a.card),
+    })
   }
 
   return (
@@ -135,7 +99,7 @@ const _GameView: FC<Props> = ({
                 zIndex: stack.length - i,
               }}
             >
-              <FluidCard key={c.id} card={c} />
+              <FluidCard key={c.id} card={c} variant="default" />
             </div>
           ))}
           <div style={{ position: 'relative', zIndex: -1 }}>
@@ -159,21 +123,22 @@ const _GameView: FC<Props> = ({
               }}
               key={c.id}
             >
-              <FluidCard card={c} faceDown />
+              <FluidCard card={c} faceDown variant="default" />
             </div>
           ))}
         </div>
       </div>
       <div>
-        <button
-          disabled={!selected.length}
-          onClick={() => {
-            playCards(selected)
-          }}
-        >
-          Play em
-        </button>
-
+        <div>
+          <button
+            disabled={selected.length === 0}
+            onClick={() => {
+              playCards(...selected)
+            }}
+          >
+            Play selected
+          </button>
+        </div>
         <div
           style={{
             padding: 10,
@@ -181,19 +146,16 @@ const _GameView: FC<Props> = ({
             backgroundColor: mode === 'play:hand' ? 'yellow' : 'transparent',
           }}
         >
-          {hand.map((c) => (
-            <FluidCard
-              key={c.card.id}
-              onClick={selectMulti(c.card, 'play:hand')}
-              onRightClick={selectAll(c.card, 'play:hand')}
-              onMouseEnter={onMouseOver(c.card)}
-              onMouseExit={onMouseExit(c.card)}
-              multiSelected={selected.includes(c.card)}
-              uiState={stateGetter(c.card, 'play:hand')}
-              card={c.card}
-              disabled={mode !== 'play:hand'}
-            />
-          ))}
+          {hand.map((c) => {
+            const props = curried(c.card, mode === 'play:hand')
+            return (
+              <FluidCard
+                key={c.card.id}
+                {...props}
+                selected={selected.some((s) => s.id === c.card.id)}
+              />
+            )
+          })}
         </div>
       </div>
       <div>
@@ -204,21 +166,26 @@ const _GameView: FC<Props> = ({
             backgroundColor: mode === 'play:ups' ? 'thistle' : 'transparent',
           }}
         >
-          {ups.map((c) => (
-            <FluidCard
-              key={c.card.id}
-              onClick={selectAll(c.card, 'play:ups')}
-              card={c.card}
-              disabled={mode !== 'play:ups'}
-            />
-          ))}
+          {ups.map((c) => {
+            const props = curried(c.card, mode === 'play:ups')
+            props.onClick = () => {
+              props.onClick && props.onClick()
+            }
+            return (
+              <FluidCard
+                key={c.card.id}
+                {...props}
+                selected={selected.some((s) => s.id === c.card.id)}
+              />
+            )
+          })}
         </div>
       </div>
       <div>
         <FaceDowns uid={uid} />
       </div>
       <button onClick={deal}>Re-deal</button>
-      <button onClick={() => playCards([{ suit: 'C', value: '5', id: '5C' }])}>
+      <button onClick={() => playCards({ suit: 'C', value: '5', id: '5C' })}>
         Test
       </button>
 
@@ -250,12 +217,14 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     replenishPile: state.pickupPile,
     myCards,
     canPlay,
+    activeCards: activeTierSelector(state),
+    destination,
   } as const
 }
 
 const mapDispatch = (d: GameDispatch) => {
   return {
-    playCards: (cards: CardModel[]) => {
+    playCards: (...cards: CardModel[]) => {
       const action = playCard({ cards })
       d(action)
     },

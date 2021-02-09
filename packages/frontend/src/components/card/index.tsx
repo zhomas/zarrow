@@ -1,18 +1,9 @@
 import React, { FC } from 'react'
 import { CardModel } from 'game'
 import { motion } from 'framer-motion'
+import type { FluidCardProps } from '../../typings'
 
-type Props = {
-  card: CardModel
-  uiState?: 'highlight' | 'lowlight' | 'greyed' | 'default'
-  faceDown?: boolean
-  disabled?: boolean
-  onClick?: () => void
-  onRightClick?: () => void
-  onMouseEnter?: () => void
-  onMouseExit?: () => void
-  multiSelected?: boolean
-}
+type Props = FluidCardProps
 
 export const EmptyCard = () => {
   return (
@@ -43,24 +34,20 @@ export const FluidCard: FC<Props> = ({
   card,
   faceDown,
   onClick,
-  onRightClick,
+  onSelect,
   onMouseEnter,
   onMouseExit,
-  uiState = 'default',
+  selected,
+  variant = 'default',
 }) => {
-  const onContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault()
-    !!onRightClick && onRightClick()
-  }
-
   const getBGColor = () => {
-    switch (uiState) {
-      case 'greyed':
-        return 'grey'
+    switch (variant) {
+      case 'disabled':
+        return '#d5d5d5'
       case 'lowlight':
-        return 'teal'
+        return '#abd6ff'
       case 'highlight':
-        return 'blue'
+        return '#abd6ff'
       default:
         return 'white'
     }
@@ -70,7 +57,6 @@ export const FluidCard: FC<Props> = ({
     <motion.div
       layoutId={card.id}
       onClick={onClick}
-      onContextMenu={onContextMenu}
       onMouseOverCapture={onMouseEnter}
       onMouseOutCapture={onMouseExit}
       style={{
@@ -104,6 +90,30 @@ export const FluidCard: FC<Props> = ({
           {card.value}
           {card.suit}
         </span>
+        <div>
+          {(!!onSelect || !!selected) && (
+            <>
+              <input
+                key={(!!selected).toString()}
+                type="checkbox"
+                checked={!!selected}
+                onMouseOver={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                }}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  //console.log('click!')
+                }}
+                onChange={(e) => {
+                  console.log('change')
+                  onSelect && onSelect(!!e.target.value)
+                }}
+              />
+            </>
+          )}
+        </div>
       </div>
       <div
         style={{
@@ -115,6 +125,8 @@ export const FluidCard: FC<Props> = ({
 
           backfaceVisibility: 'hidden',
           transform: 'rotateY(180deg)',
+          borderRadius: 10,
+          border: '1px solid black',
         }}
       ></div>
     </motion.div>

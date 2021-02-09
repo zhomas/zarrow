@@ -55,3 +55,6 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
       return 'idle'
   }
 }
+
+type UserModeGetter = ReturnType<typeof userModeSelector>
+export type UserMode = ReturnType<UserModeGetter>

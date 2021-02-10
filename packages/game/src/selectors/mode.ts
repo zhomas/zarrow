@@ -42,6 +42,7 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
       return winners.includes(uid) ? 'idle:victory' : 'idle:defeat'
     default:
       if (turnActive) {
+        if (!!state.idleBurn) return 'idle:burn'
         if (failedFaceDownFlip(uid, state)) return 'pickup:stack'
         if (max === 0) return 'play:downs'
         if (!canPlay) return 'pickup:stack'

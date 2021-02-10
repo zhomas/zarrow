@@ -21,7 +21,7 @@ export const getStore = (preloaded: GameState, ...cb: Middleware[]) => {
   return configureStore({
     reducer,
     preloadedState: preloaded,
-    middleware: [...cb],
+    middleware: (get) => [...cb, ...get()],
   })
 }
 

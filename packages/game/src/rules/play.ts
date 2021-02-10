@@ -7,7 +7,7 @@ import { canCardPlay } from '../matrix'
 import { CardModel } from '../types'
 import { endTurn } from './endTurn'
 
-const shouldBurn = (state: GameState) => {
+export const shouldBurn = (state: GameState) => {
   const { stack } = state
   if (!stack.length) return false
   if (stack.find((c) => c.value === '10')) return true
@@ -56,8 +56,6 @@ export const playCard = (state: GameState, ...cards: CardModel[]) => {
 
     // Consider burn
     if (shouldBurn(state)) {
-      state.burnt = [...state.stack]
-      state.stack = []
     } else {
       // Consider reverse
       if (cards.length % 2 === 1 && cards.find((c) => c.value === '7')) {

@@ -1,6 +1,0 @@
-{
-  "watch": ["./src"],
-  "ext": "ts",
-  "exec": "yarn build && firebase emulators:start",
-  "verbose": true
-}

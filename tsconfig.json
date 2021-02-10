@@ -1,8 +1,5 @@
 {
-  "references": [
-    { "path": "./packages/functions" },
-    { "path": "./packages/game" }
-  ],
+  "references": [{ "path": "./packages/game" }],
   "files": [],
   "include": [],
   "exclude": ["**/node_modules"]

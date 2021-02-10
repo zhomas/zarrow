@@ -3,7 +3,7 @@ import { CardModel } from 'game'
 import { motion } from 'framer-motion'
 import type { FluidCardProps } from '../../typings'
 
-type Props = FluidCardProps
+type Props = FluidCardProps & { keyPrefix?: string }
 
 export const EmptyCard = () => {
   return (
@@ -39,6 +39,7 @@ export const FluidCard: FC<Props> = ({
   onMouseExit,
   selected,
   variant = 'default',
+  keyPrefix = '',
 }) => {
   const getBGColor = () => {
     switch (variant) {
@@ -55,7 +56,7 @@ export const FluidCard: FC<Props> = ({
 
   return (
     <motion.div
-      layoutId={card.id}
+      layoutId={`${keyPrefix}${card.id}`}
       onClick={onClick}
       onMouseOverCapture={onMouseEnter}
       onMouseOutCapture={onMouseExit}

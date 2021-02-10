@@ -4,7 +4,7 @@ import {
   createDeck,
   GameDispatch,
   GameState,
-  playCard,
+  playCardThunk,
   stackDestinationSelector,
   userModeSelector,
   focus,
@@ -74,7 +74,7 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
 const mapDispatch = (dispatch: GameDispatch) => {
   return {
     playCard: (c: CardModel) => {
-      const action = playCard({ cards: [c] })
+      const action = playCardThunk({ cards: [c] })
       dispatch(action)
     },
     focusCard: (c: CardModel) => {

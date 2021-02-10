@@ -53,13 +53,6 @@ it('marks the turn as stale', (t) => {
   t.is(state.turnIsFresh, false)
 })
 
-it('burns the stack when a 10 is played', (t) => {
-  const state = { ...getState(), stack: [card] }
-  playCard(state, createCard('10', 'D'))
-  t.is(state.stack.length, 0)
-  t.is(state.burnt.length, 2)
-})
-
 it('reverses direction when a 7 is played', (t) => {
   const state = { ...getState() }
   t.is(activePlayerSelector(state).id, 'a')
@@ -163,44 +156,6 @@ it('treats 8s as invisible', (t) => {
   }
   playCard(state, card)
   t.is(state.stack.length, 3)
-})
-
-it('burns when four of a kind are added to the stack', (t) => {
-  const state = {
-    ...getState(),
-    stack: [createCard('3', 'C'), createCard('3', 'H'), createCard('3', 'S')],
-  }
-
-  playCard(state, createCard('3', 'D'))
-
-  t.is(state.stack.length, 0)
-})
-
-it('ignores 8s for four of a kind calculations', (t) => {
-  const state = {
-    ...getState(),
-    stack: [
-      createCard('3', 'C'),
-      createCard('8', 'C'),
-      createCard('3', 'H'),
-      createCard('3', 'S'),
-    ],
-  }
-
-  playCard(state, createCard('3', 'D'))
-
-  t.is(state.stack.length, 0)
-})
-
-it('burns when four 8s are played', (t) => {
-  const state = {
-    ...getState(),
-    stack: [createCard('8', 'C'), createCard('8', 'H'), createCard('8', 'S')],
-  }
-
-  playCard(state, createCard('8', 'D'))
-
-  t.is(state.stack.length, 0)
 })
 
 it('ends the turn when there are no cards to pick up', (t) => {

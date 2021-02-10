@@ -1,15 +1,24 @@
-import { createSlice, Dictionary, PayloadAction } from '@reduxjs/toolkit'
+import {
+  Action,
+  AsyncThunkPayloadCreator,
+  createAsyncThunk,
+  createSlice,
+  Dictionary,
+  PayloadAction,
+  ThunkAction,
+} from '@reduxjs/toolkit'
 import { canCardPlay } from './matrix'
 import { PlayAce } from './rules/ace'
 import { dealCards } from './rules/deal'
 import { pickup } from './rules/pickup'
-import { playCard as play } from './rules/play'
+import { playCard as play, shouldBurn } from './rules/play'
 import { playAce as ace } from './rules/ace'
 import { endTurn as end } from './rules/endTurn'
 
 import { CardModel, PlayerModel } from './types'
 import { joinGame as join, changeFaction as faction } from './rules/create'
 import { createCard } from './deck'
+import { GameDispatch } from '.'
 
 export interface GameState {
   direction: number
@@ -20,6 +29,7 @@ export interface GameState {
   pickupPile: CardModel[]
   turnIsFresh?: boolean
   focused?: string
+  idleBurn?: boolean
 }
 
 export const initialState: GameState = {
@@ -30,6 +40,7 @@ export const initialState: GameState = {
   burnt: [],
   pickupPile: [],
   turnIsFresh: true,
+  idleBurn: false,
 }
 
 export const activePlayerSelector = (state: GameState) => {
@@ -76,6 +87,37 @@ interface Faction {
   faction: number
 }
 
+type AppThunk = ThunkAction<void, GameState, unknown, Action<string>>
+
+type ThunkApiConfig = {
+  dispatch: GameDispatch
+  state: GameState
+}
+
+export function createAppThunk<Returned = void, ThunkArg = void>(
+  typePrefix: string,
+  payloadCreator: AsyncThunkPayloadCreator<Returned, ThunkArg, ThunkApiConfig>,
+) {
+  return createAsyncThunk<Returned, ThunkArg, ThunkApiConfig>(
+    typePrefix,
+    payloadCreator,
+  )
+}
+
+export const playCardThunk = createAppThunk(
+  'counter/play:cards',
+  async (x: { cards: CardModel[] }, thunkAPI) => {
+    const action = playCard({ cards: x.cards })
+    thunkAPI.dispatch(action)
+
+    if (shouldBurn(thunkAPI.getState())) {
+      thunkAPI.dispatch(startBurn())
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+      thunkAPI.dispatch(completeBurn())
+    }
+  },
+)
+
 const counterSlice = createSlice({
   name: 'counter',
   initialState,
@@ -116,18 +158,27 @@ const counterSlice = createSlice({
     focus(state, action: PayloadAction<string>) {
       state.focused = action.payload
     },
+    startBurn(state) {
+      state.idleBurn = true
+    },
+    completeBurn(state) {
+      state.burnt = [...state.stack, ...state.burnt]
+      state.stack = []
+      state.idleBurn = false
+    },
   },
 })
 
+const { startBurn, completeBurn, playCard, playAce } = counterSlice.actions
+
 export const {
   deal,
-  playCard,
   pickupStack,
-  playAce,
   joinGame,
   setFaction,
   endTurn,
   replace,
   focus,
 } = counterSlice.actions
+
 export default counterSlice.reducer

@@ -1,6 +1,6 @@
 import { GameState } from '../game.slice'
 import { CardModel } from '../types'
-import { playCard } from './play'
+import { addToStack } from './play'
 
 export interface PlayAce {
   cards: CardModel[]
@@ -12,7 +12,8 @@ export const playAce = (state: GameState, play: PlayAce) => {
 
   if (cards.every((c) => c.value === 'A')) {
     const q = [...state.queue]
-    playCard(state, ...play.cards)
+    addToStack(state, ...play.cards)
     state.queue = [targetID, ...q]
+    state.turnIsFresh = true
   }
 }

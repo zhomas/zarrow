@@ -46,7 +46,7 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
         if (failedFaceDownFlip(uid, state)) return 'pickup:stack'
         if (max === 0) return 'play:downs'
         if (!canPlay) return 'pickup:stack'
-        if (!state.turnIsFresh) return 'pickup:replenish'
+        if (state.turnPhase === 'user:replenish') return 'pickup:replenish'
         if (max === 1) return 'play:ups'
         return 'play:hand'
       }

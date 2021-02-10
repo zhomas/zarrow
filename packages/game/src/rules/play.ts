@@ -5,7 +5,6 @@ import {
 } from '../game.slice'
 import { canCardPlay } from '../matrix'
 import { CardModel } from '../types'
-import { endTurn } from './endTurn'
 
 export const shouldBurn = (state: GameState) => {
   const { stack } = state
@@ -21,6 +20,7 @@ export const shouldBurn = (state: GameState) => {
     if (card.value === val) {
       siblings++
     } else {
+      siblings = 0
       val = card.value
     }
 
@@ -42,32 +42,11 @@ export const shouldBurn = (state: GameState) => {
   return eights >= 4
 }
 
-export const playCard = (state: GameState, ...cards: CardModel[]) => {
-  if (state.players.length < 1) return
-  const destination = stackDestinationSelector(state)
-  const ok = cards.every((c) => canCardPlay(c, destination))
-  if (ok) {
-    const player = activePlayerSelector(state)
+export const addToStack = (state: GameState, ...cards: CardModel[]) => {
+  const player = activePlayerSelector(state)
 
-    cards.forEach((card) => {
-      player.cards = player.cards.filter((c) => c.card.id !== card.id)
-      state.stack.unshift(card)
-    })
-
-    // Consider burn
-    if (shouldBurn(state)) {
-    } else {
-      // Consider reverse
-      if (cards.length % 2 === 1 && cards.find((c) => c.value === '7')) {
-        state.direction *= -1
-      }
-    }
-
-    state.turnIsFresh = false
-    state.focused = ''
-
-    if (state.pickupPile.length === 0) {
-      endTurn(state)
-    }
-  }
+  cards.forEach((card) => {
+    player.cards = player.cards.filter((c) => c.card.id !== card.id)
+    state.stack.unshift(card)
+  })
 }

@@ -135,18 +135,3 @@ it('marks non-siblings as unselectable', (t) => {
 
   t.truthy(typeof props.onSelect === 'undefined')
 })
-
-// it('highlights nothing when in selection mode', (t) => {
-//   const a = createCardByID('3D')
-//   const b = createCardByID('3C')
-//   const c = createCardByID('4D')
-
-//   const getter = cardViewStateFactory({
-//     dest: createCardByID('3D'),
-//     currentMode: 'play:hand',
-//     hoverTarget: [c],
-//     selected: [a, b],
-//   })
-
-//   t.is<CardVariant>(getter(c).variant, 'default')
-// })

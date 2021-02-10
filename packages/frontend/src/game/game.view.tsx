@@ -3,7 +3,8 @@ import {
   CardModel,
   createDeck,
   deal,
-  endTurn,
+  confirmReplenish,
+  confirmTargeting,
   GameDispatch,
   GameState,
   playCardThunk,
@@ -18,6 +19,7 @@ import { FluidCard, EmptyCard } from '../components'
 import { FaceDowns } from './downs'
 import { AnimateSharedLayout } from 'framer-motion'
 import { getCardProps, useGameViewModel } from './game.view.model'
+import { Reticule } from './reticule'
 import { FluidCardProps } from '../typings'
 import { createCardByID } from 'game/dist/deck'
 
@@ -29,8 +31,7 @@ const _GameView: FC<Props> = ({
   replenishPile,
   playCards,
   deal,
-  endTurn,
-  proceed,
+  confirmReplenish: endTurn,
   mode,
   pickupStack,
   canPlay,
@@ -229,20 +230,12 @@ const _GameView: FC<Props> = ({
         <FaceDowns uid={uid} />
       </div>
       <button onClick={deal}>Re-deal</button>
-      <button onClick={() => playCards({ suit: 'C', value: '5', id: '5C' })}>
-        Test
-      </button>
-
-      <div>
-        <button onClick={proceed}>Next!</button>
-      </div>
+      <Reticule uid={uid} />
     </AnimateSharedLayout>
   )
 }
 
 const mapState = (state: GameState, ownProps: OwnProps) => {
-  console.log(state)
-
   const destination = stackDestinationSelector(state)
   const myCards = state.players.find((p) => p.id === ownProps.uid)?.cards || []
   const getMode = userModeSelector(ownProps.uid)
@@ -276,21 +269,13 @@ const mapDispatch = (d: GameDispatch) => {
       const action = deal({ deck: createDeck(34) })
       d(action)
     },
-    endTurn: () => {
-      const action = endTurn()
+    confirmReplenish: () => {
+      const action = confirmReplenish()
       d(action)
     },
     pickupStack: (...additions: CardModel[]) => {
       const action = pickupStack([...additions])
       d(action)
-    },
-    proceed: () => {
-      const action = playCardThunk({
-        cards: [{ suit: 'D', value: '8', id: '8D' }],
-      })
-
-      d(action)
-      d(endTurn())
     },
   }
 }

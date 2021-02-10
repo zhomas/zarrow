@@ -16,7 +16,14 @@ export const StateGate: FC<Props> = ({ gid, children }) => {
       const doc = await firebase.firestore().collection('games').doc(gid).get()
       if (doc.exists) {
         const data = doc.data() as GameState
-        setState(data)
+        setState({
+          ...data,
+          local: {
+            targeting: false,
+            targetingCards: [],
+            targetUID: '',
+          },
+        })
       } else {
         await firebase
           .firestore()
@@ -31,6 +38,5 @@ export const StateGate: FC<Props> = ({ gid, children }) => {
     fn()
   }, [gid])
 
-  console.log('state', state)
   return state ? <> {children(state)} </> : <h1>Loading...</h1>
 }

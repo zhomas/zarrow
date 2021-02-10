@@ -46,4 +46,9 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
   state.burnt = []
   state.stack = []
   state.turnIsFresh = true
+  state.local = {
+    targeting: false,
+    targetingCards: [],
+    targetUID: '',
+  }
 }

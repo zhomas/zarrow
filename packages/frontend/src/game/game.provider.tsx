@@ -16,11 +16,11 @@ export const GameProvider: FC<ProviderProps> = ({
   const store = useMemo(() => {
     return getStore(initialState, (api) => (next) => (action) => {
       const result = next(action)
-      console.log('dispatch', action)
       if (action.type !== 'counter/replace') {
+        console.log('dispatch', action)
         console.log('Next state', api.getState())
 
-        const state: GameState = api.getState()
+        const { local, ...state }: GameState = api.getState()
         const data: GameState = {
           ...state,
           focused: state.focused || '',

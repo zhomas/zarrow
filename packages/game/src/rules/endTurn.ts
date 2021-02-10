@@ -43,9 +43,4 @@ export const endTurn = (state: GameState) => {
   ) {
     player.cards.push({ card: pickupPile.shift(), tier: 2 })
   }
-
-  const next = getNextPlayer(state)
-
-  state.queue = [...new Set([next, ...state.queue])].filter((id) => !!id)
-  state.turnIsFresh = true
 }

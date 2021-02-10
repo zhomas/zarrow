@@ -23,9 +23,7 @@ const Root: FC<Props> = ({ mode, uid, gid, replace, dealNewGame }) => {
       .onSnapshot((snap) => {
         if (snap.metadata.hasPendingWrites) return
         if (snap.metadata.fromCache) return
-
         const gm = { ...snap.data() } as GameState
-        console.log('Snapshot', performance.now())
         replace(gm)
       })
 

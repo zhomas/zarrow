@@ -1,7 +1,6 @@
 import {
   canCardPlay,
   CardModel,
-  createDeck,
   GameDispatch,
   GameState,
   playCardThunk,
@@ -9,7 +8,7 @@ import {
   userModeSelector,
   focus,
 } from 'game'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
 import { FluidCard } from '../../components/card'
@@ -81,7 +80,7 @@ const mapDispatch = (dispatch: GameDispatch) => {
       const action = focus(c.id)
       dispatch(action)
     },
-    pickup: (c: CardModel) => {},
+    pickup: () => {},
   }
 }
 

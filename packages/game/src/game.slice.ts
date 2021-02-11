@@ -3,21 +3,23 @@ import {
   AsyncThunkPayloadCreator,
   createAsyncThunk,
   createSlice,
-  Dictionary,
   PayloadAction,
   ThunkAction,
 } from '@reduxjs/toolkit'
 import { canCardPlay } from './matrix'
-import { PlayAce } from './rules/ace'
 import { dealCards } from './rules/deal'
 import { pickup } from './rules/pickup'
-import { addToStack as play, shouldBurn } from './rules/play'
-import { playAce as ace } from './rules/ace'
-
+import {
+  stackDestinationSelector,
+  activePlayerSelector,
+  activeTierSelector,
+  shouldBurn,
+  getNextPlayer,
+} from './selectors'
 import { CardModel, PlayerModel } from './types'
 import { joinGame as join, changeFaction as faction } from './rules/create'
 import { createCard } from './deck'
-import { GameDispatch, getNextPlayer, getStore } from '.'
+import { GameDispatch } from '.'
 
 export interface GameState {
   direction: number
@@ -27,7 +29,6 @@ export interface GameState {
   burnt: CardModel[]
   pickupPile: CardModel[]
   turnPhase?: 'idle' | 'playing' | 'user:target' | 'user:replenish'
-  turnIsFresh?: boolean
   focused?: string
   idleBurn?: boolean
   local?: {
@@ -44,39 +45,12 @@ export const initialState: GameState = {
   stack: [],
   burnt: [],
   pickupPile: [],
-  turnIsFresh: true,
   idleBurn: false,
   local: {
     targeting: false,
     targetingCards: [],
     targetUID: '',
   },
-}
-
-export const activePlayerSelector = (state: GameState) => {
-  const id = state.queue[0]
-  return state.players.find((p) => p.id === id)
-}
-
-export const stackDestinationSelector = (state: GameState) => {
-  for (const card of state.stack) {
-    if (card.value === '8') continue
-    return card
-  }
-
-  return createCard('3', 'H') // Anything can play on a 3
-}
-
-export const activeTierSelector = (state: GameState) => {
-  const player = activePlayerSelector(state)
-  const max = Math.max(...player.cards.map((c) => c.tier))
-  return player.cards.filter((c) => c.tier === max)
-}
-
-export const mustPickUpSelector = (state: GameState) => {
-  const dest = stackDestinationSelector(state)
-  const options = activeTierSelector(state)
-  return !options.some((c) => canCardPlay(c.card, dest))
 }
 
 interface GameInitialiser {
@@ -96,8 +70,6 @@ interface Faction {
   uid: string
   faction: number
 }
-
-type AppThunk = ThunkAction<void, GameState, unknown, Action<string>>
 
 type ThunkApiConfig = {
   dispatch: GameDispatch
@@ -120,7 +92,7 @@ interface PlayCardArgs {
 
 export const playCardThunk = createAppThunk(
   'counter/play:cards',
-  async ({ cards }: PlayCardArgs, { dispatch, getState, rejectWithValue }) => {
+  async ({ cards }: PlayCardArgs, { dispatch, getState }) => {
     if (cards.length === 0) throw new Error('Cannot play zero cards')
     const state = getState()
     const destination = stackDestinationSelector(state)
@@ -150,7 +122,7 @@ export const playCardThunk = createAppThunk(
       dispatch(startTargeting(cards))
 
       while (!getState().local.targetUID) {
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        await new Promise((resolve) => setTimeout(resolve, 100))
       }
 
       aceTarget = getState().local.targetUID
@@ -162,10 +134,12 @@ export const playCardThunk = createAppThunk(
     }
 
     // Get next player
+    console.log('GETNEXTPL')
     const next = aceTarget || getNextPlayer(getState())
+    console.log('NEXT PLAYER', next)
 
     const tier = activeTierSelector(getState())
-    const [c] = tier
+    const [] = tier
 
     // Replenish stack
     const needsConfirmation =
@@ -201,7 +175,6 @@ const counterSlice = createSlice({
       state.pickupPile = action.payload.pickupPile
       state.burnt = action.payload.burnt
       state.direction = action.payload.direction
-      state.turnIsFresh = action.payload.turnIsFresh
       state.focused = action.payload.focused
     },
     joinGame(state, action: PayloadAction<Join>) {
@@ -217,7 +190,7 @@ const counterSlice = createSlice({
       const { cards } = action.payload
       const player = activePlayerSelector(state)
 
-      cards.forEach((card) => {})
+      cards.forEach(() => {})
 
       for (const card of cards) {
         if (card.value === '6') {
@@ -235,9 +208,6 @@ const counterSlice = createSlice({
     },
     pickupStack(state, action: PayloadAction<CardModel[]>) {
       pickup(state, ...action.payload)
-    },
-    playAce(state, action: PayloadAction<PlayAce>) {
-      ace(state, action.payload)
     },
     focus(state, action: PayloadAction<string>) {
       state.focused = action.payload
@@ -270,6 +240,7 @@ const counterSlice = createSlice({
     },
     completeTurn(state, action: PayloadAction<string>) {
       const next = action.payload
+      console.log('COMPLETING TURN...')
       const player = activePlayerSelector(state)
       const { pickupPile } = state
 
@@ -285,7 +256,6 @@ const counterSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(playCardThunk.pending, (state) => {
-      state.turnIsFresh = false
       state.turnPhase = 'playing'
       state.focused = ''
     })
@@ -294,7 +264,6 @@ const counterSlice = createSlice({
       state.local.targetUID = ''
       state.local.targetingCards = []
       state.turnPhase = 'idle'
-      state.turnIsFresh = true
     })
   },
 })

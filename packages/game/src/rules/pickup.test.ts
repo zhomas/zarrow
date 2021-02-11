@@ -1,7 +1,8 @@
 import it from 'ava'
-import { activePlayerSelector, GameState } from '../game.slice'
+import { GameState } from '../game.slice'
 import { CardModel } from '../types'
 import { pickup } from './pickup'
+import { activePlayerSelector } from '../selectors'
 
 const card: CardModel = {
   value: '3',

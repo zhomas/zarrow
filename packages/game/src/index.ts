@@ -3,14 +3,6 @@ import gameReducer, { GameState, initialState } from './game.slice'
 export * from './game.slice'
 export * from './selectors/status'
 
-export const store = configureStore({
-  reducer: gameReducer,
-})
-
-export const reducer = gameReducer
-
-type StoreType = typeof store
-
 export { createDeck } from './deck'
 export { createGame } from './rules/create'
 export type { CardModel } from './types'
@@ -23,11 +15,12 @@ export const getStore = (
 ) => {
   const preloadedState: GameState = { ...initialState, ...preloaded }
   return configureStore({
-    reducer,
+    reducer: gameReducer,
     preloadedState,
     middleware: (get) => [...get(), ...cb] as const,
   })
 }
 
+type StoreType = ReturnType<typeof getStore>
 export * from './matrix'
 export * from './selectors'

@@ -1,6 +1,7 @@
 import { createCard, createCardByID } from '../deck'
-import { activePlayerSelector, GameState } from '../game.slice'
+import { GameState } from '../game.slice'
 import { CardModel } from '../types'
+import { activePlayerSelector } from '../selectors'
 
 export const pickup = (state: GameState, ...cards: CardModel[]) => {
   const player = activePlayerSelector(state)

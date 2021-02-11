@@ -1,14 +1,6 @@
-import { PayloadAction } from '@reduxjs/toolkit'
-import { store } from '..'
-import { createCard } from '../deck'
 import { GameState } from '../game.slice'
-import { gameModeSelector } from '../selectors/status'
 import { CardModel, PlayerModel } from '../types'
 import { getWrappedIndex } from '../utils'
-
-interface GameInitialiser {
-  deck: CardModel[]
-}
 
 const findFreeTier = (player: PlayerModel) => {
   const downs = player.cards.filter((c) => c.tier == 0)
@@ -46,7 +38,6 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
   state.queue = [playerIds[0]]
   state.burnt = []
   state.stack = []
-  state.turnIsFresh = true
   state.local = {
     targeting: false,
     targetingCards: [],

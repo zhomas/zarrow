@@ -1,16 +1,13 @@
-import reducer, { activeTierSelector, playCardThunk } from './game.slice'
+import { playCardThunk, confirmTargeting, confirmReplenish } from './game.slice'
+import {
+  activeTierSelector,
+  activePlayerSelector,
+  stackDestinationSelector,
+} from './selectors'
 import it from 'ava'
 import { CardModel } from './types'
 import { createCard } from './deck'
-import {
-  activePlayerSelector,
-  confirmReplenish,
-  confirmTargeting,
-  GameState,
-  getStore,
-  stackDestinationSelector,
-} from '.'
-import { userModeSelector } from './selectors'
+import { GameState, getStore } from '.'
 
 it('chooses from the active tier', (t) => {
   const card: CardModel = {
@@ -189,34 +186,6 @@ it('skips a go in reverse', (t) => {
   t.is(activePlayerSelector(getState()).id, 'b')
 })
 
-it('marks the turn as fresh', async (t) => {
-  const { dispatch, getState } = getStore({
-    direction: -1,
-    pickupPile: [],
-    burnt: [],
-    queue: ['a'],
-    players: [
-      {
-        id: 'a',
-        faction: 0,
-        displayName: '',
-        cards: [{ card, tier: 2 }],
-      },
-      {
-        id: 'b',
-        faction: 0,
-        displayName: '',
-        cards: [{ card, tier: 2 }],
-      },
-    ],
-    stack: [],
-    turnIsFresh: false,
-  })
-
-  await dispatch(playCardThunk({ cards: [createCard('5', 'H')] }))
-  t.is(getState().turnIsFresh, true)
-})
-
 it('burns the stack when a 10 is played', async (t) => {
   const action = playCardThunk({ cards: [createCard('10', 'D')] })
   const store = getStore(state)
@@ -320,7 +289,6 @@ it('properly increments the turn when I play an ace', async (t) => {
         id: 'b',
       },
     ],
-    turnIsFresh: true,
     idleBurn: false,
     pickupPile: [{ suit: 'H', id: '6H', value: '6' }],
     focused: '',
@@ -677,6 +645,7 @@ it('doesnt hang the turn if there is no pickup pile', async (t) => {
   })
 
   await dispatch(playCardThunk({ cards: [createCard('3', 'D')] }))
+  t.log(getState())
   t.is(activePlayerSelector(getState()).id, 'b')
 })
 

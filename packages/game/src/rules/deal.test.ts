@@ -1,6 +1,6 @@
 import it from 'ava'
 import { createDeck } from '../deck'
-import { activePlayerSelector, initialState } from '../game.slice'
+import { activePlayerSelector } from '../selectors'
 import { dealCards } from './deal'
 import { getDummyState } from './_test.helpers'
 

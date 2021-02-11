@@ -20,8 +20,6 @@ import { FaceDowns } from './downs'
 import { AnimateSharedLayout } from 'framer-motion'
 import { getCardProps, useGameViewModel } from './game.view.model'
 import { Reticule } from './reticule'
-import { FluidCardProps } from '../typings'
-import { createCardByID } from 'game/dist/deck'
 
 const _GameView: FC<Props> = ({
   hand,
@@ -31,10 +29,9 @@ const _GameView: FC<Props> = ({
   replenishPile,
   playCards,
   deal,
-  confirmReplenish: endTurn,
+  confirmReplenish,
   mode,
   pickupStack,
-  canPlay,
   destination,
   activeCards,
 }) => {
@@ -51,38 +48,41 @@ const _GameView: FC<Props> = ({
     setHovered([])
   }, [selected])
 
-  const curried = (c: CardModel, isActiveMode: boolean) => {
-    return getCardProps({
-      active: isActiveMode,
-      destID: destination.id,
-      selected: selected.map((c) => c.id),
-      hovered: hovered.map((h) => h.id),
-      id: c.id,
-      toggleHover: () => {
-        const next = hovered.includes(c)
-          ? hovered.filter((h) => h.id !== c.id)
-          : [...hovered, c]
+  const curried = useCallback(
+    (c: CardModel, isActiveMode: boolean) => {
+      return getCardProps({
+        active: isActiveMode,
+        destID: destination.id,
+        selected: selected.map((c) => c.id),
+        hovered: hovered.map((h) => h.id),
+        id: c.id,
+        toggleHover: () => {
+          const next = hovered.includes(c)
+            ? hovered.filter((h) => h.id !== c.id)
+            : [...hovered, c]
 
-        setHovered(next)
-      },
-      toggleSelected: () => {
-        const next = selected.includes(c)
-          ? selected.filter((h) => h.id !== c.id)
-          : [...selected, c]
+          setHovered(next)
+        },
+        toggleSelected: () => {
+          const next = selected.includes(c)
+            ? selected.filter((h) => h.id !== c.id)
+            : [...selected, c]
 
-        console.log('toggle selected!', next)
-        setSelected(next)
-      },
-      playAllSiblings: () => {
-        const siblings = activeCards
-          .filter((a) => a.card.value === c.value)
-          .map((a) => a.card)
+          console.log('toggle selected!', next)
+          setSelected(next)
+        },
+        playAllSiblings: () => {
+          const siblings = activeCards
+            .filter((a) => a.card.value === c.value)
+            .map((a) => a.card)
 
-        playCards(...siblings)
-      },
-      hand: activeCards.map((a) => a.card),
-    })
-  }
+          playCards(...siblings)
+        },
+        hand: activeCards.map((a) => a.card),
+      })
+    },
+    [hovered, selected],
+  )
 
   return (
     <AnimateSharedLayout>
@@ -156,7 +156,10 @@ const _GameView: FC<Props> = ({
             Pick up stack
           </button>
         )}
-        <button disabled={mode !== 'pickup:replenish'} onClick={endTurn}>
+        <button
+          disabled={mode !== 'pickup:replenish'}
+          onClick={confirmReplenish}
+        >
           Replenish ({replenishPile.length} cards remaining)
         </button>
         <div style={{ width: 200, height: 200, position: 'relative' }}>

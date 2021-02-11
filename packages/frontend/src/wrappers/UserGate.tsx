@@ -1,5 +1,5 @@
 import firebase from 'firebase'
-import { FC, useState, useEffect } from 'react'
+import React, { FC, useState, useEffect } from 'react'
 
 interface Props {
   children: (uid: string) => JSX.Element

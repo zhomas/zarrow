@@ -1,4 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit'
+import { store } from '..'
 import { createCard } from '../deck'
 import { GameState } from '../game.slice'
 import { gameModeSelector } from '../selectors/status'
@@ -51,4 +52,5 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
     targetingCards: [],
     targetUID: '',
   }
+  state.turnPhase = 'idle'
 }

@@ -13,12 +13,11 @@ import { dealCards } from './rules/deal'
 import { pickup } from './rules/pickup'
 import { addToStack as play, shouldBurn } from './rules/play'
 import { playAce as ace } from './rules/ace'
-import { getNextPlayer } from './rules/endTurn'
 
 import { CardModel, PlayerModel } from './types'
 import { joinGame as join, changeFaction as faction } from './rules/create'
 import { createCard } from './deck'
-import { GameDispatch, getStore } from '.'
+import { GameDispatch, getNextPlayer, getStore } from '.'
 
 export interface GameState {
   direction: number

@@ -1,5 +1,5 @@
 import { GameState, getStore } from 'game'
-import { FC, useMemo } from 'react'
+import React, { FC, useMemo } from 'react'
 import { Provider } from 'react-redux'
 import firebase from 'firebase'
 

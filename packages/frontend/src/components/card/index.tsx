@@ -2,6 +2,7 @@ import React, { FC } from 'react'
 import { CardModel } from 'game'
 import { motion } from 'framer-motion'
 import type { FluidCardProps } from '../../typings'
+import { styled } from '@linaria/react'
 
 type Props = FluidCardProps & { keyPrefix?: string }
 
@@ -29,6 +30,34 @@ const variants = {
     rotateY: -180,
   },
 }
+
+const CardBack = styled.div`
+  width: 140px;
+  height: 200px;
+  background: red;
+  position: absolute;
+  top: 0;
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+  border-radius: 10px;
+  border: 1px solid black;
+`
+
+const CardFace = styled.div`
+  border-radius: 10px;
+  border: 1px solid black;
+  position: absolute;
+  width: 140px;
+  height: 200px;
+  top: 0;
+  left: 0;
+
+  text-align: left;
+  padding: 10px;
+  z-index: 2;
+
+  backface-visibility: hidden;
+`
 
 export const FluidCard: FC<Props> = ({
   card,
@@ -70,21 +99,10 @@ export const FluidCard: FC<Props> = ({
       variants={variants}
       animate={faceDown ? 'faceDown' : 'faceUp'}
     >
-      <div
+      <CardFace
         style={{
-          borderRadius: 10,
-          border: '1px solid black',
-          position: 'absolute',
-          width: 140,
-          height: 200,
-          top: 0,
-          left: 0,
           backgroundColor: getBGColor(),
-          textAlign: 'left',
-          padding: 10,
-          zIndex: 2,
           color: card.suit === 'D' || card.suit === 'H' ? 'red' : 'black',
-          backfaceVisibility: 'hidden',
         }}
       >
         <span>
@@ -115,21 +133,8 @@ export const FluidCard: FC<Props> = ({
             </>
           )}
         </div>
-      </div>
-      <div
-        style={{
-          width: 140,
-          height: 200,
-          background: 'red',
-          position: 'absolute',
-          top: 0,
-
-          backfaceVisibility: 'hidden',
-          transform: 'rotateY(180deg)',
-          borderRadius: 10,
-          border: '1px solid black',
-        }}
-      ></div>
+      </CardFace>
+      <CardBack />
     </motion.div>
   )
 }

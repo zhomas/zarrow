@@ -8,6 +8,7 @@ it('requires playing from the face ups when a card can play', (t) => {
     burnt: [],
     direction: 1,
     pickupPile: [],
+    turnLocks: [],
     queue: ['abc'],
     stack: [createCard('A', 'S')],
     players: [
@@ -32,6 +33,7 @@ it('prompts a pickup when no face up card can play', (t) => {
     burnt: [],
     direction: 1,
     pickupPile: [],
+    turnLocks: [],
     queue: ['abc'],
     stack: [createCard('A', 'S')],
     players: [
@@ -56,6 +58,7 @@ it('requires playing from the face downs even when no card can play', (t) => {
     burnt: [],
     direction: 1,
     pickupPile: [],
+    turnLocks: [],
     queue: ['abc'],
     stack: [createCard('A', 'S')],
     players: [
@@ -81,6 +84,7 @@ it('requires pickup when the revealed facedown card cannot play on the stack', (
     direction: 1,
     pickupPile: [],
     queue: ['abc'],
+    turnLocks: [],
     stack: [createCard('A', 'S')],
     players: [
       {
@@ -106,6 +110,7 @@ it('requires no pickup with a falsy focus card', (t) => {
     direction: 1,
     pickupPile: [],
     queue: ['abc'],
+    turnLocks: [],
     stack: [createCard('A', 'S')],
     players: [
       {

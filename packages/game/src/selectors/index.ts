@@ -9,6 +9,12 @@ export const getPlayerSelector = (id: string) => {
   }
 }
 
+export type TurnLock = GameState['turnLocks'][number]
+
+export const hasLock = (lock: TurnLock) => (s: GameState) => {
+  return s.turnLocks.includes(lock)
+}
+
 export const shouldBurn = (state: GameState) => {
   const { stack } = state
   if (!stack.length) return false

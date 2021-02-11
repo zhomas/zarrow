@@ -3,8 +3,7 @@ import {
   CardModel,
   createDeck,
   deal,
-  confirmReplenish,
-  confirmTargeting,
+  unlockTurn,
   GameDispatch,
   GameState,
   playCardThunk,
@@ -273,7 +272,7 @@ const mapDispatch = (d: GameDispatch) => {
       d(action)
     },
     confirmReplenish: () => {
-      const action = confirmReplenish()
+      const action = unlockTurn({ channel: 'user:replenish' })
       d(action)
     },
     pickupStack: (...additions: CardModel[]) => {

@@ -14,6 +14,7 @@ const getState = (): GameState => ({
   direction: 1,
   queue: ['a', 'b'],
   pickupPile: [],
+  turnLocks: [],
   burnt: [],
   players: [
     {

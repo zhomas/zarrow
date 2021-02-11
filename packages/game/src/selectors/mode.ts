@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { GameState, stackDestinationSelector, canCardPlay } from '..'
+import { GameState, stackDestinationSelector, canCardPlay, hasLock } from '..'
 import { createCardByID, createDeck } from '../deck'
 import { CardModel } from '../types'
 import { gameModeSelector, winnersSelector } from './status'
@@ -36,17 +36,22 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
 
   const gameMode = gameModeSelector(state)
 
+  const isBurning = hasLock('burn')
+  const isReplenishing = hasLock('user:replenish')
+  const isTargeting = hasLock('user:target')
+
+  if (isBurning(state)) return 'idle:burn'
+
   switch (gameMode) {
     case 'complete':
       const winners = winnersSelector(state)
       return winners.includes(uid) ? 'idle:victory' : 'idle:defeat'
     default:
       if (turnActive) {
-        if (!!state.idleBurn) return 'idle:burn'
         if (failedFaceDownFlip(uid, state)) return 'pickup:stack'
         if (max === 0) return 'play:downs'
+        if (isReplenishing(state)) return 'pickup:replenish'
         if (!canPlay) return 'pickup:stack'
-        if (state.turnPhase === 'user:replenish') return 'pickup:replenish'
         if (max === 1) return 'play:ups'
         return 'play:hand'
       }

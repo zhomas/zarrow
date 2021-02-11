@@ -8,6 +8,7 @@ export const getDummyState = (): GameState => ({
   pickupPile: [],
   burnt: [],
   queue: ['a'],
+  turnLocks: [],
   players: [
     {
       id: 'a',

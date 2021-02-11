@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import React, { FC } from 'react'
 import { RouteComponentProps, useNavigate } from '@reach/router'
 import { nanoid } from 'nanoid'
 

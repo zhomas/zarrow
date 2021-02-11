@@ -43,5 +43,4 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
     targetingCards: [],
     targetUID: '',
   }
-  state.turnPhase = 'idle'
 }

@@ -8,6 +8,7 @@ export const createGame = (): GameState => {
     direction: 1,
     pickupPile: [],
     players: [],
+    turnLocks: [],
     local: {
       targeting: false,
       targetingCards: [],

@@ -1,10 +1,8 @@
 import {
-  Action,
   AsyncThunkPayloadCreator,
   createAsyncThunk,
   createSlice,
   PayloadAction,
-  ThunkAction,
 } from '@reduxjs/toolkit'
 import { canCardPlay } from './matrix'
 import { dealCards } from './rules/deal'
@@ -18,8 +16,9 @@ import {
 } from './selectors'
 import { CardModel, PlayerModel } from './types'
 import { joinGame as join, changeFaction as faction } from './rules/create'
-import { createCard } from './deck'
 import { GameDispatch } from '.'
+
+type TurnLock = 'burn' | 'user:replenish' | 'user:target'
 
 export interface GameState {
   direction: number
@@ -28,14 +27,13 @@ export interface GameState {
   stack: CardModel[]
   burnt: CardModel[]
   pickupPile: CardModel[]
-  turnPhase?: 'idle' | 'playing' | 'user:target' | 'user:replenish'
   focused?: string
-  idleBurn?: boolean
   local?: {
     targeting: boolean
     targetingCards: CardModel[]
     targetUID: string
   }
+  turnLocks?: TurnLock[]
 }
 
 export const initialState: GameState = {
@@ -45,7 +43,7 @@ export const initialState: GameState = {
   stack: [],
   burnt: [],
   pickupPile: [],
-  idleBurn: false,
+  turnLocks: [],
   local: {
     targeting: false,
     targetingCards: [],
@@ -111,17 +109,15 @@ export const playCardThunk = createAppThunk(
     // Consider burn
 
     if (shouldBurn(getState())) {
-      dispatch(startBurn())
+      dispatch(lockTurn('burn'))
       await new Promise((resolve) => setTimeout(resolve, 1500))
-      dispatch(completeBurn())
+      dispatch(unlockTurn({ channel: 'burn' }))
     }
 
     // Acquire target
     if (ace) {
-      dispatch(setTurnPhase('user:target'))
-      dispatch(startTargeting(cards))
-
-      while (!getState().local.targetUID) {
+      dispatch(lockTurn('user:target'))
+      while (getState().turnLocks.length > 0) {
         await new Promise((resolve) => setTimeout(resolve, 100))
       }
 
@@ -146,21 +142,20 @@ export const playCardThunk = createAppThunk(
       getState().pickupPile.length > 0 && tier.length < 4
 
     if (needsConfirmation) {
-      dispatch(setTurnPhase('user:replenish'))
-
+      dispatch(lockTurn('user:replenish'))
       while (true) {
         await new Promise((resolve) => setTimeout(resolve, 100))
-        if (getState().turnPhase !== 'user:replenish') {
+        if (getState().turnLocks.length === 0) {
           break
         }
       }
+    } else {
+      dispatch(unlockTurn({ channel: 'user:replenish' }))
     }
 
     dispatch(completeTurn(next))
 
-    if (cards.some((c) => c.id === 'QH')) {
-      console.log('final value :: ', getState())
-    }
+    return next
   },
 )
 
@@ -190,20 +185,11 @@ const counterSlice = createSlice({
       const { cards } = action.payload
       const player = activePlayerSelector(state)
 
-      cards.forEach(() => {})
-
       for (const card of cards) {
-        if (card.value === '6') {
-          console.log('adding card', card)
-        }
         if (player) {
           player.cards = player.cards.filter((c) => c.card.id !== card.id)
         }
         state.stack.unshift(card)
-      }
-
-      if (cards.some((c) => c.value === '6')) {
-        console.log('adding card COMPLETE')
       }
     },
     pickupStack(state, action: PayloadAction<CardModel[]>) {
@@ -212,31 +198,8 @@ const counterSlice = createSlice({
     focus(state, action: PayloadAction<string>) {
       state.focused = action.payload
     },
-    startBurn(state) {
-      state.idleBurn = true
-    },
-    setTurnPhase(state, action: PayloadAction<GameState['turnPhase']>) {
-      state.turnPhase = action.payload
-    },
     reverse(state) {
       state.direction *= -1
-    },
-    completeBurn(state) {
-      state.burnt = [...state.stack, ...state.burnt]
-      state.stack = []
-      state.idleBurn = false
-    },
-    startTargeting(state, action: PayloadAction<CardModel[]>) {
-      state.local.targeting = true
-      state.local.targetingCards = action.payload
-      state.local.targetUID = ''
-    },
-    confirmReplenish(state) {
-      state.turnPhase = 'playing'
-    },
-    confirmTargeting(state, action: PayloadAction<string>) {
-      const target = action.payload
-      state.local.targetUID = target
     },
     completeTurn(state, action: PayloadAction<string>) {
       const next = action.payload
@@ -253,40 +216,52 @@ const counterSlice = createSlice({
 
       state.queue = [...new Set([next, ...state.queue])].filter((id) => !!id)
     },
+    lockTurn(state, action: PayloadAction<GameState['turnLocks'][number]>) {
+      state.turnLocks = [...state.turnLocks, action.payload]
+    },
+    unlockTurn(
+      state,
+      action: PayloadAction<{ channel: TurnLock; data?: string }>,
+    ) {
+      state.turnLocks = state.turnLocks.filter(
+        (t) => t !== action.payload.channel,
+      )
+
+      switch (action.payload.channel) {
+        case 'user:target':
+          state.local.targetUID = action.payload.data
+          break
+        case 'burn':
+          state.burnt = [...state.stack, ...state.burnt]
+          state.stack = []
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(playCardThunk.pending, (state) => {
-      state.turnPhase = 'playing'
       state.focused = ''
     })
     builder.addCase(playCardThunk.fulfilled, (state) => {
       state.local.targeting = false
       state.local.targetUID = ''
       state.local.targetingCards = []
-      state.turnPhase = 'idle'
+
+      state.turnLocks = []
     })
   },
 })
 
-const {
-  startBurn,
-  completeBurn,
-  addToStack,
-  setTurnPhase,
-  completeTurn,
-} = counterSlice.actions
+const { addToStack, completeTurn, lockTurn } = counterSlice.actions
 
 export const {
   deal,
+  unlockTurn,
   pickupStack,
   joinGame,
   setFaction,
   replace,
   focus,
   reverse,
-  startTargeting,
-  confirmReplenish,
-  confirmTargeting,
 } = counterSlice.actions
 
 export default counterSlice.reducer

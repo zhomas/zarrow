@@ -1,9 +1,10 @@
 import {
   CardModel,
-  confirmTargeting,
   GameDispatch,
   GameState,
+  hasLock,
   playCardThunk,
+  unlockTurn,
 } from 'game'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
@@ -37,7 +38,7 @@ const _Reticule: FC<Props> = ({ show, targets, setTarget, cards }) => {
 
 const mapState = (state: GameState, ownProps: OwnProps) => {
   return {
-    show: state.turnPhase === 'user:target',
+    show: hasLock('user:target')(state),
     targets: state.players.filter((p) => p.id !== ownProps.uid),
     cards: state.local ? state.local.targetingCards : [],
   }
@@ -46,7 +47,7 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
 const mapDispatch = (dispatch: GameDispatch) => {
   return {
     setTarget: (uid: string, cards: CardModel[]) => {
-      const action = confirmTargeting(uid)
+      const action = unlockTurn({ channel: 'user:target', data: uid })
       dispatch(action)
     },
   }

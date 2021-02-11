@@ -1,13 +1,17 @@
-import { playCardThunk, confirmTargeting, confirmReplenish } from './game.slice'
+import { playCardThunk, unlockTurn } from './game.slice'
 import {
   activeTierSelector,
   activePlayerSelector,
   stackDestinationSelector,
+  hasLock,
 } from './selectors'
 import it from 'ava'
 import { CardModel } from './types'
 import { createCard } from './deck'
 import { GameState, getStore } from '.'
+
+const isBurning = hasLock('burn')
+const isReplenishing = hasLock('user:replenish')
 
 it('chooses from the active tier', (t) => {
   const card: CardModel = {
@@ -114,10 +118,10 @@ it('replenishes cards', async (t) => {
   await store.dispatch(playCardThunk({ cards: [card] }))
   const state = store.getState()
   t.is(activePlayerSelector(state).id, 'a')
-  t.is(state.turnPhase, 'user:replenish')
+  t.true(state.turnLocks.includes('user:replenish'))
 
-  store.dispatch(confirmReplenish())
-
+  store.dispatch(unlockTurn({ channel: 'user:replenish' }))
+  t.false(state.turnLocks.includes('user:replenish'))
   t.is(store.getState().players[0].cards.length, 4)
 })
 
@@ -189,13 +193,17 @@ it('skips a go in reverse', (t) => {
 it('burns the stack when a 10 is played', async (t) => {
   const action = playCardThunk({ cards: [createCard('10', 'D')] })
   const store = getStore(state)
+
   store.dispatch(action)
-  t.is(store.getState().idleBurn, true)
-  await new Promise((resolve) => setTimeout(resolve, 3500))
-  t.is(store.getState().idleBurn, false)
+
+  t.is(isBurning(store.getState()), true)
+  await new Promise((resolve) => setTimeout(resolve, 1500))
+  t.is(store.getState().stack.length, 0)
+  t.is(isBurning(store.getState()), false)
 })
 
 it('burns when a fourth 8 is played', (t) => {
+  const isBurning = hasLock('burn')
   const st = {
     ...state,
     stack: [createCard('8', 'C'), createCard('8', 'H'), createCard('8', 'S')],
@@ -204,7 +212,7 @@ it('burns when a fourth 8 is played', (t) => {
   const action = playCardThunk({ cards: [createCard('8', 'D')] })
   const store = getStore(st)
   store.dispatch(action)
-  t.is(store.getState().idleBurn, true)
+  t.is(isBurning(store.getState()), true)
 })
 
 it('burns when three 8s are played on a fourth', (t) => {
@@ -218,7 +226,7 @@ it('burns when three 8s are played on a fourth', (t) => {
   })
   const store = getStore(st)
   store.dispatch(action)
-  t.is(store.getState().idleBurn, true)
+  t.is(isBurning(store.getState()), true)
 })
 
 it('burns when four of a kind are added to the stack', (t) => {
@@ -230,7 +238,7 @@ it('burns when four of a kind are added to the stack', (t) => {
   const action = playCardThunk({ cards: [createCard('3', 'D')] })
   const store = getStore(st)
   store.dispatch(action)
-  t.is(store.getState().idleBurn, true)
+  t.is(isBurning(store.getState()), true)
 })
 
 it('ignores 8s for four of a kind calculations', (t) => {
@@ -247,7 +255,7 @@ it('ignores 8s for four of a kind calculations', (t) => {
   const action = playCardThunk({ cards: [createCard('3', 'D')] })
   const store = getStore(st)
   store.dispatch(action)
-  t.is(store.getState().idleBurn, true)
+  t.is(isBurning(store.getState()), true)
 })
 
 it('does not burn when 3 of a kind are added to the stack', (t) => {
@@ -261,7 +269,7 @@ it('does not burn when 3 of a kind are added to the stack', (t) => {
   })
   const store = getStore(st)
   store.dispatch(action)
-  t.falsy(store.getState().idleBurn)
+  t.falsy(isBurning(store.getState()))
 })
 
 it('properly increments the turn when I play an ace', async (t) => {
@@ -289,7 +297,6 @@ it('properly increments the turn when I play an ace', async (t) => {
         id: 'b',
       },
     ],
-    idleBurn: false,
     pickupPile: [{ suit: 'H', id: '6H', value: '6' }],
     focused: '',
     burnt: [],
@@ -298,7 +305,7 @@ it('properly increments the turn when I play an ace', async (t) => {
   }
 
   const store = getStore(data)
-  store.dispatch(confirmTargeting('b'))
+  store.dispatch(unlockTurn({ channel: 'user:target', data: 'b' }))
   await store.dispatch(playCardThunk({ cards: [createCard('A', 'H')] }))
   t.is(store.getState().queue[0], 'b')
 })
@@ -327,10 +334,10 @@ it('allows me to pick up when I ace someone', async (t) => {
     direction: -1,
   })
 
-  store.dispatch(confirmTargeting('b'))
+  store.dispatch(unlockTurn({ channel: 'user:target', data: 'b' }))
   await store.dispatch(playCardThunk({ cards: [createCard('A', 'H')] }))
 
-  t.is(store.getState().turnPhase, 'user:replenish')
+  t.is(isReplenishing(store.getState()), true)
 })
 
 it('can play a 6 on an empty stack', async (t) => {
@@ -620,7 +627,7 @@ it('hangs the turn if there is a pickup pile', async (t) => {
 
   store.dispatch(playCardThunk({ cards: [createCard('9', 'D')] }))
   t.is(store.getState().stack.length, 2)
-  t.is(store.getState().turnPhase, 'user:replenish')
+  t.is(isReplenishing(store.getState()), true)
 })
 
 it('doesnt hang the turn if there is no pickup pile', async (t) => {
@@ -676,5 +683,5 @@ it('doesnt hang the turn if the player has more than 4 cards', async (t) => {
   })
 
   store.dispatch(playCardThunk({ cards: [createCard('3', 'D')] }))
-  t.not(store.getState().turnPhase, 'user:replenish')
+  t.false(isReplenishing(store.getState()))
 })

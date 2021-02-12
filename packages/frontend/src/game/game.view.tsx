@@ -227,6 +227,7 @@ const _GameView: FC<Props> = ({
                 zIndex: 1,
                 transform: 'translate3d(-50%, -50px, 0)',
                 maxWidth: 260,
+                marginLeft: -30,
               }}
             >
               {ups.map((c) => {
@@ -296,7 +297,7 @@ const mapDispatch = (d: GameDispatch) => {
       d(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck(52) })
+      const action = deal({ deck: createDeck(26) })
       d(action)
     },
     confirmReplenish: () => {

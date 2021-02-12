@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { CardModel, createDeck, getWrappedIndex } from 'game'
-import { motion } from 'framer-motion'
+import { AnimationProps, motion } from 'framer-motion'
 import type { FluidCardProps } from '../../typings'
 import { styled } from '@linaria/react'
 
@@ -9,6 +9,7 @@ type Props = FluidCardProps & {
   stackIndex?: number
   stackLength?: number
   style?: React.CSSProperties
+  animate?: AnimationProps['animate']
 }
 
 const CardBack = styled.div`
@@ -60,6 +61,7 @@ export const FluidCard: FC<Props> = ({
   style,
   stackIndex = 0,
   stackLength = 0,
+  animate,
 }) => {
   const getBGColor = () => {
     switch (variant) {
@@ -85,7 +87,7 @@ export const FluidCard: FC<Props> = ({
         rotateY: faceDown ? -180 : 0,
       }}
     >
-      <motion.div>
+      <motion.div animate={animate}>
         <CardFace
           style={{
             backgroundColor: getBGColor(),

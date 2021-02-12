@@ -39,8 +39,7 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
   state.burnt = []
   state.stack = []
   state.local = {
-    targeting: false,
-    targetingCards: [],
     targetUID: '',
+    faceUpPickID: '',
   }
 }

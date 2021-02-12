@@ -16,9 +16,10 @@ import {
 } from './selectors'
 import { CardModel, PlayerModel } from './types'
 import { joinGame as join, changeFaction as faction } from './rules/create'
-import { GameDispatch } from '.'
+import { GameDispatch, hasLock } from '.'
+import { createCardByID } from './deck'
 
-type TurnLock = 'burn' | 'user:replenish' | 'user:target'
+type TurnLock = 'burn' | 'user:replenish' | 'user:target' | 'user:faceuptake'
 
 export interface GameState {
   direction: number
@@ -29,8 +30,7 @@ export interface GameState {
   pickupPile: CardModel[]
   focused?: string
   local?: {
-    targeting: boolean
-    targetingCards: CardModel[]
+    faceUpPickID: string
     targetUID: string
   }
   turnLocks?: TurnLock[]
@@ -45,8 +45,7 @@ export const initialState: GameState = {
   pickupPile: [],
   turnLocks: [],
   local: {
-    targeting: false,
-    targetingCards: [],
+    faceUpPickID: '',
     targetUID: '',
   },
 }
@@ -87,6 +86,39 @@ export function createAppThunk<Returned = void, ThunkArg = void>(
 interface PlayCardArgs {
   cards: CardModel[]
 }
+
+export const pickupThunk = createAppThunk(
+  'counter/pickup:stack',
+  async (_, { dispatch, getState }) => {
+    const player = activePlayerSelector(getState())
+    const activeCards = activeTierSelector(getState())
+
+    let additions: CardModel[] = []
+
+    if (activeCards.some((c) => c.tier === 1)) {
+      // Face up pickup rule
+      dispatch(lockTurn('user:faceuptake'))
+      const locked = hasLock('user:faceuptake')
+
+      while (locked(getState())) {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      }
+
+      const card = createCardByID(getState().local.faceUpPickID)
+
+      console.log({ card })
+
+      additions = [
+        ...additions,
+        ...activeCards
+          .filter((c) => c.card.value === card.value)
+          .map((c) => c.card),
+      ]
+    }
+
+    dispatch(pickupStack(additions))
+  },
+)
 
 export const playCardThunk = createAppThunk(
   'counter/play:cards',
@@ -130,7 +162,6 @@ export const playCardThunk = createAppThunk(
     }
 
     // Get next player
-    console.log('GETNEXTPL')
     const next = aceTarget || getNextPlayer(getState())
     console.log('NEXT PLAYER', next)
 
@@ -152,8 +183,6 @@ export const playCardThunk = createAppThunk(
     } else {
       dispatch(unlockTurn({ channel: 'user:replenish' }))
     }
-
-    dispatch(completeTurn(next))
 
     return next
   },
@@ -201,21 +230,6 @@ const counterSlice = createSlice({
     reverse(state) {
       state.direction *= -1
     },
-    completeTurn(state, action: PayloadAction<string>) {
-      const next = action.payload
-      console.log('COMPLETING TURN...')
-      const player = activePlayerSelector(state)
-      const { pickupPile } = state
-
-      while (
-        pickupPile.length > 0 &&
-        player.cards.filter((c) => c.tier === 2).length < 4
-      ) {
-        player.cards.push({ card: pickupPile.shift(), tier: 2 })
-      }
-
-      state.queue = [...new Set([next, ...state.queue])].filter((id) => !!id)
-    },
     lockTurn(state, action: PayloadAction<GameState['turnLocks'][number]>) {
       state.turnLocks = [...state.turnLocks, action.payload]
     },
@@ -234,6 +248,10 @@ const counterSlice = createSlice({
         case 'burn':
           state.burnt = [...state.stack, ...state.burnt]
           state.stack = []
+          break
+        case 'user:faceuptake':
+          state.local.faceUpPickID = action.payload.data
+          break
       }
     },
   },
@@ -241,22 +259,34 @@ const counterSlice = createSlice({
     builder.addCase(playCardThunk.pending, (state) => {
       state.focused = ''
     })
-    builder.addCase(playCardThunk.fulfilled, (state) => {
-      state.local.targeting = false
+    builder.addCase(playCardThunk.fulfilled, (state, action) => {
+      const next = action.payload
+
       state.local.targetUID = ''
-      state.local.targetingCards = []
+      state.local.faceUpPickID = ''
 
       state.turnLocks = []
+
+      const player = activePlayerSelector(state)
+      const { pickupPile } = state
+
+      while (
+        pickupPile.length > 0 &&
+        player.cards.filter((c) => c.tier === 2).length < 4
+      ) {
+        player.cards.push({ card: pickupPile.shift(), tier: 2 })
+      }
+      console.log({ next })
+      state.queue = [...new Set([next, ...state.queue])].filter((id) => !!id)
     })
   },
 })
 
-const { addToStack, completeTurn, lockTurn } = counterSlice.actions
+const { addToStack, lockTurn, pickupStack } = counterSlice.actions
 
 export const {
   deal,
   unlockTurn,
-  pickupStack,
   joinGame,
   setFaction,
   replace,

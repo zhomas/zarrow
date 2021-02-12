@@ -10,8 +10,7 @@ export const createGame = (): GameState => {
     players: [],
     turnLocks: [],
     local: {
-      targeting: false,
-      targetingCards: [],
+      faceUpPickID: '',
       targetUID: '',
     },
   }

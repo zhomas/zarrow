@@ -9,7 +9,7 @@ import {
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
-const _Reticule: FC<Props> = ({ show, targets, setTarget, cards }) => {
+const _Reticule: FC<Props> = ({ show, targets, setTarget }) => {
   return show ? (
     <div
       style={{
@@ -22,11 +22,8 @@ const _Reticule: FC<Props> = ({ show, targets, setTarget, cards }) => {
       }}
     >
       <h1>Targeting reticule!</h1>
-      {cards.map((c) => (
-        <p>{c.id}</p>
-      ))}
       {targets.map((t) => (
-        <button key={t.id} onClick={() => setTarget(t.id, cards)}>
+        <button key={t.id} onClick={() => setTarget(t.id)}>
           {t.id}
         </button>
       ))}
@@ -40,13 +37,12 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
   return {
     show: hasLock('user:target')(state),
     targets: state.players.filter((p) => p.id !== ownProps.uid),
-    cards: state.local ? state.local.targetingCards : [],
   }
 }
 
 const mapDispatch = (dispatch: GameDispatch) => {
   return {
-    setTarget: (uid: string, cards: CardModel[]) => {
+    setTarget: (uid: string) => {
       const action = unlockTurn({ channel: 'user:target', data: uid })
       dispatch(action)
     },

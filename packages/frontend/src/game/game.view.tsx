@@ -10,15 +10,27 @@ import {
   stackDestinationSelector,
   canCardPlay,
   userModeSelector,
-  pickupStack,
+  pickupThunk,
   activeTierSelector,
+  hasLock,
+  getWrappedIndex,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCard, EmptyCard } from '../components'
 import { FaceDowns } from './downs'
-import { AnimateSharedLayout } from 'framer-motion'
+import { AnimateSharedLayout, motion } from 'framer-motion'
 import { getCardProps, useGameViewModel } from './game.view.model'
 import { Reticule } from './reticule'
+
+const min = -3
+const max = 3
+
+const rndDegrees = Array(10)
+  .fill(null)
+  .map((_) => Math.random() * (max - min + 1) + min)
+const getDegs = (i: number) => {
+  return rndDegrees[getWrappedIndex(i, rndDegrees.length)]
+}
 
 const _GameView: FC<Props> = ({
   hand,
@@ -29,14 +41,16 @@ const _GameView: FC<Props> = ({
   playCards,
   deal,
   confirmReplenish,
+  confirmPickupFaceUp,
   mode,
   pickupStack,
   destination,
   activeCards,
+  pickFaceUp,
+  burn,
 }) => {
   const [selected, setSelected] = useState<CardModel[]>([])
   const [hovered, setHovered] = useState<CardModel[]>([])
-  const [faceUpPickupRule, setFaceUpRule] = useState<boolean>()
 
   useEffect(() => {
     setSelected([])
@@ -48,8 +62,8 @@ const _GameView: FC<Props> = ({
   }, [selected])
 
   const curried = useCallback(
-    (c: CardModel, isActiveMode: boolean) => {
-      return getCardProps({
+    (c: CardModel, isActiveMode: boolean) =>
+      getCardProps({
         active: isActiveMode,
         destID: destination.id,
         selected: selected.map((c) => c.id),
@@ -78,14 +92,13 @@ const _GameView: FC<Props> = ({
           playCards(...siblings)
         },
         hand: activeCards.map((a) => a.card),
-      })
-    },
-    [hovered, selected],
+      }),
+    [activeCards, destination.id, hovered, playCards, selected],
   )
 
   return (
     <AnimateSharedLayout>
-      {faceUpPickupRule && (
+      {pickFaceUp && (
         <div
           style={{
             position: 'fixed',
@@ -107,12 +120,7 @@ const _GameView: FC<Props> = ({
                 keyPrefix={'fup'}
                 card={c.card}
                 onClick={() => {
-                  const cards = activeCards
-                    .map((c) => c.card)
-                    .filter((b) => b.value === c.card.value)
-
-                  setFaceUpRule(false)
-                  pickupStack(...cards)
+                  confirmPickupFaceUp(c.card)
                 }}
               />
             ))}
@@ -122,59 +130,91 @@ const _GameView: FC<Props> = ({
       <h1>
         {uid} :: {mode}
       </h1>
+      <div>
+        {rndDegrees.map((r) => (
+          <span>{r}</span>
+        ))}
+      </div>
       <div style={{ backgroundColor: 'turquoise', display: 'flex' }}>
-        <div style={{ position: 'relative' }}>
+        <div
+          style={{
+            position: 'relative',
+            backgroundColor: 'indianred',
+            padding: 5,
+          }}
+        >
           {stack.map((c, i) => (
-            <div
+            <FluidCard
               key={c.id}
-              data-card={c.id}
+              card={c}
+              variant="default"
+              degrees={getDegs(stack.length - i)}
               style={{
                 position: 'absolute',
-                top: 0,
-                left: 0,
+                top: 5,
+                left: 5,
                 zIndex: stack.length - i,
               }}
-            >
-              <FluidCard key={c.id} card={c} variant="default" />
-            </div>
+            />
           ))}
           <div style={{ position: 'relative', zIndex: -1 }}>
             <EmptyCard />
           </div>
         </div>
         {mode === 'pickup:stack' && (
-          <button
-            onClick={() => {
-              if (activeCards.some((c) => c.tier === 1)) {
-                setFaceUpRule(true)
-              } else {
-                pickupStack()
-              }
-            }}
-          >
-            Pick up stack
-          </button>
+          <button onClick={pickupStack}>Pick up stack</button>
         )}
-        <button
-          disabled={mode !== 'pickup:replenish'}
-          onClick={confirmReplenish}
-        >
-          Replenish ({replenishPile.length} cards remaining)
-        </button>
         <div style={{ width: 200, height: 200, position: 'relative' }}>
-          {replenishPile.map((c, i) => (
-            <div
+          <div>
+            {replenishPile.map((c, i) => (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  zIndex: -i,
+                }}
+                key={c.id}
+              >
+                <FluidCard
+                  card={c}
+                  faceDown
+                  variant="default"
+                  onClick={
+                    mode === 'pickup:replenish' ? confirmReplenish : undefined
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        {mode === 'pickup:replenish' && (
+          <p>Replenish ({replenishPile.length} cards remaining</p>
+        )}
+        <div
+          style={{
+            position: 'relative',
+            backgroundColor: 'red',
+            padding: 5,
+          }}
+        >
+          {burn.map((c, i) => (
+            <FluidCard
+              key={c.id}
+              card={c}
+              variant="default"
+              degrees={getDegs(i)}
               style={{
                 position: 'absolute',
-                top: 0,
-                left: 0,
-                zIndex: -i,
+                top: 5,
+                left: 5,
+                zIndex: stack.length - i,
               }}
-              key={c.id}
-            >
-              <FluidCard card={c} faceDown variant="default" />
-            </div>
+            />
           ))}
+          <div style={{ position: 'relative', zIndex: -1 }}>
+            <EmptyCard />
+          </div>
         </div>
       </div>
       <div>
@@ -195,7 +235,7 @@ const _GameView: FC<Props> = ({
             backgroundColor: mode === 'play:hand' ? 'yellow' : 'transparent',
           }}
         >
-          {hand.map((c) => {
+          {hand.map((c, i) => {
             const props = curried(c.card, mode === 'play:hand')
             return (
               <FluidCard
@@ -246,6 +286,7 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
   }
 
   return {
+    pickFaceUp: state.turnLocks?.some((c) => c === 'user:faceuptake'),
     turnActive: state.queue[0] === ownProps.uid,
     mode: getMode(state),
     hand: myCards.filter((c) => c.tier === 2),
@@ -258,6 +299,7 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     canPlay,
     activeCards: activeTierSelector(state),
     destination,
+    burn: state.burnt,
   } as const
 }
 
@@ -275,8 +317,12 @@ const mapDispatch = (d: GameDispatch) => {
       const action = unlockTurn({ channel: 'user:replenish' })
       d(action)
     },
-    pickupStack: (...additions: CardModel[]) => {
-      const action = pickupStack([...additions])
+    confirmPickupFaceUp: (c: CardModel) => {
+      const action = unlockTurn({ channel: 'user:faceuptake', data: c.id })
+      d(action)
+    },
+    pickupStack: () => {
+      const action = pickupThunk()
       d(action)
     },
   }

@@ -19,9 +19,8 @@ export const StateGate: FC<Props> = ({ gid, children }) => {
         setState({
           ...data,
           local: {
-            targeting: false,
-            targetingCards: [],
             targetUID: '',
+            faceUpPickID: '',
           },
         })
       } else {

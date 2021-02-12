@@ -64,7 +64,7 @@ const state = {
   stack: [],
 }
 
-it('moves to the next player when I play a card', (t) => {
+it('moves to the next player when I play a card', async (t) => {
   const store = getStore({
     players: [
       {
@@ -85,7 +85,7 @@ it('moves to the next player when I play a card', (t) => {
   })
 
   const action = playCardThunk({ cards: [card] })
-  store.dispatch(action)
+  await store.dispatch(action)
   const state = store.getState()
   t.is(activePlayerSelector(state).id, 'b')
 })
@@ -157,7 +157,7 @@ it('skips a go', (t) => {
   t.is(activePlayerSelector(state).id, 'a')
 })
 
-it('skips a go in reverse', (t) => {
+it('skips a go in reverse', async (t) => {
   const { dispatch, getState } = getStore({
     direction: -1,
     pickupPile: [],
@@ -186,7 +186,7 @@ it('skips a go in reverse', (t) => {
     stack: [],
   })
 
-  dispatch(playCardThunk({ cards: [createCard('5', 'H')] }))
+  await dispatch(playCardThunk({ cards: [createCard('5', 'H')] }))
   t.is(activePlayerSelector(getState()).id, 'b')
 })
 

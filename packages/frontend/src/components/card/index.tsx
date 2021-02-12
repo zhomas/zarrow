@@ -4,7 +4,11 @@ import { motion } from 'framer-motion'
 import type { FluidCardProps } from '../../typings'
 import { styled } from '@linaria/react'
 
-type Props = FluidCardProps & { keyPrefix?: string }
+type Props = FluidCardProps & {
+  keyPrefix?: string
+  degrees?: number
+  style?: React.CSSProperties
+}
 
 export const EmptyCard = () => {
   return (
@@ -59,6 +63,15 @@ const CardFace = styled.div`
   backface-visibility: hidden;
 `
 
+const Wrapper = styled(motion.div)`
+  max-width: 105px;
+  width: 100vw;
+  height: 200px;
+  cursor: default;
+  position: relative;
+  transform-style: preserve-3d;
+`
+
 export const FluidCard: FC<Props> = ({
   card,
   faceDown,
@@ -69,6 +82,8 @@ export const FluidCard: FC<Props> = ({
   selected,
   variant = 'default',
   keyPrefix = '',
+  style,
+  degrees = 0,
 }) => {
   const getBGColor = () => {
     switch (variant) {
@@ -84,57 +99,54 @@ export const FluidCard: FC<Props> = ({
   }
 
   return (
-    <motion.div
+    <Wrapper
       layoutId={`${keyPrefix}${card.id}`}
       onClick={onClick}
       onMouseOverCapture={onMouseEnter}
       onMouseOutCapture={onMouseExit}
-      style={{
-        width: 140,
-        height: 200,
-        cursor: !!onClick ? 'pointer' : 'default',
-        position: 'relative',
-        transformStyle: 'preserve-3d',
+      style={style}
+      animate={{
+        rotateY: faceDown ? -180 : 0,
       }}
-      variants={variants}
-      animate={faceDown ? 'faceDown' : 'faceUp'}
     >
-      <CardFace
-        style={{
-          backgroundColor: getBGColor(),
-          color: card.suit === 'D' || card.suit === 'H' ? 'red' : 'black',
-        }}
-      >
-        <span>
-          {card.value}
-          {card.suit}
-        </span>
-        <div>
-          {(!!onSelect || !!selected) && (
-            <>
-              <input
-                key={(!!selected).toString()}
-                type="checkbox"
-                checked={!!selected}
-                onMouseOver={(e) => {
-                  e.stopPropagation()
-                  e.preventDefault()
-                }}
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  //console.log('click!')
-                }}
-                onChange={(e) => {
-                  console.log('change')
-                  onSelect && onSelect(!!e.target.value)
-                }}
-              />
-            </>
-          )}
-        </div>
-      </CardFace>
-      <CardBack />
-    </motion.div>
+      <motion.div animate={{ rotateZ: degrees }}>
+        <CardFace
+          style={{
+            backgroundColor: getBGColor(),
+            color: card.suit === 'D' || card.suit === 'H' ? 'red' : 'black',
+          }}
+        >
+          <span>
+            {card.value}
+            {card.suit}
+          </span>
+          <div>
+            {(!!onSelect || !!selected) && (
+              <>
+                <input
+                  key={(!!selected).toString()}
+                  type="checkbox"
+                  checked={!!selected}
+                  onMouseOver={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    //console.log('click!')
+                  }}
+                  onChange={(e) => {
+                    console.log('change')
+                    onSelect && onSelect(!!e.target.value)
+                  }}
+                />
+              </>
+            )}
+          </div>
+        </CardFace>
+        <CardBack />
+      </motion.div>
+    </Wrapper>
   )
 }

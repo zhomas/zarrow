@@ -24,3 +24,4 @@ export const getStore = (
 type StoreType = ReturnType<typeof getStore>
 export * from './matrix'
 export * from './selectors'
+export * from './utils'

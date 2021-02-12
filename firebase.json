@@ -3,10 +3,6 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "functions": {
-    "predeploy": "yarn workspace functions build",
-    "source": "./packages/functions"
-  },
   "emulators": {
     "functions": {
       "port": 5001

@@ -1,7 +1,5 @@
-import { createSelector } from '@reduxjs/toolkit'
 import { GameState, stackDestinationSelector, canCardPlay, hasLock } from '..'
-import { createCardByID, createDeck } from '../deck'
-import { CardModel } from '../types'
+import { createCardByID } from '../deck'
 import { gameModeSelector, winnersSelector } from './status'
 
 const failedFaceDownFlip = (uid: string, state: GameState) => {
@@ -38,7 +36,6 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
 
   const isBurning = hasLock('burn')
   const isReplenishing = hasLock('user:replenish')
-  const isTargeting = hasLock('user:target')
 
   if (isBurning(state)) return 'idle:burn'
 

@@ -16,12 +16,24 @@ import {
   getWrappedIndex,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
-import { FluidCard, EmptyCard } from '../components'
+import { FluidCard } from '../components'
 import { FaceDowns } from './downs'
 import { AnimateSharedLayout, motion } from 'framer-motion'
-import { getCardProps, useGameViewModel } from './game.view.model'
+import { getCardProps } from './game.view.model'
 import { Reticule } from './reticule'
-import { Zone } from './zone'
+import { Zone } from '../components/zone'
+import { MiniPlayer } from '../components/miniplayer'
+import { Hand } from '../components/hand'
+
+import { styled } from '@linaria/react'
+
+const ZoneLabel = styled.div`
+  width: 100px;
+  display: flex;
+  align-items: flex-end;
+  text-align: right;
+  padding: 10px;
+`
 
 const _GameView: FC<Props> = ({
   hand,
@@ -31,6 +43,7 @@ const _GameView: FC<Props> = ({
   replenishPile,
   playCards,
   deal,
+  players,
   confirmReplenish,
   confirmPickupFaceUp,
   mode,
@@ -87,6 +100,9 @@ const _GameView: FC<Props> = ({
     [activeCards, destination.id, hovered, playCards, selected],
   )
 
+  const opponent = players.find((p) => p.id !== uid)
+  if (!opponent) throw new Error('Oh no')
+
   return (
     <AnimateSharedLayout>
       {pickFaceUp && (
@@ -118,106 +134,130 @@ const _GameView: FC<Props> = ({
           </div>
         </div>
       )}
-      <h1>
-        {uid} :: {mode}
-      </h1>
-      <div style={{ backgroundColor: 'turquoise', display: 'flex' }}>
-        <div
-          style={{
-            width: 100,
-            display: 'flex',
-            alignItems: 'flex-end',
-            textAlign: 'right',
-            padding: 10,
-          }}
-        >
-          <h4>{stack.length} cards in stack</h4>
-        </div>
-        <Zone
-          promptLabel={'Pick up stack'}
-          promptActive={mode === 'pickup:stack'}
-          onPrompt={pickupStack}
-        >
-          {stack.map((c, i) => (
-            <FluidCard key={c.id} stackIndex={i} card={c} variant="default" />
-          ))}
-        </Zone>
-        <Zone
-          promptLabel={'Replenish'}
-          promptActive={mode === 'pickup:replenish'}
-          onPrompt={confirmReplenish}
-        >
-          {replenishPile.map((c, i) => (
-            <FluidCard key={c.id} card={c} faceDown variant="default" />
-          ))}
-        </Zone>
-        <div
-          style={{
-            width: 100,
-            display: 'flex',
-            alignItems: 'flex-end',
-            textAlign: 'left',
-            padding: 10,
-          }}
-        >
-          <h4>{replenishPile.length} cards left</h4>
-        </div>
-      </div>
-      <div>
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+          justifyContent: 'space-between',
+        }}
+      >
         <div>
-          <button
-            disabled={selected.length === 0}
-            onClick={() => {
-              playCards(...selected)
+          <MiniPlayer
+            downs={
+              <>
+                {opponent.cards
+                  .filter((c) => c.tier === 0)
+                  .map((c) => (
+                    <FluidCard key={c.card.id} faceDown card={c.card} />
+                  ))}
+              </>
+            }
+          >
+            {opponent.cards
+              .filter((c) => c.tier === 1)
+              .map((c) => (
+                <FluidCard key={c.card.id} card={c.card} />
+              ))}
+          </MiniPlayer>
+        </div>
+        <div style={{ backgroundColor: 'turquoise', display: 'flex' }}>
+          <ZoneLabel>
+            <h4>{stack.length} cards in stack</h4>
+          </ZoneLabel>
+          <Zone
+            promptLabel={'Pick up stack'}
+            promptActive={mode === 'pickup:stack'}
+            onPrompt={pickupStack}
+          >
+            {stack.map((c, i) => (
+              <FluidCard
+                key={c.id}
+                stackIndex={i}
+                stackLength={stack.length}
+                card={c}
+                variant="default"
+              />
+            ))}
+          </Zone>
+          <Zone
+            promptLabel={'Replenish'}
+            promptActive={mode === 'pickup:replenish'}
+            onPrompt={confirmReplenish}
+          >
+            {replenishPile.map((c, i) => (
+              <FluidCard key={c.id} card={c} faceDown variant="default" />
+            ))}
+          </Zone>
+          <ZoneLabel style={{ textAlign: 'left' }}>
+            <h4>{replenishPile.length} cards left</h4>
+          </ZoneLabel>
+        </div>
+        <div>
+          <div>
+            <button
+              disabled={selected.length === 0}
+              onClick={() => {
+                playCards(...selected)
+              }}
+            >
+              Play selected
+            </button>
+          </div>
+        </div>
+        <div>
+          <motion.div
+            initial={{ scale: 0.85, transformOrigin: 'bottom' }}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
             }}
           >
-            Play selected
-          </button>
-        </div>
-        <div
-          style={{
-            padding: 10,
-            display: 'flex',
-            backgroundColor: mode === 'play:hand' ? 'yellow' : 'transparent',
-          }}
-        >
-          {hand.map((c, i) => {
-            const props = curried(c.card, mode === 'play:hand')
-            return (
-              <FluidCard
-                key={c.card.id}
-                {...props}
-                selected={selected.some((s) => s.id === c.card.id)}
-              />
-            )
-          })}
-        </div>
-      </div>
-      <div>
-        <div
-          style={{
-            padding: 10,
-            display: 'flex',
-            backgroundColor: mode === 'play:ups' ? 'thistle' : 'transparent',
-          }}
-        >
-          {ups.map((c) => {
-            const props = curried(c.card, mode === 'play:ups')
+            <div
+              style={{
+                padding: 10,
+                display: 'flex',
+                backgroundColor:
+                  mode === 'play:ups' ? 'thistle' : 'transparent',
+                position: 'absolute',
+                top: 0,
+                left: '50%',
+                zIndex: 1,
+                transform: 'translate3d(-50%, -50px, 0)',
+                maxWidth: 260,
+              }}
+            >
+              {ups.map((c) => {
+                const props = curried(c.card, mode === 'play:ups')
 
-            return (
-              <FluidCard
-                key={c.card.id}
-                {...props}
-                selected={selected.some((s) => s.id === c.card.id)}
-              />
-            )
-          })}
+                return (
+                  <FluidCard
+                    key={c.card.id}
+                    {...props}
+                    selected={selected.some((s) => s.id === c.card.id)}
+                  />
+                )
+              })}
+            </div>
+            <FaceDowns uid={uid} />
+          </motion.div>
+
+          <Hand active={mode === 'play:hand'} handleDeal={deal}>
+            {hand.map((c, i) => {
+              const props = curried(c.card, mode === 'play:hand')
+              return (
+                <FluidCard
+                  key={c.card.id}
+                  {...props}
+                  selected={selected.some((s) => s.id === c.card.id)}
+                />
+              )
+            })}
+          </Hand>
         </div>
       </div>
-      <div>
-        <FaceDowns uid={uid} />
-      </div>
-      <button onClick={deal}>Re-deal</button>
       <Reticule uid={uid} />
     </AnimateSharedLayout>
   )
@@ -256,7 +296,7 @@ const mapDispatch = (d: GameDispatch) => {
       d(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck(34) })
+      const action = deal({ deck: createDeck(52) })
       d(action)
     },
     confirmReplenish: () => {

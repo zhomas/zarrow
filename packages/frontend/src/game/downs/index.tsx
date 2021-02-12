@@ -36,24 +36,17 @@ const _FaceDowns: FC<Props> = ({
   }
 
   return (
-    <div
-      style={{
-        backgroundColor: active ? 'yellow' : 'transparent',
-        padding: 10,
-      }}
-    >
-      <div style={{ display: 'flex' }}>
-        {cards.map(({ card }) => (
-          <div key={card.id}>
-            <FluidCard
-              onClick={getClickHandler(card)}
-              card={card}
-              variant="default"
-              faceDown={!isFocused(card)}
-            />
-          </div>
-        ))}
-      </div>
+    <div style={{ display: 'flex' }}>
+      {cards.map(({ card }) => (
+        <div key={card.id}>
+          <FluidCard
+            onClick={getClickHandler(card)}
+            card={card}
+            variant="default"
+            faceDown={!isFocused(card)}
+          />
+        </div>
+      ))}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { CardModel, getWrappedIndex } from 'game'
+import { CardModel, createDeck, getWrappedIndex } from 'game'
 import { motion } from 'framer-motion'
 import type { FluidCardProps } from '../../typings'
 import { styled } from '@linaria/react'
@@ -7,40 +7,13 @@ import { styled } from '@linaria/react'
 type Props = FluidCardProps & {
   keyPrefix?: string
   stackIndex?: number
+  stackLength?: number
   style?: React.CSSProperties
 }
 
-const min = -2
-const max = 1
-
-const rndDegrees = Array(100)
-  .fill(null)
-  .map((_) => Math.random() * (max - min + 1) + min)
-
-rndDegrees.unshift(0)
-const getDegs = (i: number) => {
-  return rndDegrees[getWrappedIndex(i, rndDegrees.length)]
-}
-
-export const EmptyCard = () => {
-  return (
-    <div
-      style={{
-        height: 200,
-        width: 140,
-        borderRadius: 10,
-        border: '1px solid black',
-        position: 'relative',
-        backgroundColor: 'white',
-        padding: 10,
-      }}
-    ></div>
-  )
-}
-
 const CardBack = styled.div`
-  width: 140px;
-  height: 200px;
+  width: 126px;
+  height: 176px;
   background: red;
   position: absolute;
   top: 0;
@@ -54,8 +27,8 @@ const CardFace = styled.div`
   border-radius: 10px;
   border: 1px solid #00000075;
   position: absolute;
-  width: 140px;
-  height: 200px;
+  width: 126px;
+  height: 176px;
   top: 0;
   left: 0;
 
@@ -67,8 +40,8 @@ const CardFace = styled.div`
 `
 
 const Wrapper = styled(motion.div)`
-  width: 140px;
-  height: 200px;
+  width: 126px;
+  height: 176px;
   cursor: default;
   position: relative;
   transform-style: preserve-3d;
@@ -86,6 +59,7 @@ export const FluidCard: FC<Props> = ({
   keyPrefix = '',
   style,
   stackIndex = 0,
+  stackLength = 0,
 }) => {
   const getBGColor = () => {
     switch (variant) {
@@ -102,7 +76,6 @@ export const FluidCard: FC<Props> = ({
 
   return (
     <Wrapper
-      data-cardId={card.id}
       layoutId={`${keyPrefix}${card.id}`}
       onClick={onClick}
       onMouseOverCapture={onMouseEnter}
@@ -112,7 +85,7 @@ export const FluidCard: FC<Props> = ({
         rotateY: faceDown ? -180 : 0,
       }}
     >
-      <motion.div animate={{ rotateZ: getDegs(stackIndex) }}>
+      <motion.div>
         <CardFace
           style={{
             backgroundColor: getBGColor(),

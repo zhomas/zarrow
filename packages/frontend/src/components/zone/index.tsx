@@ -26,35 +26,44 @@ export const Zone: FC<ZoneProps> = ({
   return (
     <div
       style={{
-        margin: 1,
+        marginRight: 1,
       }}
     >
       <div
+        onClick={promptActive ? onPrompt : undefined}
         style={{
-          padding: 20,
+          padding: 10,
           position: 'relative',
+          zIndex: 0,
+
+          cursor: promptActive ? 'grab' : 'default',
         }}
       >
         <motion.div
+          animate={{
+            opacity: promptActive ? [0, 1, 1, 0] : [0.2, 0.2, 0.2],
+            backgroundColor: promptActive ? '#FFE135' : 'white',
+          }}
+          transition={{ repeatType: 'loop', repeat: Infinity }}
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: promptActive ? '#ffff6c' : '#ffffff3b',
-            border: promptActive
-              ? '1px solid #0000007d'
-              : '1px solid #00000012',
+            border: '1px solid #0000007d',
             borderRadius: 12,
+            zIndex: -1,
           }}
         />
-        <div
+        <motion.div
+          animate={{}}
           style={{
             position: 'relative',
-            width: 140,
-            height: 200,
-            zIndex: 0,
+            width: 126,
+            height: 176,
+            pointerEvents: 'none',
+            top: Array.isArray(children) ? children.length * -1.5 : 0,
           }}
         >
           {Array.isArray(children)
@@ -63,7 +72,7 @@ export const Zone: FC<ZoneProps> = ({
                   key={ids[i]}
                   style={{
                     position: 'absolute',
-                    top: 0,
+                    top: i * 1.5,
                     left: 0,
                     zIndex: children.length - i,
                   }}
@@ -72,15 +81,8 @@ export const Zone: FC<ZoneProps> = ({
                 </div>
               ))
             : children}
-        </div>
+        </motion.div>
       </div>
-      <button
-        style={{ padding: '10px 20px' }}
-        disabled={!promptActive && !!onPrompt}
-        onClick={onPrompt}
-      >
-        {promptLabel}
-      </button>
     </div>
   )
 }

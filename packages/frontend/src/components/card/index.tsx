@@ -1,13 +1,25 @@
 import React, { FC } from 'react'
-import { CardModel } from 'game'
+import { CardModel, getWrappedIndex } from 'game'
 import { motion } from 'framer-motion'
 import type { FluidCardProps } from '../../typings'
 import { styled } from '@linaria/react'
 
 type Props = FluidCardProps & {
   keyPrefix?: string
-  degrees?: number
+  stackIndex?: number
   style?: React.CSSProperties
+}
+
+const min = -2
+const max = 1
+
+const rndDegrees = Array(100)
+  .fill(null)
+  .map((_) => Math.random() * (max - min + 1) + min)
+
+rndDegrees.unshift(0)
+const getDegs = (i: number) => {
+  return rndDegrees[getWrappedIndex(i, rndDegrees.length)]
 }
 
 export const EmptyCard = () => {
@@ -26,15 +38,6 @@ export const EmptyCard = () => {
   )
 }
 
-const variants = {
-  faceUp: {
-    rotateY: 0,
-  },
-  faceDown: {
-    rotateY: -180,
-  },
-}
-
 const CardBack = styled.div`
   width: 140px;
   height: 200px;
@@ -49,7 +52,7 @@ const CardBack = styled.div`
 
 const CardFace = styled.div`
   border-radius: 10px;
-  border: 1px solid black;
+  border: 1px solid #00000075;
   position: absolute;
   width: 140px;
   height: 200px;
@@ -64,8 +67,7 @@ const CardFace = styled.div`
 `
 
 const Wrapper = styled(motion.div)`
-  max-width: 105px;
-  width: 100vw;
+  width: 140px;
   height: 200px;
   cursor: default;
   position: relative;
@@ -83,7 +85,7 @@ export const FluidCard: FC<Props> = ({
   variant = 'default',
   keyPrefix = '',
   style,
-  degrees = 0,
+  stackIndex = 0,
 }) => {
   const getBGColor = () => {
     switch (variant) {
@@ -100,6 +102,7 @@ export const FluidCard: FC<Props> = ({
 
   return (
     <Wrapper
+      data-cardId={card.id}
       layoutId={`${keyPrefix}${card.id}`}
       onClick={onClick}
       onMouseOverCapture={onMouseEnter}
@@ -109,7 +112,7 @@ export const FluidCard: FC<Props> = ({
         rotateY: faceDown ? -180 : 0,
       }}
     >
-      <motion.div animate={{ rotateZ: degrees }}>
+      <motion.div animate={{ rotateZ: getDegs(stackIndex) }}>
         <CardFace
           style={{
             backgroundColor: getBGColor(),

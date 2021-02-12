@@ -21,16 +21,7 @@ import { FaceDowns } from './downs'
 import { AnimateSharedLayout, motion } from 'framer-motion'
 import { getCardProps, useGameViewModel } from './game.view.model'
 import { Reticule } from './reticule'
-
-const min = -3
-const max = 3
-
-const rndDegrees = Array(10)
-  .fill(null)
-  .map((_) => Math.random() * (max - min + 1) + min)
-const getDegs = (i: number) => {
-  return rndDegrees[getWrappedIndex(i, rndDegrees.length)]
-}
+import { Zone } from './zone'
 
 const _GameView: FC<Props> = ({
   hand,
@@ -130,91 +121,46 @@ const _GameView: FC<Props> = ({
       <h1>
         {uid} :: {mode}
       </h1>
-      <div>
-        {rndDegrees.map((r) => (
-          <span>{r}</span>
-        ))}
-      </div>
       <div style={{ backgroundColor: 'turquoise', display: 'flex' }}>
         <div
           style={{
-            position: 'relative',
-            backgroundColor: 'indianred',
-            padding: 5,
+            width: 100,
+            display: 'flex',
+            alignItems: 'flex-end',
+            textAlign: 'right',
+            padding: 10,
           }}
+        >
+          <h4>{stack.length} cards in stack</h4>
+        </div>
+        <Zone
+          promptLabel={'Pick up stack'}
+          promptActive={mode === 'pickup:stack'}
+          onPrompt={pickupStack}
         >
           {stack.map((c, i) => (
-            <FluidCard
-              key={c.id}
-              card={c}
-              variant="default"
-              degrees={getDegs(stack.length - i)}
-              style={{
-                position: 'absolute',
-                top: 5,
-                left: 5,
-                zIndex: stack.length - i,
-              }}
-            />
+            <FluidCard key={c.id} stackIndex={i} card={c} variant="default" />
           ))}
-          <div style={{ position: 'relative', zIndex: -1 }}>
-            <EmptyCard />
-          </div>
-        </div>
-        {mode === 'pickup:stack' && (
-          <button onClick={pickupStack}>Pick up stack</button>
-        )}
-        <div style={{ width: 200, height: 200, position: 'relative' }}>
-          <div>
-            {replenishPile.map((c, i) => (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  zIndex: -i,
-                }}
-                key={c.id}
-              >
-                <FluidCard
-                  card={c}
-                  faceDown
-                  variant="default"
-                  onClick={
-                    mode === 'pickup:replenish' ? confirmReplenish : undefined
-                  }
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-        {mode === 'pickup:replenish' && (
-          <p>Replenish ({replenishPile.length} cards remaining</p>
-        )}
+        </Zone>
+        <Zone
+          promptLabel={'Replenish'}
+          promptActive={mode === 'pickup:replenish'}
+          onPrompt={confirmReplenish}
+        >
+          {replenishPile.map((c, i) => (
+            <FluidCard key={c.id} card={c} faceDown variant="default" />
+          ))}
+        </Zone>
         <div
           style={{
-            position: 'relative',
-            backgroundColor: 'red',
-            padding: 5,
+            width: 100,
+            display: 'flex',
+            alignItems: 'flex-end',
+            textAlign: 'left',
+            padding: 10,
           }}
         >
-          {burn.map((c, i) => (
-            <FluidCard
-              key={c.id}
-              card={c}
-              variant="default"
-              degrees={getDegs(i)}
-              style={{
-                position: 'absolute',
-                top: 5,
-                left: 5,
-                zIndex: stack.length - i,
-              }}
-            />
-          ))}
-          <div style={{ position: 'relative', zIndex: -1 }}>
-            <EmptyCard />
-          </div>
+          <h4>{replenishPile.length} cards left</h4>
         </div>
       </div>
       <div>

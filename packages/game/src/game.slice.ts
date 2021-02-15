@@ -85,12 +85,12 @@ export function createAppThunk<Returned = void, ThunkArg = void>(
 
 interface PlayCardArgs {
   cards: CardModel[]
+  playerID: string
 }
 
 export const pickupThunk = createAppThunk(
   'counter/pickup:stack',
   async (_, { dispatch, getState }) => {
-    const player = activePlayerSelector(getState())
     const activeCards = activeTierSelector(getState())
 
     let additions: CardModel[] = []
@@ -122,8 +122,10 @@ export const pickupThunk = createAppThunk(
 
 export const playCardThunk = createAppThunk(
   'counter/play:cards',
-  async ({ cards }: PlayCardArgs, { dispatch, getState }) => {
+  async ({ cards, playerID }: PlayCardArgs, { dispatch, getState }) => {
     if (cards.length === 0) throw new Error('Cannot play zero cards')
+    if (getState().queue[0] !== playerID)
+      throw new Error('Cannot play card as not player')
     const state = getState()
     const destination = stackDestinationSelector(state)
     cards = cards.filter((c) => canCardPlay(c, destination))

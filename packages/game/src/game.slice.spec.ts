@@ -84,7 +84,7 @@ it('moves to the next player when I play a card', async (t) => {
     stack: [],
   })
 
-  const action = playCardThunk({ cards: [card] })
+  const action = playCardThunk({ cards: [card], playerID: 'a' })
   await store.dispatch(action)
   const state = store.getState()
   t.is(activePlayerSelector(state).id, 'b')
@@ -115,7 +115,7 @@ it('replenishes cards', async (t) => {
     stack: [card, card],
   })
 
-  await store.dispatch(playCardThunk({ cards: [card] }))
+  await store.dispatch(playCardThunk({ cards: [card], playerID: 'a' }))
   const state = store.getState()
   t.is(activePlayerSelector(state).id, 'a')
   t.true(state.turnLocks.includes('user:replenish'))
@@ -151,7 +151,7 @@ it('skips a go', (t) => {
     stack: [],
   })
 
-  const action = playCardThunk({ cards: [createCard('5', 'D')] })
+  const action = playCardThunk({ cards: [createCard('5', 'D')], playerID: 'a' })
   store.dispatch(action)
   const state = store.getState()
   t.is(activePlayerSelector(state).id, 'a')
@@ -186,12 +186,17 @@ it('skips a go in reverse', async (t) => {
     stack: [],
   })
 
-  await dispatch(playCardThunk({ cards: [createCard('5', 'H')] }))
+  await dispatch(
+    playCardThunk({ cards: [createCard('5', 'H')], playerID: 'a' }),
+  )
   t.is(activePlayerSelector(getState()).id, 'b')
 })
 
 it('burns the stack when a 10 is played', async (t) => {
-  const action = playCardThunk({ cards: [createCard('10', 'D')] })
+  const action = playCardThunk({
+    cards: [createCard('10', 'D')],
+    playerID: 'a',
+  })
   const store = getStore(state)
 
   store.dispatch(action)
@@ -209,7 +214,7 @@ it('burns when a fourth 8 is played', (t) => {
     stack: [createCard('8', 'C'), createCard('8', 'H'), createCard('8', 'S')],
   }
 
-  const action = playCardThunk({ cards: [createCard('8', 'D')] })
+  const action = playCardThunk({ cards: [createCard('8', 'D')], playerID: 'a' })
   const store = getStore(st)
   store.dispatch(action)
   t.is(isBurning(store.getState()), true)
@@ -223,6 +228,7 @@ it('burns when three 8s are played on a fourth', (t) => {
 
   const action = playCardThunk({
     cards: [createCard('8', 'D'), createCard('8', 'H'), createCard('8', 'S')],
+    playerID: 'a',
   })
   const store = getStore(st)
   store.dispatch(action)
@@ -235,7 +241,7 @@ it('burns when four of a kind are added to the stack', (t) => {
     stack: [createCard('3', 'C'), createCard('3', 'H'), createCard('3', 'S')],
   }
 
-  const action = playCardThunk({ cards: [createCard('3', 'D')] })
+  const action = playCardThunk({ cards: [createCard('3', 'D')], playerID: 'a' })
   const store = getStore(st)
   store.dispatch(action)
   t.is(isBurning(store.getState()), true)
@@ -252,7 +258,7 @@ it('ignores 8s for four of a kind calculations', (t) => {
     ],
   }
 
-  const action = playCardThunk({ cards: [createCard('3', 'D')] })
+  const action = playCardThunk({ cards: [createCard('3', 'D')], playerID: 'a' })
   const store = getStore(st)
   store.dispatch(action)
   t.is(isBurning(store.getState()), true)
@@ -266,6 +272,7 @@ it('does not burn when 3 of a kind are added to the stack', (t) => {
 
   const action = playCardThunk({
     cards: [createCard('3', 'C'), createCard('3', 'H'), createCard('3', 'S')],
+    playerID: 'a',
   })
   const store = getStore(st)
   store.dispatch(action)
@@ -306,7 +313,9 @@ it('properly increments the turn when I play an ace', async (t) => {
 
   const store = getStore(data)
   store.dispatch(unlockTurn({ channel: 'user:target', data: 'b' }))
-  await store.dispatch(playCardThunk({ cards: [createCard('A', 'H')] }))
+  await store.dispatch(
+    playCardThunk({ cards: [createCard('A', 'H')], playerID: 'a' }),
+  )
   t.is(store.getState().queue[0], 'b')
 })
 
@@ -335,7 +344,9 @@ it('allows me to pick up when I ace someone', async (t) => {
   })
 
   store.dispatch(unlockTurn({ channel: 'user:target', data: 'b' }))
-  await store.dispatch(playCardThunk({ cards: [createCard('A', 'H')] }))
+  await store.dispatch(
+    playCardThunk({ cards: [createCard('A', 'H')], playerID: 'a' }),
+  )
 
   t.is(isReplenishing(store.getState()), true)
 })
@@ -360,7 +371,9 @@ it('can play a 6 on an empty stack', async (t) => {
     ],
   })
 
-  await store.dispatch(playCardThunk({ cards: [createCard('6', 'H')] }))
+  await store.dispatch(
+    playCardThunk({ cards: [createCard('6', 'H')], playerID: 'a' }),
+  )
   t.is(store.getState().stack.length, 1)
 })
 
@@ -384,7 +397,9 @@ it('cannot play a 3 on a 4', async (t) => {
     ],
   })
 
-  await store.dispatch(playCardThunk({ cards: [createCard('3', 'H')] }))
+  await store.dispatch(
+    playCardThunk({ cards: [createCard('3', 'H')], playerID: 'a' }),
+  )
   t.is(store.getState().stack.length, 1)
 })
 
@@ -393,7 +408,9 @@ it('treats 8s as invisible', async (t) => {
     stack: [createCard('8', 'D'), createCard('3', 'S')],
   })
 
-  await dispatch(playCardThunk({ cards: [createCard('8', 'H')] }))
+  await dispatch(
+    playCardThunk({ cards: [createCard('8', 'H')], playerID: 'a' }),
+  )
 
   t.is(stackDestinationSelector(getState()).id, '3S')
 
@@ -433,7 +450,9 @@ it('reverses direction when a 7 is played', async (t) => {
     direction: 1,
   })
 
-  await store.dispatch(playCardThunk({ cards: [createCard('7', 'D')] }))
+  await store.dispatch(
+    playCardThunk({ cards: [createCard('7', 'D')], playerID: 'a' }),
+  )
   t.is(store.getState().direction, -1)
   t.is(activePlayerSelector(store.getState()).id, 'd')
 })
@@ -470,7 +489,10 @@ it('preserves direction when a double whacky 7 is played', async (t) => {
   })
 
   await store.dispatch(
-    playCardThunk({ cards: [createCard('7', 'D'), createCard('7', 'H')] }),
+    playCardThunk({
+      cards: [createCard('7', 'D'), createCard('7', 'H')],
+      playerID: 'a',
+    }),
   )
   t.is(store.getState().direction, 1)
 })
@@ -504,11 +526,13 @@ it('reverses direction when a triple whacky 7 is played', async (t) => {
       },
     ],
     direction: 1,
+    queue: ['a'],
   })
 
   await store.dispatch(
     playCardThunk({
       cards: [createCard('7', 'D'), createCard('7', 'H'), createCard('7', 'C')],
+      playerID: 'a',
     }),
   )
   t.is(store.getState().direction, -1)
@@ -519,13 +543,16 @@ it('cannot play a QC on a JD', async (t) => {
     stack: [createCard('J', 'D')],
   })
 
-  await store.dispatch(playCardThunk({ cards: [createCard('Q', 'C')] }))
+  await store.dispatch(
+    playCardThunk({ cards: [createCard('Q', 'C')], playerID: 'a' }),
+  )
   t.is(store.getState().stack.length, 1)
 })
 
 it('can play a 3D on a JD', async (t) => {
   const store = getStore({
     stack: [createCard('J', 'D')],
+    queue: ['a'],
     players: [
       {
         id: 'a',
@@ -542,7 +569,9 @@ it('can play a 3D on a JD', async (t) => {
     ],
   })
 
-  await store.dispatch(playCardThunk({ cards: [createCard('3', 'D')] }))
+  await store.dispatch(
+    playCardThunk({ cards: [createCard('3', 'D')], playerID: 'a' }),
+  )
   t.is(store.getState().stack.length, 2)
   t.log(store.getState())
 })
@@ -550,6 +579,7 @@ it('can play a 3D on a JD', async (t) => {
 it('can play a 2D on a JD', async (t) => {
   const store = getStore({
     stack: [createCard('J', 'D')],
+    queue: ['a'],
     players: [
       {
         id: 'a',
@@ -566,7 +596,9 @@ it('can play a 2D on a JD', async (t) => {
     ],
   })
 
-  await store.dispatch(playCardThunk({ cards: [createCard('2', 'D')] }))
+  await store.dispatch(
+    playCardThunk({ cards: [createCard('2', 'D')], playerID: 'a' }),
+  )
   t.is(store.getState().stack.length, 2)
 })
 
@@ -597,6 +629,7 @@ it('plays only the siblings that match', async (t) => {
   await store.dispatch(
     playCardThunk({
       cards: [createCard('2', 'D'), createCard('2', 'H'), createCard('2', 'S')],
+      playerID: 'a',
     }),
   )
 
@@ -625,7 +658,9 @@ it('hangs the turn if there is a pickup pile', async (t) => {
     pickupPile: [card, card, card, card, card],
   })
 
-  store.dispatch(playCardThunk({ cards: [createCard('9', 'D')] }))
+  store.dispatch(
+    playCardThunk({ cards: [createCard('9', 'D')], playerID: 'a' }),
+  )
   t.is(store.getState().stack.length, 2)
   t.is(isReplenishing(store.getState()), true)
 })
@@ -651,7 +686,9 @@ it('doesnt hang the turn if there is no pickup pile', async (t) => {
     pickupPile: [],
   })
 
-  await dispatch(playCardThunk({ cards: [createCard('3', 'D')] }))
+  await dispatch(
+    playCardThunk({ cards: [createCard('3', 'D')], playerID: 'a' }),
+  )
   t.log(getState())
   t.is(activePlayerSelector(getState()).id, 'b')
 })
@@ -682,6 +719,8 @@ it('doesnt hang the turn if the player has more than 4 cards', async (t) => {
     pickupPile: [card, card, card, card, card],
   })
 
-  store.dispatch(playCardThunk({ cards: [createCard('3', 'D')] }))
+  store.dispatch(
+    playCardThunk({ cards: [createCard('3', 'D')], playerID: 'a' }),
+  )
   t.false(isReplenishing(store.getState()))
 })

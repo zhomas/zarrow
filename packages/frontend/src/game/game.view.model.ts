@@ -3,6 +3,7 @@ import { canCardPlay } from 'game'
 import { FluidCardProps } from '../typings'
 import { useEffect, useState } from 'react'
 import { createCardByID } from 'game/dist/deck'
+import { act } from 'react-dom/test-utils'
 
 interface ViewModelProps {
   currentMode: UserMode
@@ -78,6 +79,13 @@ export const getCardProps = ({
     return () => playAllSiblings(card)
   }
 
+  const getOutlined = () => {
+    if (!active) return false
+    if (!canPlay) return false
+    if (!inCurrentTier) return false
+    return true
+  }
+
   return {
     card: card,
     selected: selected.includes(card.id),
@@ -88,6 +96,7 @@ export const getCardProps = ({
       ? (selected) => toggleSelected(selected)
       : undefined,
     variant: getVariant(),
+    outline: getOutlined(),
   }
 }
 

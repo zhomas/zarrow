@@ -59,5 +59,24 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
   }
 }
 
+type HighlightLocation = 'replenish' | 'stack' | 'hand' | ['playerID', string]
+
+export const highlightedLocationSelector = (uid: string) => {
+  return (state: GameState): HighlightLocation => {
+    const mode = userModeSelector(uid)(state)
+    const active = state.queue[0]
+
+    if (active === uid) {
+      if (mode === 'pickup:stack') return 'stack'
+      if (mode === 'pickup:replenish') return 'replenish'
+      if (mode === 'play:hand') return 'hand'
+
+      return ['playerID', uid]
+    }
+
+    return ['playerID', active]
+  }
+}
+
 type UserModeGetter = ReturnType<typeof userModeSelector>
 export type UserMode = ReturnType<UserModeGetter>

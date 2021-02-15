@@ -12,20 +12,21 @@ import {
   userModeSelector,
   pickupThunk,
   activeTierSelector,
-  hasLock,
-  getWrappedIndex,
+  highlightedLocationSelector,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
-import { FluidCard } from '../components'
-import { FaceDowns } from './downs'
+import { FluidCard } from './card'
+
 import { AnimateSharedLayout, motion } from 'framer-motion'
 import { getCardProps } from './game.view.model'
 import { Reticule } from './reticule'
-import { Zone } from '../components/zone'
-import { MiniPlayer } from '../components/miniplayer'
-import { Hand } from '../components/hand'
+import { Zone } from './zone'
+import { Miniplayer } from './miniplayer'
+import { Hand } from './hand'
+import { Strata } from './strata'
 
 import { styled } from '@linaria/react'
+import { Throbber } from './throbber'
 
 const ZoneLabel = styled.div`
   width: 100px;
@@ -51,7 +52,8 @@ const _GameView: FC<Props> = ({
   destination,
   activeCards,
   pickFaceUp,
-  burn,
+  activePlayerID,
+  highlight,
 }) => {
   const [selected, setSelected] = useState<CardModel[]>([])
   const [hovered, setHovered] = useState<CardModel[]>([])
@@ -103,6 +105,10 @@ const _GameView: FC<Props> = ({
   const opponent = players.find((p) => p.id !== uid)
   if (!opponent) throw new Error('Oh no')
 
+  const cardsInHand = activeCards.filter((c) => c.tier === 2).length > 0
+  const highlightedPlayer = highlight[1]
+  const showX = mode === 'play:ups'
+
   return (
     <AnimateSharedLayout>
       {pickFaceUp && (
@@ -141,28 +147,24 @@ const _GameView: FC<Props> = ({
           flexDirection: 'column',
           height: '100vh',
           justifyContent: 'space-between',
+          backgroundColor: '#2b6c35',
         }}
       >
-        <div>
-          <MiniPlayer
-            downs={
-              <>
-                {opponent.cards
-                  .filter((c) => c.tier === 0)
-                  .map((c) => (
-                    <FluidCard key={c.card.id} faceDown card={c.card} />
-                  ))}
-              </>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Miniplayer
+            ownerID={opponent.id}
+            curried={curried}
+            showActivityWidget={
+              typeof highlight === 'object' && highlight[1] === opponent.id
             }
-          >
-            {opponent.cards
-              .filter((c) => c.tier === 1)
-              .map((c) => (
-                <FluidCard key={c.card.id} card={c.card} />
-              ))}
-          </MiniPlayer>
+          />
         </div>
-        <div style={{ backgroundColor: 'turquoise', display: 'flex' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
           <ZoneLabel>
             <h4>{stack.length} cards in stack</h4>
           </ZoneLabel>
@@ -181,85 +183,66 @@ const _GameView: FC<Props> = ({
               />
             ))}
           </Zone>
-          <Zone
-            promptLabel={'Replenish'}
-            promptActive={mode === 'pickup:replenish'}
-            onPrompt={confirmReplenish}
-          >
-            {replenishPile.map((c, i) => (
-              <FluidCard key={c.id} card={c} faceDown variant="default" />
-            ))}
-          </Zone>
-          <ZoneLabel style={{ textAlign: 'left' }}>
-            <h4>{replenishPile.length} cards left</h4>
-          </ZoneLabel>
         </div>
-        <div>
-          <div>
-            <button
-              disabled={selected.length === 0}
-              onClick={() => {
-                playCards(...selected)
-              }}
-            >
-              Play selected
-            </button>
-          </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            paddingBottom: 120,
+          }}
+        >
+          <Miniplayer
+            ownerID={uid}
+            curried={curried}
+            nudge="up"
+            fadedStrata={cardsInHand && activePlayerID === uid}
+            showActivityWidget={highlightedPlayer === uid}
+          />
         </div>
-        <div>
-          <motion.div
-            initial={{ scale: 0.85, transformOrigin: 'bottom' }}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <div
-              style={{
-                padding: 10,
-                display: 'flex',
-                backgroundColor:
-                  mode === 'play:ups' ? 'thistle' : 'transparent',
-                position: 'absolute',
-                top: 0,
-                left: '50%',
-                zIndex: 1,
-                transform: 'translate3d(-50%, -50px, 0)',
-                maxWidth: 260,
-                marginLeft: -30,
-              }}
-            >
-              {ups.map((c) => {
-                const props = curried(c.card, mode === 'play:ups')
-
-                return (
-                  <FluidCard
-                    key={c.card.id}
-                    {...props}
-                    selected={selected.some((s) => s.id === c.card.id)}
-                  />
-                )
-              })}
-            </div>
-            <FaceDowns uid={uid} />
-          </motion.div>
-
-          <Hand active={mode === 'play:hand'} handleDeal={deal}>
-            {hand.map((c, i) => {
-              const props = curried(c.card, mode === 'play:hand')
-              return (
-                <FluidCard
-                  key={c.card.id}
-                  {...props}
-                  selected={selected.some((s) => s.id === c.card.id)}
-                />
-              )
-            })}
-          </Hand>
-        </div>
+        <Hand
+          cardsLength={hand.length}
+          active={mode === 'play:hand'}
+          playSelected={() => playCards(...selected)}
+          playSelectedDisabled={selected.length === 0}
+          mode={mode}
+        >
+          {highlight === 'hand' && <Throbber point="right" />}
+          {hand.map((c) => {
+            const props = curried(
+              c.card,
+              mode === 'play:hand' && activePlayerID === uid,
+            )
+            return (
+              <FluidCard
+                key={c.card.id}
+                {...props}
+                selected={selected.some((s) => s.id === c.card.id)}
+              />
+            )
+          })}
+        </Hand>
       </div>
       <Reticule uid={uid} />
+      <button
+        style={{ position: 'absolute', top: 10, right: 10 }}
+        onClick={deal}
+      >
+        Re-deal
+      </button>
+      <div style={{ position: 'absolute', right: 20, top: '50%' }}>
+        <Zone
+          promptLabel={'Replenish'}
+          promptActive={mode === 'pickup:replenish'}
+          onPrompt={confirmReplenish}
+        >
+          {replenishPile.map((c) => (
+            <FluidCard key={c.id} card={c} faceDown variant="default" />
+          ))}
+        </Zone>
+        <ZoneLabel style={{ textAlign: 'left' }}>
+          <h4>{replenishPile.length} cards left</h4>
+        </ZoneLabel>
+      </div>
     </AnimateSharedLayout>
   )
 }
@@ -268,8 +251,16 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
   const destination = stackDestinationSelector(state)
   const myCards = state.players.find((p) => p.id === ownProps.uid)?.cards || []
   const getMode = userModeSelector(ownProps.uid)
+  const getHighlight = highlightedLocationSelector(ownProps.uid)
   const canPlay = (c: CardModel) => {
     return canCardPlay(c, destination)
+  }
+
+  const getHilite = () => {
+    const mode = getMode(state)
+    if (mode === 'play:hand') {
+      return 'strata'
+    }
   }
 
   return {
@@ -287,17 +278,19 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     activeCards: activeTierSelector(state),
     destination,
     burn: state.burnt,
+    activePlayerID: state.queue[0],
+    highlight: getHighlight(state),
   } as const
 }
 
-const mapDispatch = (d: GameDispatch) => {
+const mapDispatch = (d: GameDispatch, ownProps: OwnProps) => {
   return {
     playCards: (...cards: CardModel[]) => {
-      const action = playCardThunk({ cards })
+      const action = playCardThunk({ cards, playerID: ownProps.uid })
       d(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck(26) })
+      const action = deal({ deck: createDeck(32) })
       d(action)
     },
     confirmReplenish: () => {

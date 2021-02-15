@@ -8,5 +8,6 @@ export type FluidCardProps = {
   onClick?: () => void
   onMouseEnter?: () => void
   onMouseExit?: () => void
-  variant?: 'default' | 'disabled' | 'highlight' | 'lowlight'
+  variant?: 'default' | 'disabled' | 'highlight' | 'lowlight' | 'golden'
+  outline?: boolean
 }

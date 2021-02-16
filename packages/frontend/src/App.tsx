@@ -21,16 +21,14 @@ firebase.firestore().useEmulator('localhost', 8081)
 
 function App() {
   return (
-    <div className="App">
-      <UserGate>
-        {(uid) => (
-          <Router>
-            <GamePage path=":gid" uid={uid} />
-            <EntryPage default />
-          </Router>
-        )}
-      </UserGate>
-    </div>
+    <UserGate>
+      {(uid) => (
+        <Router>
+          <GamePage path=":gid" uid={uid} />
+          <EntryPage default />
+        </Router>
+      )}
+    </UserGate>
   )
 }
 

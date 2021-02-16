@@ -36,6 +36,7 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
 
   state.pickupPile = deck
   state.queue = [playerIds[0]]
+  state.turnLocks = []
   state.burnt = []
   state.stack = []
   state.local = {

@@ -1,8 +1,8 @@
 import React, { FC } from 'react'
-import { motion } from 'framer-motion'
+import { motion, MotionStyle } from 'framer-motion'
 import { styled } from '@linaria/react'
 
-interface Props {
+type Props = MotionStyle & {
   point: 'up' | 'down' | 'left' | 'right'
 }
 
@@ -27,11 +27,11 @@ const getDegrees = (point: Props['point']) => {
   }
 }
 
-export const Throbber: FC<Props> = ({ point }) => {
+export const Throbber: FC<Props> = ({ point, ...style }) => {
   return (
     <motion.div
       layoutId="throbber"
-      style={{ width: 60, height: 30, margin: '15px' }}
+      style={{ position: 'absolute', width: 60, height: 30, ...style }}
     >
       <motion.div animate={{ rotate: getDegrees(point) }}>
         <StyledThrobber />

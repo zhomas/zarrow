@@ -24,16 +24,62 @@ import { Zone } from './zone'
 import { Miniplayer } from './miniplayer'
 import { Hand } from './hand'
 import { Strata } from './strata'
+import { EnemyHand } from './hand/enemy'
+import { Stack } from './stack'
+import { ReplenishPile } from './replenish'
+
+import { PlayerHand } from './hand/player'
 
 import { styled } from '@linaria/react'
 import { Throbber } from './throbber'
 
-const ZoneLabel = styled.div`
-  width: 100px;
-  display: flex;
-  align-items: flex-end;
-  text-align: right;
-  padding: 10px;
+const GameWrapper = styled.main`
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 1fr 40px;
+  grid-template-rows: 40px 1fr 1fr 1fr 120px;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  background: #333333;
+  height: 100vh;
+  overflow: hidden;
+
+  > div {
+    position: relative;
+    z-index: 1;
+  }
+
+  .h1 {
+    grid-area: 5 / 2 / 6 / 5;
+    z-index: 2;
+  }
+  .h2 {
+    grid-area: 1 / 3 / 2 / 4;
+  }
+  .s1 {
+    grid-area: 4 / 3 / 5 / 4;
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .s2 {
+    grid-area: 2 / 3 / 3 / 4;
+  }
+  .table {
+    grid-area: 2 / 2 / 5 / 5;
+    background: #2b7f2b;
+    z-index: 0;
+  }
+  .table-main {
+    grid-area: 3 / 3 / 4 / 4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .br {
+    grid-area: 4 / 4 / 5 / 5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 `
 
 const _GameView: FC<Props> = ({
@@ -109,140 +155,50 @@ const _GameView: FC<Props> = ({
   const highlightedPlayer = highlight[1]
   const showX = mode === 'play:ups'
 
-  return (
-    <AnimateSharedLayout>
-      {pickFaceUp && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 10,
-            color: 'white',
-            padding: '10vh',
-          }}
-        >
-          <h1>Pick a card to pickup:</h1>
-          <div>
-            {activeCards.map((c) => (
-              <FluidCard
-                key={c.card.id}
-                keyPrefix={'fup'}
-                card={c.card}
-                onClick={() => {
-                  confirmPickupFaceUp(c.card)
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+  const playerHandCards = hand.map((c) => (
+    <FluidCard key={c.card.id} card={c.card} />
+  ))
+  const stackCards = stack.map((c) => <FluidCard key={c.id} card={c} />)
+  const replenishCards = replenishPile.map((c) => (
+    <FluidCard key={c.id} card={c} faceDown />
+  ))
 
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100vh',
-          justifyContent: 'space-between',
-          backgroundColor: '#2b6c35',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Miniplayer
-            ownerID={opponent.id}
-            curried={curried}
-            showActivityWidget={
-              typeof highlight === 'object' && highlight[1] === opponent.id
-            }
-          />
+  return (
+    <AnimateSharedLayout type="switch">
+      <GameWrapper>
+        <div className="h1">
+          <PlayerHand ownerID={uid} curried={curried} />
         </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          <ZoneLabel>
-            <h4>{stack.length} cards in stack</h4>
-          </ZoneLabel>
+        <div className="h2">
+          <EnemyHand ownerID={opponent.id} />
+        </div>
+        <div className="s2">
+          <Miniplayer ownerID={opponent.id} curried={curried} />
+        </div>
+        <div className="s1">
+          <Miniplayer ownerID={uid} curried={curried} nudge="up" />
+        </div>
+        <div className="table"></div>
+        <div className="table-main"></div>
+        <div className="br">
+          {/* {stack.map((c) => {
+            return <FluidCard key={c.id} card={c} />
+          })} */}
           <Zone
-            promptLabel={'Pick up stack'}
-            promptActive={mode === 'pickup:stack'}
             onPrompt={pickupStack}
-          >
-            {stack.map((c, i) => (
-              <FluidCard
-                key={c.id}
-                stackIndex={i}
-                stackLength={stack.length}
-                card={c}
-                variant="default"
-              />
-            ))}
-          </Zone>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            paddingBottom: 120,
-          }}
-        >
-          <Miniplayer
-            ownerID={uid}
-            curried={curried}
-            nudge="up"
-            fadedStrata={cardsInHand && activePlayerID === uid}
-            showActivityWidget={highlightedPlayer === uid}
+            cards={stackCards}
+            promptLabel=""
+            promptActive={true}
+          />
+          <Zone
+            onPrompt={confirmReplenish}
+            cards={replenishCards}
+            promptLabel=""
+            promptActive={true}
           />
         </div>
-        <Hand
-          cardsLength={hand.length}
-          active={mode === 'play:hand'}
-          playSelected={() => playCards(...selected)}
-          playSelectedDisabled={selected.length === 0}
-          mode={mode}
-        >
-          {highlight === 'hand' && <Throbber point="right" />}
-          {hand.map((c) => {
-            const props = curried(
-              c.card,
-              mode === 'play:hand' && activePlayerID === uid,
-            )
-            return (
-              <FluidCard
-                key={c.card.id}
-                {...props}
-                selected={selected.some((s) => s.id === c.card.id)}
-              />
-            )
-          })}
-        </Hand>
-      </div>
-      <Reticule uid={uid} />
-      <button
-        style={{ position: 'absolute', top: 10, right: 10 }}
-        onClick={deal}
-      >
-        Re-deal
-      </button>
-      <div style={{ position: 'absolute', right: 20, top: '50%' }}>
-        <Zone
-          promptLabel={'Replenish'}
-          promptActive={mode === 'pickup:replenish'}
-          onPrompt={confirmReplenish}
-        >
-          {replenishPile.map((c) => (
-            <FluidCard key={c.id} card={c} faceDown variant="default" />
-          ))}
-        </Zone>
-        <ZoneLabel style={{ textAlign: 'left' }}>
-          <h4>{replenishPile.length} cards left</h4>
-        </ZoneLabel>
-      </div>
+      </GameWrapper>
+      <button onClick={deal}>Redeal</button>
     </AnimateSharedLayout>
   )
 }
@@ -254,13 +210,6 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
   const getHighlight = highlightedLocationSelector(ownProps.uid)
   const canPlay = (c: CardModel) => {
     return canCardPlay(c, destination)
-  }
-
-  const getHilite = () => {
-    const mode = getMode(state)
-    if (mode === 'play:hand') {
-      return 'strata'
-    }
   }
 
   return {

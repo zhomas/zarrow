@@ -86,7 +86,7 @@ export const FluidCard: FC<Props> = ({
       case 'golden':
         return '#FFE135'
       default:
-        return 'white'
+        return '#ffffff'
     }
   }
 

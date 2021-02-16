@@ -13,10 +13,11 @@ import {
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCardProps } from '../../typings'
+import { FluidCard } from '../card'
 import { Strata } from '../strata'
 import { Throbber } from '../throbber'
 
-const Wrapper = styled.div`
+const Wrapper = styled(motion.div)`
   background: rgb(0 0 0 / 33%);
   padding: 20px 240px 85px 25px;
 `
@@ -36,6 +37,8 @@ const _MiniPlayer: FC<Props> = ({
   showActivityWidget,
   nudge = 'down',
   fadedStrata = false,
+  renderHandCards,
+  hand,
 }) => {
   const nothing = (c: CardModel): FluidCardProps => {
     return {
@@ -44,51 +47,31 @@ const _MiniPlayer: FC<Props> = ({
   }
 
   return (
-    <motion.div
-      initial={{
-        scale: 0.85,
-        transformOrigin: nudge === 'down' ? 'top' : 'bottom',
-      }}
-    >
-      <div
+    <>
+      <Wrapper
+        initial={{
+          transformOrigin: nudge === 'down' ? 'top' : 'bottom',
+        }}
         style={{
-          display: 'flex',
-          flexDirection: nudge === 'down' ? 'column' : 'column-reverse',
+          borderRadius: nudge === 'down' ? '0 0 9px 9px' : '9px 9px 0 0',
+          padding:
+            nudge === 'down' ? '20px 62px 85px 25px' : '85px 62px 20px 25px',
         }}
       >
-        <Wrapper
-          style={{
-            borderRadius: nudge === 'down' ? '0 0 9px 9px' : '9px 9px 0 0',
-            padding:
-              nudge === 'down'
-                ? '20px 240px 85px 25px'
-                : '85px 240px 20px 25px',
-          }}
-        >
-          <div style={{ opacity: fadedStrata ? 0.5 : 1 }}>
-            <Strata
-              ownerID={ownerID}
-              curried={nothing}
-              active={false}
-              mode={'idle'}
-              nudge={nudge}
-            />
-          </div>
-          <InfoList>
-            <li></li>
-            <li>
-              <span>{modeString}</span>
-            </li>
-            <li>
-              <span>{cardsInHand} in hand</span>
-            </li>
-          </InfoList>
-        </Wrapper>
-        {showActivityWidget && (
-          <Throbber point={nudge === 'down' ? 'down' : 'up'} />
-        )}
-      </div>
-    </motion.div>
+        <div style={{ opacity: fadedStrata ? 0.5 : 1 }}>
+          <Strata
+            ownerID={ownerID}
+            curried={nothing}
+            active={false}
+            mode={'idle'}
+            nudge={nudge}
+          />
+        </div>
+      </Wrapper>
+      {showActivityWidget && (
+        <Throbber point={nudge === 'down' ? 'down' : 'up'} />
+      )}
+    </>
   )
 }
 
@@ -121,6 +104,7 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     active: !modeSelector(state).includes('idle'),
     modeString: getString(),
     cardsInHand: myCards.filter((c) => c.tier === 2).length,
+    hand: myCards.filter((c) => c.tier === 2),
   }
 }
 
@@ -143,6 +127,7 @@ interface OwnProps {
   nudge?: 'up' | 'down'
   fadedStrata?: boolean
   showActivityWidget?: boolean
+  renderHandCards?: boolean
 }
 
 const connector = connect(mapState, mapDispatch)

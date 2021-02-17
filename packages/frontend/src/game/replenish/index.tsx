@@ -27,7 +27,6 @@ const _ReplenishPile: FC<Props> = ({ list, pickupNow, confirmReplenish }) => {
   return (
     <Wrapper>
       <Zone
-        promptLabel="stack"
         promptActive={pickupNow}
         onPrompt={confirmReplenish}
         cards={list.map((c) => {

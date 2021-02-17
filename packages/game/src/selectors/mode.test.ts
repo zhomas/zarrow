@@ -307,3 +307,225 @@ it('highlights the replenish pile when necessary', (t) => {
 
   t.deepEqual(location, 'replenish')
 })
+
+it('highlights my oppenent while he is choosing from his hand', (t) => {
+  const selector = highlightedLocationSelector('def')
+  const store = getStore({
+    burnt: [],
+    direction: 1,
+    pickupPile: [createCard('3', 'S')],
+    queue: ['abc'],
+    turnLocks: [],
+    stack: [createCard('2', 'S')],
+    players: [
+      {
+        id: 'abc',
+        faction: 0,
+        displayName: 'Tom',
+        cards: [{ card: createCard('3', 'S'), tier: 2 }],
+      },
+      {
+        id: 'def',
+        faction: 0,
+        displayName: 'Tom',
+        cards: [{ card: createCard('3', 'S'), tier: 1 }],
+      },
+    ],
+    focused: '',
+  })
+
+  const location = selector(store.getState())
+
+  t.deepEqual(location, ['playerID', 'abc'])
+})
+
+it('highlights play:downs when I am on my down cards', (t) => {
+  const store = getStore({
+    direction: -1,
+    queue: ['NRUF3fQBIvTw8GkKMAoaMH9z6wC2', 'FJD2vQIVnEcmFymBCfYxPdSQfhD3'],
+    players: [
+      {
+        cards: [
+          {
+            tier: 0,
+            card: {
+              suit: 'C',
+              id: '5C',
+              value: '5',
+            },
+          },
+          {
+            tier: 0,
+            card: {
+              suit: 'D',
+              id: '8D',
+              value: '8',
+            },
+          },
+          {
+            tier: 0,
+            card: {
+              suit: 'H',
+              id: '10H',
+              value: '10',
+            },
+          },
+          {
+            tier: 0,
+            card: {
+              suit: 'S',
+              id: '2S',
+              value: '2',
+            },
+          },
+        ],
+        displayName: 'nkjnjkhj',
+        faction: 1,
+        id: 'NRUF3fQBIvTw8GkKMAoaMH9z6wC2',
+      },
+      {
+        cards: [
+          {
+            tier: 0,
+            card: {
+              suit: 'D',
+              id: '7D',
+              value: '7',
+            },
+          },
+          {
+            tier: 0,
+            card: {
+              suit: 'S',
+              id: 'JS',
+              value: 'J',
+            },
+          },
+          {
+            tier: 0,
+            card: {
+              suit: 'D',
+              id: 'QD',
+              value: 'Q',
+            },
+          },
+          {
+            tier: 0,
+            card: {
+              suit: 'C',
+              id: 'AC',
+              value: 'A',
+            },
+          },
+          {
+            tier: 1,
+            card: {
+              suit: 'S',
+              id: '7S',
+              value: '7',
+            },
+          },
+          {
+            tier: 1,
+            card: {
+              suit: 'H',
+              id: '2H',
+              value: '2',
+            },
+          },
+          {
+            tier: 1,
+            card: {
+              suit: 'H',
+              id: '6H',
+              value: '6',
+            },
+          },
+          {
+            tier: 1,
+            card: {
+              suit: 'D',
+              id: '4D',
+              value: '4',
+            },
+          },
+          {
+            tier: 2,
+            card: {
+              suit: 'S',
+              id: '3S',
+              value: '3',
+            },
+          },
+          {
+            tier: 2,
+            card: {
+              suit: 'C',
+              id: 'KC',
+              value: 'K',
+            },
+          },
+          {
+            tier: 2,
+            card: {
+              suit: 'H',
+              id: 'AH',
+              value: 'A',
+            },
+          },
+          {
+            tier: 2,
+            card: {
+              suit: 'D',
+              id: 'JD',
+              value: 'J',
+            },
+          },
+          {
+            tier: 2,
+            card: {
+              suit: 'H',
+              id: '5H',
+              value: '5',
+            },
+          },
+          {
+            tier: 2,
+            card: {
+              suit: 'C',
+              id: 'QC',
+              value: 'Q',
+            },
+          },
+        ],
+        displayName: 'njkhkjh',
+        faction: 0,
+        id: 'FJD2vQIVnEcmFymBCfYxPdSQfhD3',
+      },
+    ],
+    stack: [
+      {
+        suit: 'S',
+        id: '6S',
+        value: '6',
+      },
+      {
+        suit: 'C',
+        id: '8C',
+        value: '8',
+      },
+    ],
+    burnt: [],
+    pickupPile: [],
+    turnLocks: [],
+    local: {
+      targetUID: '',
+      faceUpPickID: '',
+    },
+    focused: '',
+  })
+
+  const selector = userModeSelector('NRUF3fQBIvTw8GkKMAoaMH9z6wC2')
+  const mode = selector(store.getState())
+  t.is(mode, 'play:downs')
+})

@@ -1,13 +1,11 @@
 import { motion } from 'framer-motion'
 import { createDeck } from 'game'
 import React, { FC } from 'react'
-import { FluidCardProps } from '../../typings'
-import { FluidCard } from '../card'
+import { Throbber } from '../throbber'
 
 const ids = createDeck().map((c) => c.id)
 
 interface ZoneProps {
-  promptLabel: string
   onPrompt?: () => void
   promptActive: boolean
   cards: JSX.Element[]
@@ -21,7 +19,6 @@ const variants = {
 }
 
 export const Zone: FC<ZoneProps> = ({
-  promptLabel,
   promptActive,
   children,
   onPrompt,
@@ -29,37 +26,66 @@ export const Zone: FC<ZoneProps> = ({
 }) => {
   return (
     <div
-      onClick={promptActive ? onPrompt : undefined}
       style={{
-        padding: 10,
-        position: 'relative',
-        zIndex: 0,
-
-        cursor: promptActive ? 'grab' : 'default',
+        marginRight: 1,
       }}
     >
       <div
+        onClick={promptActive ? onPrompt : undefined}
         style={{
+          padding: 10,
           position: 'relative',
-          width: 126,
-          height: 176,
-          pointerEvents: 'none',
-          top: Array.isArray(children) ? children.length * -1.5 : 0,
+          zIndex: 0,
+
+          cursor: promptActive ? 'grab' : 'default',
         }}
       >
-        {cards.map((c, i) => (
-          <div
-            key={ids[i]}
+        {promptActive && (
+          <motion.div
+            animate={{
+              opacity: [0, 1, 1, 0],
+              backgroundColor: '#FFE135',
+            }}
+            transition={{
+              repeatType: 'loop',
+              repeat: promptActive ? Infinity : 1,
+            }}
             style={{
               position: 'absolute',
-              top: i * 1.5,
+              top: 0,
               left: 0,
-              zIndex: cards.length - i,
+              right: 0,
+              bottom: 0,
+              border: '1px solid #0000007d',
+              borderRadius: 12,
+              zIndex: -1,
             }}
-          >
-            {c}
-          </div>
-        ))}
+          />
+        )}
+        <div
+          style={{
+            position: 'relative',
+            width: 126,
+            height: 176,
+            pointerEvents: 'none',
+            top: cards.length * -1.5,
+          }}
+        >
+          {cards.map((c, i) => (
+            <div
+              key={ids[i]}
+              style={{
+                position: 'absolute',
+                top: i * 1.5,
+                left: 0,
+                zIndex: cards.length - i,
+              }}
+            >
+              {c}
+            </div>
+          ))}
+          {promptActive && <Throbber point="up" top="120%" left="25%" />}
+        </div>
       </div>
     </div>
   )

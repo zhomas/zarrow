@@ -33,7 +33,7 @@ export const Throbber: FC<Props> = ({ point, ...style }) => {
       layoutId="throbber"
       style={{ position: 'absolute', width: 60, height: 30, ...style }}
     >
-      <motion.div animate={{ rotate: getDegrees(point) }}>
+      <motion.div initial={{ rotate: getDegrees(point) }}>
         <StyledThrobber />
       </motion.div>
       {/* <motion.div

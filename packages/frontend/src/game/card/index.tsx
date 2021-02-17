@@ -70,10 +70,6 @@ export const FluidCard: FC<Props> = ({
   variant = 'default',
   keyPrefix = '',
   style,
-  stackIndex = 0,
-  stackLength = 0,
-  animate,
-  outline = false,
 }) => {
   const getBGColor = () => {
     switch (variant) {
@@ -85,6 +81,8 @@ export const FluidCard: FC<Props> = ({
         return '#abd6ff'
       case 'golden':
         return '#FFE135'
+      case 'idle':
+        return '#e1dbba'
       default:
         return '#ffffff'
     }

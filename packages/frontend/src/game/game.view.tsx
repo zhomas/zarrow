@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useState } from 'react'
+import React, { FC } from 'react'
 import {
   CardModel,
   createDeck,
@@ -7,31 +7,23 @@ import {
   GameDispatch,
   GameState,
   playCardThunk,
-  stackDestinationSelector,
-  canCardPlay,
-  userModeSelector,
   pickupThunk,
-  activeTierSelector,
   highlightedLocationSelector,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCard } from './card'
 
-import { AnimateSharedLayout, motion } from 'framer-motion'
-import { getCardProps } from './game.view.model'
-import { Reticule } from './reticule'
+import { AnimateSharedLayout } from 'framer-motion'
+import { useCardBuilder as useLocalCardContext } from './game.hooks'
 import { Zone } from './zone'
 import { Miniplayer } from './miniplayer'
-import { Hand } from './hand'
-import { Strata } from './strata'
+import { FUPU } from './fupu'
 import { EnemyHand } from './hand/enemy'
-import { Stack } from './stack'
-import { ReplenishPile } from './replenish'
 
 import { PlayerHand } from './hand/player'
 
 import { styled } from '@linaria/react'
-import { Throbber } from './throbber'
+import { Reticule } from './reticule'
 
 const GameWrapper = styled.main`
   display: grid;
@@ -83,120 +75,63 @@ const GameWrapper = styled.main`
 `
 
 const _GameView: FC<Props> = ({
-  hand,
-  ups,
   stack,
   uid,
   replenishPile,
-  playCards,
   deal,
   players,
   confirmReplenish,
-  confirmPickupFaceUp,
-  mode,
   pickupStack,
-  destination,
-  activeCards,
-  pickFaceUp,
-  activePlayerID,
   highlight,
 }) => {
-  const [selected, setSelected] = useState<CardModel[]>([])
-  const [hovered, setHovered] = useState<CardModel[]>([])
-
-  useEffect(() => {
-    setSelected([])
-    setHovered([])
-  }, [mode, stack.length])
-
-  useEffect(() => {
-    setHovered([])
-  }, [selected])
-
-  const curried = useCallback(
-    (c: CardModel, isActiveMode: boolean) =>
-      getCardProps({
-        active: isActiveMode,
-        destID: destination.id,
-        selected: selected.map((c) => c.id),
-        hovered: hovered.map((h) => h.id),
-        id: c.id,
-        toggleHover: () => {
-          const next = hovered.includes(c)
-            ? hovered.filter((h) => h.id !== c.id)
-            : [...hovered, c]
-
-          setHovered(next)
-        },
-        toggleSelected: () => {
-          const next = selected.includes(c)
-            ? selected.filter((h) => h.id !== c.id)
-            : [...selected, c]
-
-          console.log('toggle selected!', next)
-          setSelected(next)
-        },
-        playAllSiblings: () => {
-          const siblings = activeCards
-            .filter((a) => a.card.value === c.value)
-            .map((a) => a.card)
-
-          playCards(...siblings)
-        },
-        hand: activeCards.map((a) => a.card),
-      }),
-    [activeCards, destination.id, hovered, playCards, selected],
+  const { buildHandCard, buildForPlayerStrata, buildNPC } = useLocalCardContext(
+    uid,
   )
 
   const opponent = players.find((p) => p.id !== uid)
   if (!opponent) throw new Error('Oh no')
 
-  const cardsInHand = activeCards.filter((c) => c.tier === 2).length > 0
-  const highlightedPlayer = highlight[1]
-  const showX = mode === 'play:ups'
-
-  const playerHandCards = hand.map((c) => (
-    <FluidCard key={c.card.id} card={c.card} />
-  ))
-  const stackCards = stack.map((c) => <FluidCard key={c.id} card={c} />)
-  const replenishCards = replenishPile.map((c) => (
-    <FluidCard key={c.id} card={c} faceDown />
-  ))
-
   return (
     <AnimateSharedLayout type="switch">
       <GameWrapper>
         <div className="h1">
-          <PlayerHand ownerID={uid} curried={curried} />
+          <PlayerHand ownerID={uid} curried={buildHandCard} />
         </div>
         <div className="h2">
           <EnemyHand ownerID={opponent.id} />
         </div>
         <div className="s2">
-          <Miniplayer ownerID={opponent.id} curried={curried} />
+          <Miniplayer ownerID={opponent.id} curried={buildNPC} uid={uid} />
         </div>
         <div className="s1">
-          <Miniplayer ownerID={uid} curried={curried} nudge="up" />
+          <Miniplayer
+            ownerID={uid}
+            curried={buildForPlayerStrata}
+            nudge="up"
+            uid={uid}
+          />
         </div>
         <div className="table"></div>
-        <div className="table-main"></div>
-        <div className="br">
-          {/* {stack.map((c) => {
-            return <FluidCard key={c.id} card={c} />
-          })} */}
+        <div className="table-main">
           <Zone
             onPrompt={pickupStack}
-            cards={stackCards}
-            promptLabel=""
-            promptActive={true}
-          />
-          <Zone
-            onPrompt={confirmReplenish}
-            cards={replenishCards}
-            promptLabel=""
-            promptActive={true}
+            promptActive={highlight === 'stack'}
+            cards={stack.map((c) => (
+              <FluidCard key={c.id} card={c} />
+            ))}
           />
         </div>
+        <div className="br">
+          <Zone
+            onPrompt={confirmReplenish}
+            promptActive={highlight === 'replenish'}
+            cards={replenishPile.map((c) => (
+              <FluidCard key={c.id} card={c} faceDown />
+            ))}
+          />
+        </div>
+        <Reticule uid={uid} />
+        <FUPU uid={uid} />
       </GameWrapper>
       <button onClick={deal}>Redeal</button>
     </AnimateSharedLayout>
@@ -204,30 +139,11 @@ const _GameView: FC<Props> = ({
 }
 
 const mapState = (state: GameState, ownProps: OwnProps) => {
-  const destination = stackDestinationSelector(state)
-  const myCards = state.players.find((p) => p.id === ownProps.uid)?.cards || []
-  const getMode = userModeSelector(ownProps.uid)
   const getHighlight = highlightedLocationSelector(ownProps.uid)
-  const canPlay = (c: CardModel) => {
-    return canCardPlay(c, destination)
-  }
-
   return {
-    pickFaceUp: state.turnLocks?.some((c) => c === 'user:faceuptake'),
-    turnActive: state.queue[0] === ownProps.uid,
-    mode: getMode(state),
-    hand: myCards.filter((c) => c.tier === 2),
-    ups: myCards.filter((c) => c.tier === 1),
-    downs: myCards.filter((c) => c.tier === 0),
     stack: state.stack,
     players: state.players,
     replenishPile: state.pickupPile,
-    myCards,
-    canPlay,
-    activeCards: activeTierSelector(state),
-    destination,
-    burn: state.burnt,
-    activePlayerID: state.queue[0],
     highlight: getHighlight(state),
   } as const
 }
@@ -239,7 +155,7 @@ const mapDispatch = (d: GameDispatch, ownProps: OwnProps) => {
       d(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck(32) })
+      const action = deal({ deck: createDeck(25) })
       d(action)
     },
     confirmReplenish: () => {

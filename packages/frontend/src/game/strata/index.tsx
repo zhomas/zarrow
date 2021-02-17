@@ -28,18 +28,13 @@ const _Strata: FC<Props> = ({
   nudge = 'down',
   active = false,
 }) => {
-  const getFacedownClickHandler = (card: CardModel) => {
+  const handleClickDown = (c: CardModel) => {
+    console.log('grrr', mode)
     if (mode === 'play:downs') {
-      const ok = canCardPlay(card)
-      console.log('revealed!')
-      if (ok) {
-        return () => playCard(card)
-      } else {
-        return () => focusCard(card)
-      }
+      const ok = canCardPlay(c)
+      const fn = ok ? playCard : focusCard
+      fn(c)
     }
-
-    return undefined
   }
 
   return (
@@ -66,7 +61,7 @@ const _Strata: FC<Props> = ({
         }}
       >
         {ups.map(({ card }) => {
-          const props = curried(card, mode === 'play:ups')
+          const props = curried(card, true)
 
           return <FluidCard key={card.id} {...props} style={{ width: 65 }} />
         })}
@@ -75,7 +70,7 @@ const _Strata: FC<Props> = ({
         {downs.map(({ card }) => (
           <FluidCard
             key={card.id}
-            onClick={getFacedownClickHandler(card)}
+            onClick={() => handleClickDown(card)}
             card={card}
             variant="default"
             style={{ width: 90 }}
@@ -91,7 +86,9 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
   const myCards =
     state.players.find((p) => p.id === ownProps.ownerID)?.cards || []
   const dest = stackDestinationSelector(state)
+  const selector = userModeSelector(ownProps.uid)
   return {
+    mode: selector(state),
     downs: myCards.filter((c) => c.tier === 0),
     ups: myCards.filter((c) => c.tier === 1),
     canCardPlay: (c: CardModel) => canCardPlay(c, dest),
@@ -102,7 +99,7 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
 const mapDispatch = (dispatch: GameDispatch, own: OwnProps) => {
   return {
     playCard: (c: CardModel) => {
-      const action = playCardThunk({ cards: [c], playerID: own.ownerID })
+      const action = playCardThunk({ cards: [c], playerID: own.uid })
       dispatch(action)
     },
     focusCard: (c: CardModel) => {
@@ -116,9 +113,9 @@ const connector = connect(mapState, mapDispatch)
 
 interface OwnProps {
   ownerID: string
+  uid: string
   curried: (c: CardModel, a: boolean) => FluidCardProps
   nudge?: 'up' | 'down'
-  mode: UserMode
   active?: boolean
 }
 

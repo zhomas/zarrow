@@ -1,10 +1,7 @@
 import { createCardByID } from 'game/dist/deck'
-import { useGameViewModel, getCardProps } from './game.view.model'
+import { getCardProps } from './game.hooks'
 import it from 'ava'
-import { FluidCardProps } from '../typings'
 import * as sinon from 'sinon'
-
-type CardVariant = FluidCardProps['variant']
 
 it('highlights self when hovered', (t) => {
   const playAll = sinon.spy()
@@ -17,7 +14,6 @@ it('highlights self when hovered', (t) => {
     hovered: ['3D'],
     toggleHover: sinon.spy(),
     toggleSelected: sinon.spy(),
-    active: true,
   })
 
   t.truthy(props.variant === 'highlight')
@@ -34,7 +30,6 @@ it('highlights selected cards', (t) => {
     hovered: ['3D'],
     toggleHover: sinon.spy(),
     toggleSelected: sinon.spy(),
-    active: true,
     hand: [createCardByID('3D')],
   })
 
@@ -52,7 +47,6 @@ it('lowlights hovered unselected cards', (t) => {
     hovered: ['3D'],
     toggleHover: sinon.spy(),
     toggleSelected: sinon.spy(),
-    active: true,
     hand: [createCardByID('3D')],
   })
 
@@ -68,7 +62,6 @@ it('lowlights siblings when hovered', (t) => {
     hovered: ['3D'],
     toggleHover: sinon.spy(),
     toggleSelected: sinon.spy(),
-    active: true,
   })
 
   t.truthy(props.variant === 'lowlight')
@@ -83,25 +76,9 @@ it('selects the selected', (t) => {
     hovered: ['3D'],
     toggleHover: sinon.spy(),
     toggleSelected: sinon.spy(),
-    active: true,
   })
 
   t.truthy(props.selected)
-})
-
-it('filters by mode', (t) => {
-  const props = getCardProps({
-    id: '3H',
-    destID: '3S',
-    playAllSiblings: sinon.spy(),
-    selected: ['3H'],
-    hovered: ['3H'],
-    toggleHover: sinon.spy(),
-    toggleSelected: sinon.spy(),
-    active: false,
-  })
-
-  t.truthy(props.variant === 'default')
 })
 
 it('marks siblings as selectable', (t) => {
@@ -113,7 +90,6 @@ it('marks siblings as selectable', (t) => {
     hovered: ['3H'],
     toggleHover: sinon.spy(),
     toggleSelected: sinon.spy(),
-    active: true,
     hand: [createCardByID('3C')],
   })
 
@@ -129,9 +105,23 @@ it('marks non-siblings as unselectable', (t) => {
     hovered: ['3H'],
     toggleHover: sinon.spy(),
     toggleSelected: sinon.spy(),
-    active: true,
     hand: [createCardByID('4C')],
   })
 
   t.truthy(typeof props.onSelect === 'undefined')
+})
+
+it('marks cards as disabled when I cannot play', (t) => {
+  const props = getCardProps({
+    id: '4C',
+    destID: '9S',
+    playAllSiblings: sinon.spy(),
+    selected: [],
+    hovered: [],
+    toggleHover: sinon.spy(),
+    toggleSelected: sinon.spy(),
+    hand: [createCardByID('4C')],
+  })
+
+  t.is(props.variant, 'disabled')
 })

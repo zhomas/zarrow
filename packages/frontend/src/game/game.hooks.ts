@@ -1,16 +1,16 @@
-import type { CardModel, UserMode } from 'game'
-import { canCardPlay } from 'game'
-import { FluidCardProps } from '../typings'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
+import {
+  activeTierSelector,
+  canCardPlay,
+  CardModel,
+  GameState,
+  highlightedLocationSelector,
+  playCardThunk,
+  stackDestinationSelector,
+} from 'game'
 import { createCardByID } from 'game/dist/deck'
-import { act } from 'react-dom/test-utils'
-
-interface ViewModelProps {
-  currentMode: UserMode
-  list: CardModel[]
-  destination: CardModel
-  playAll: (...c: CardModel[]) => void
-}
+import { FluidCardProps } from '../typings'
+import { useDispatch, useSelector } from 'react-redux'
 
 interface Inyerface {
   id: string
@@ -20,8 +20,16 @@ interface Inyerface {
   selected: string[]
   hovered: string[]
   toggleSelected: (selected: boolean) => void
-  active: boolean
   hand?: CardModel[]
+}
+
+const getNullishCard = (v: FluidCardProps['variant']) => (
+  c: CardModel,
+): FluidCardProps => {
+  return {
+    card: c,
+    variant: v,
+  }
 }
 
 export const getCardProps = ({
@@ -32,7 +40,6 @@ export const getCardProps = ({
   selected,
   hovered,
   toggleSelected,
-  active,
   hand = [],
 }: Inyerface): FluidCardProps => {
   const card = createCardByID(id)
@@ -42,8 +49,6 @@ export const getCardProps = ({
   const canPlay = canCardPlay(card, destination)
 
   const getVariant = (): FluidCardProps['variant'] => {
-    if (!active) return 'default'
-
     if (!canPlay) return 'disabled'
 
     if (selected.length > 0) {
@@ -79,13 +84,6 @@ export const getCardProps = ({
     return () => playAllSiblings(card)
   }
 
-  const getOutlined = () => {
-    if (!active) return false
-    if (!canPlay) return false
-    if (!inCurrentTier) return false
-    return true
-  }
-
   return {
     card: card,
     selected: selected.includes(card.id),
@@ -96,53 +94,68 @@ export const getCardProps = ({
       ? (selected) => toggleSelected(selected)
       : undefined,
     variant: getVariant(),
-    outline: getOutlined(),
   }
 }
 
-type Curried = Readonly<
-  Omit<Inyerface, 'toggleHover' | 'toggleSelected' | 'selected' | 'hovered'>
->
+const pSelect = (id: string) => (s: GameState) =>
+  s.players.find((p) => p.id === id)
 
-export const useGameViewModel = (args: ViewModelProps) => {
+export const useCardBuilder = (uid: string) => {
   const [selected, setSelected] = useState<CardModel[]>([])
   const [hovered, setHovered] = useState<CardModel[]>([])
+  const destination = useSelector(stackDestinationSelector)
+  const activeCards = useSelector(activeTierSelector)
+  const dispatch = useDispatch()
+  const focused = useSelector(highlightedLocationSelector(uid))
+  const player = useSelector(pSelect(uid))
+
+  const handCards = player?.cards.filter((c) => c.tier === 2)
+
+  const focusedOnPlayerStrata = focused[1] === uid
 
   useEffect(() => {
-    setSelected([])
     setHovered([])
-  }, [args.currentMode])
+    setSelected([])
+  }, [activeCards])
 
-  const curried = (a: Curried) => {
+  const curried = (c: CardModel) => {
     return getCardProps({
-      active: a.active,
-      destID: a.destID,
+      destID: destination.id,
       selected: selected.map((c) => c.id),
       hovered: hovered.map((h) => h.id),
-      id: a.id,
-      toggleHover: (c) => {
+      id: c.id,
+      toggleHover: () => {
         const next = hovered.includes(c)
           ? hovered.filter((h) => h.id !== c.id)
           : [...hovered, c]
-
         setHovered(next)
       },
-      toggleSelected: (checked) => {
-        const next = checked
-          ? [...selected, createCardByID(a.id)]
-          : selected.filter((c) => c.id !== a.id)
+      toggleSelected: () => {
+        const next = selected.includes(c)
+          ? selected.filter((h) => h.id !== c.id)
+          : [...selected, c]
 
+        console.log('toggle selected!', next)
         setSelected(next)
       },
-      playAllSiblings: a.playAllSiblings,
-      hand: a.hand,
+      playAllSiblings: () => {
+        const siblings = activeCards
+          .filter((a) => a.card.value === c.value)
+          .map((a) => a.card)
+
+        const action = playCardThunk({ cards: siblings, playerID: uid })
+        dispatch(action)
+      },
+      hand: activeCards.map((a) => a.card),
     })
   }
 
   return {
-    getCardProps: curried,
-    playSelected: () => {
-      args.playAll(...selected)
-    },
+    buildHandCard: focused === 'hand' ? curried : getNullishCard('idle'),
+    buildNPC: getNullishCard('default'),
+    buildForPlayerStrata:
+      handCards?.length === 0 && focusedOnPlayerStrata
+        ? curried
+        : getNullishCard('idle'),
   }
 }

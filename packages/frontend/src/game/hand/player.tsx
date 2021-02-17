@@ -24,7 +24,6 @@ const Wrapper = styled.div`
   left: 0;
   right: 0;
   text-align: center;
-  display: flex;
 `
 
 const CardsWrapper = styled.div`
@@ -38,13 +37,10 @@ const _PlayerHand: FC<Props> = ({ list, variant, curried, children }) => {
     <Wrapper>
       <CardsWrapper>
         {list.map((c) => {
-          const props = curried(c.card, true)
-          return (
-            <FluidCard key={c.card.id} card={c.card} onClick={props.onClick} />
-          )
+          const props = curried(c.card, variant === 'hand')
+          return <FluidCard key={c.card.id} {...props} />
         })}
-        {children}
-        {/* {variant === 'hand' && <Throbber point="right" left={-75} top={30} />} */}
+        {variant === 'hand' && <Throbber point="right" left={-75} top={30} />}
       </CardsWrapper>
     </Wrapper>
   )

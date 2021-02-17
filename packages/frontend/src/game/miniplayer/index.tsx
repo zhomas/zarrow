@@ -9,11 +9,11 @@ import {
   focus,
   GameDispatch,
   userModeSelector,
+  highlightedLocationSelector,
 } from 'game'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCardProps } from '../../typings'
-import { FluidCard } from '../card'
 import { Strata } from '../strata'
 import { Throbber } from '../throbber'
 
@@ -22,30 +22,14 @@ const Wrapper = styled(motion.div)`
   padding: 20px 240px 85px 25px;
 `
 
-const InfoList = styled.ul`
-  position: absolute;
-  top: 10px;
-  right: 90px;
-  color: white;
-  text-align: left;
-`
-
 const _MiniPlayer: FC<Props> = ({
+  uid,
   ownerID,
-  cardsInHand,
-  modeString,
-  showActivityWidget,
+  highlighted,
   nudge = 'down',
   fadedStrata = false,
-  renderHandCards,
-  hand,
+  curried,
 }) => {
-  const nothing = (c: CardModel): FluidCardProps => {
-    return {
-      card: c,
-    }
-  }
-
   return (
     <>
       <Wrapper
@@ -60,16 +44,19 @@ const _MiniPlayer: FC<Props> = ({
       >
         <div style={{ opacity: fadedStrata ? 0.5 : 1 }}>
           <Strata
+            uid={uid}
             ownerID={ownerID}
-            curried={nothing}
+            curried={curried}
             active={false}
-            mode={'idle'}
             nudge={nudge}
           />
         </div>
       </Wrapper>
-      {showActivityWidget && (
-        <Throbber point={nudge === 'down' ? 'down' : 'up'} />
+      {highlighted && (
+        <Throbber
+          point={nudge === 'down' ? 'up' : 'down'}
+          top={nudge === 'up' ? -30 : '100%'}
+        />
       )}
     </>
   )
@@ -96,7 +83,10 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     }
   }
 
+  const selector = highlightedLocationSelector(ownProps.uid)
+  const h = selector(state)
   return {
+    highlighted: h[1] === ownProps.ownerID,
     downs: myCards.filter((c) => c.tier === 0),
     ups: myCards.filter((c) => c.tier === 1),
     canCardPlay: (c: CardModel) => canCardPlay(c, dest),
@@ -122,6 +112,7 @@ const mapDispatch = (dispatch: GameDispatch, own: OwnProps) => {
 }
 
 interface OwnProps {
+  uid: string
   ownerID: string
   curried: (c: CardModel, a: boolean) => FluidCardProps
   nudge?: 'up' | 'down'

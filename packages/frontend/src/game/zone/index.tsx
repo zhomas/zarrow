@@ -71,19 +71,21 @@ export const Zone: FC<ZoneProps> = ({
             top: cards.length * -1.5,
           }}
         >
-          {cards.map((c, i) => (
-            <div
-              key={ids[i]}
-              style={{
-                position: 'absolute',
-                top: i * 1.5,
-                left: 0,
-                zIndex: cards.length - i,
-              }}
-            >
-              {c}
-            </div>
-          ))}
+          <motion.div onLayoutAnimationComplete={() => console.log('woohoo!')}>
+            {cards.map((c, i) => (
+              <div
+                key={ids[i]}
+                style={{
+                  position: 'absolute',
+                  top: i * 1.5,
+                  left: 0,
+                  zIndex: cards.length - i,
+                }}
+              >
+                {c}
+              </div>
+            ))}
+          </motion.div>
           {promptActive && <Throbber point="up" top="120%" left="25%" />}
         </div>
       </div>

@@ -23,18 +23,6 @@ const CardBack = styled.div`
   border: 1px solid black;
 `
 
-const Outline = styled.div`
-  position: absolute;
-  top: -5px;
-  left: -5px;
-  right: -5px;
-  bottom: -5px;
-  z-index: 10;
-  border-radius: 7px;
-  border: 8px solid #00ff3f;
-  backface-visibility: visible;
-`
-
 const CardFace = styled.div`
   border-radius: 10px;
   border: 1px solid #00000075;
@@ -57,6 +45,11 @@ const Wrapper = styled(motion.div)`
   cursor: default;
   position: relative;
   transform-style: preserve-3d;
+`
+const WrapperWrapper = styled.div`
+  flex: 1 1 40px;
+  min-width: 25px;
+  max-width: fit-content;
 `
 
 export const FluidCard: FC<Props> = ({
@@ -89,7 +82,7 @@ export const FluidCard: FC<Props> = ({
   }
 
   return (
-    <div style={{ width: 60, ...style }}>
+    <WrapperWrapper style={{ ...style }}>
       <Wrapper
         layoutId={`${keyPrefix}${card.id}`}
         onClick={onClick}
@@ -141,6 +134,6 @@ export const FluidCard: FC<Props> = ({
           <CardBack />
         </motion.div>
       </Wrapper>
-    </div>
+    </WrapperWrapper>
   )
 }

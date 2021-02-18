@@ -8,6 +8,7 @@ export const createGame = (): GameState => {
     direction: 1,
     pickupPile: [],
     players: [],
+    happenings: [],
     turnLocks: [],
     local: {
       faceUpPickID: '',

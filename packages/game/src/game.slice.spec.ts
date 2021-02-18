@@ -203,8 +203,11 @@ it('burns the stack when a 10 is played', async (t) => {
 
   t.is(isBurning(store.getState()), true)
   await new Promise((resolve) => setTimeout(resolve, 1500))
-  t.is(store.getState().stack.length, 0)
-  t.is(isBurning(store.getState()), false)
+  const st = store.getState()
+
+  t.is(st.stack.length, 0)
+  t.is(isBurning(st), false)
+  t.deepEqual(st.happenings[0], { type: 'burn', uid: 'a' })
 })
 
 it('burns when a fourth 8 is played', (t) => {
@@ -218,6 +221,7 @@ it('burns when a fourth 8 is played', (t) => {
   const store = getStore(st)
   store.dispatch(action)
   t.is(isBurning(store.getState()), true)
+  t.deepEqual(store.getState().happenings[0], { type: 'burn', uid: 'a' })
 })
 
 it('burns when three 8s are played on a fourth', (t) => {
@@ -245,6 +249,7 @@ it('burns when four of a kind are added to the stack', (t) => {
   const store = getStore(st)
   store.dispatch(action)
   t.is(isBurning(store.getState()), true)
+  t.deepEqual(store.getState().happenings[0], { type: 'burn', uid: 'a' })
 })
 
 it('ignores 8s for four of a kind calculations', (t) => {
@@ -455,6 +460,7 @@ it('reverses direction when a 7 is played', async (t) => {
   )
   t.is(store.getState().direction, -1)
   t.is(activePlayerSelector(store.getState()).id, 'd')
+  t.deepEqual(store.getState().happenings[0], { type: 'ww7', uid: 'a' })
 })
 
 it('preserves direction when a double whacky 7 is played', async (t) => {

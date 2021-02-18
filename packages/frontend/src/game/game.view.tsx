@@ -11,6 +11,7 @@ import {
   highlightedLocationSelector,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
+import { StyledGame } from './game.style'
 import { FluidCard } from './card'
 
 import { AnimateSharedLayout } from 'framer-motion'
@@ -18,61 +19,12 @@ import { useCardBuilder as useLocalCardContext } from './game.hooks'
 import { Zone } from './zone'
 import { Miniplayer } from './miniplayer'
 import { FUPU } from './fupu'
+import { Sparkler } from './sparkler'
 import { EnemyHand } from './hand/enemy'
 
 import { PlayerHand } from './hand/player'
 
-import { styled } from '@linaria/react'
 import { Reticule } from './reticule'
-
-const GameWrapper = styled.main`
-  display: grid;
-  grid-template-columns: 40px 1fr 1fr 1fr 40px;
-  grid-template-rows: 40px 1fr 1fr 1fr 120px;
-  grid-column-gap: 0px;
-  grid-row-gap: 0px;
-  background: #333333;
-  height: 100vh;
-  overflow: hidden;
-
-  > div {
-    position: relative;
-    z-index: 1;
-  }
-
-  .h1 {
-    grid-area: 5 / 2 / 6 / 5;
-    z-index: 2;
-  }
-  .h2 {
-    grid-area: 1 / 3 / 2 / 4;
-  }
-  .s1 {
-    grid-area: 4 / 3 / 5 / 4;
-    display: flex;
-    flex-direction: column-reverse;
-  }
-  .s2 {
-    grid-area: 2 / 3 / 3 / 4;
-  }
-  .table {
-    grid-area: 2 / 2 / 5 / 5;
-    background: #2b7f2b;
-    z-index: 0;
-  }
-  .table-main {
-    grid-area: 3 / 3 / 4 / 4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .br {
-    grid-area: 4 / 4 / 5 / 5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-`
 
 const _GameView: FC<Props> = ({
   stack,
@@ -93,7 +45,7 @@ const _GameView: FC<Props> = ({
 
   return (
     <AnimateSharedLayout type="switch">
-      <GameWrapper>
+      <StyledGame>
         <div className="h1">
           <PlayerHand ownerID={uid} curried={buildHandCard} />
         </div>
@@ -113,13 +65,15 @@ const _GameView: FC<Props> = ({
         </div>
         <div className="table"></div>
         <div className="table-main">
-          <Zone
-            onPrompt={pickupStack}
-            promptActive={highlight === 'stack'}
-            cards={stack.map((c) => (
-              <FluidCard key={c.id} card={c} />
-            ))}
-          />
+          <Sparkler>
+            <Zone
+              onPrompt={pickupStack}
+              promptActive={highlight === 'stack'}
+              cards={stack.map((c) => (
+                <FluidCard key={c.id} card={c} />
+              ))}
+            />
+          </Sparkler>
         </div>
         <div className="br">
           <Zone
@@ -132,7 +86,7 @@ const _GameView: FC<Props> = ({
         </div>
         <Reticule uid={uid} />
         <FUPU uid={uid} />
-      </GameWrapper>
+      </StyledGame>
       <button onClick={deal}>Redeal</button>
     </AnimateSharedLayout>
   )
@@ -174,7 +128,7 @@ const mapDispatch = (d: GameDispatch, ownProps: OwnProps) => {
 }
 
 type OwnProps = { uid: string }
-type Props = OwnProps & PropsFromRedux
+type Props = Readonly<OwnProps & PropsFromRedux>
 
 const connector = connect(mapState, mapDispatch)
 

@@ -16,8 +16,8 @@ firebase.initializeApp({
   appId: '1:399489894980:web:b2565a1f826805e102ca11',
 })
 
-firebase.functions().useEmulator('localhost', 5001)
-firebase.firestore().useEmulator('localhost', 8081)
+// firebase.functions().useEmulator('localhost', 5001)
+// firebase.firestore().useEmulator('localhost', 8081)
 
 function App() {
   return (

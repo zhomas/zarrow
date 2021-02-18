@@ -2,6 +2,7 @@ import { canCardPlay, GameState } from '..'
 import { createCard } from '../deck'
 import { getWrappedIndex } from '../utils'
 export * from './mode'
+export * from './player'
 
 export const getPlayerSelector = (id: string) => {
   return (state: GameState) => {
@@ -92,7 +93,7 @@ export const stackDestinationSelector = (state: GameState) => {
     return card
   }
 
-  return createCard('3', 'H') // Anything can play on a 3
+  return createCard('3', 'H') // anything can play on a 3
 }
 
 export const activeTierSelector = (state: GameState) => {

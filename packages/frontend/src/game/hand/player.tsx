@@ -27,7 +27,7 @@ const Wrapper = styled.div`
 `
 
 const CardsWrapper = styled.div`
-  display: inline-flex;
+  display: flex;
   justify-content: center;
   position: relative;
 `

@@ -28,7 +28,7 @@ const _EnemyHand: FC<Props> = ({ ownerID, list }) => {
   return (
     <Wrapper>
       {list.map((c) => (
-        <FluidCard key={c.card.id} card={c.card} faceDown />
+        <FluidCard key={c.card.id} card={c.card} faceDown style={{}} />
       ))}
     </Wrapper>
   )

@@ -21,6 +21,11 @@ import { createCardByID } from './deck'
 
 type TurnLock = 'burn' | 'user:replenish' | 'user:target' | 'user:faceuptake'
 
+type Happening = {
+  type: 'burn' | 'ww7'
+  uid: string
+}
+
 export interface GameState {
   direction: number
   queue: string[]
@@ -28,6 +33,7 @@ export interface GameState {
   stack: CardModel[]
   burnt: CardModel[]
   pickupPile: CardModel[]
+  happenings?: Happening[]
   focused?: string
   local?: {
     faceUpPickID: string
@@ -44,6 +50,7 @@ export const initialState: GameState = {
   burnt: [],
   pickupPile: [],
   turnLocks: [],
+  happenings: [],
   local: {
     faceUpPickID: '',
     targetUID: '',
@@ -144,6 +151,7 @@ export const playCardThunk = createAppThunk(
 
     if (shouldBurn(getState())) {
       dispatch(lockTurn('burn'))
+      dispatch(logHappening({ uid: playerID, type: 'burn' }))
       await new Promise((resolve) => setTimeout(resolve, 1500))
       dispatch(unlockTurn({ channel: 'burn' }))
     }
@@ -160,6 +168,7 @@ export const playCardThunk = createAppThunk(
 
     // Process reverse
     if (cards.filter((c) => c.value === '7').length % 2 === 1) {
+      dispatch(logHappening({ uid: playerID, type: 'ww7' }))
       dispatch(reverse())
     }
 
@@ -182,10 +191,9 @@ export const playCardThunk = createAppThunk(
           break
         }
       }
-    } else {
-      dispatch(unlockTurn({ channel: 'user:replenish' }))
     }
 
+    dispatch(unlockTurn({ channel: 'user:replenish' }))
     return next
   },
 )
@@ -202,6 +210,10 @@ const counterSlice = createSlice({
       state.burnt = action.payload.burnt
       state.direction = action.payload.direction
       state.focused = action.payload.focused
+    },
+    logHappening(state, action: PayloadAction<Happening>) {
+      state.happenings = state.happenings || []
+      state.happenings.push(action.payload)
     },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)
@@ -284,7 +296,7 @@ const counterSlice = createSlice({
   },
 })
 
-const { addToStack, lockTurn, pickupStack } = counterSlice.actions
+const { addToStack, lockTurn, pickupStack, logHappening } = counterSlice.actions
 
 export const {
   deal,

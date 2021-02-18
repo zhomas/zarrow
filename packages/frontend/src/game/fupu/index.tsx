@@ -37,12 +37,14 @@ const _FUPU: FC<Props> = ({ show, list, handleClick }) => {
 }
 
 const mapState = (state: GameState, ownProps: OwnProps) => {
+  const list =
+    state.players
+      .find((p) => p.id === ownProps.uid)
+      ?.cards.filter((c) => c.tier === 1) || []
+
   return {
     show: state.turnLocks?.some((c) => c === 'user:faceuptake'),
-    list:
-      state.players
-        .find((p) => p.id === ownProps.uid)
-        ?.cards.filter((c) => c.tier === 1) || [],
+    list,
   }
 }
 

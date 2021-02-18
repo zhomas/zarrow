@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useAnimation, Variant, Variants } from 'framer-motion'
 import { GameState } from 'game'
 import { nanoid } from 'nanoid'
 import React, { FC, useState } from 'react'
@@ -6,9 +6,33 @@ import { useLayoutEffect } from 'react'
 import { useRef } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
+const wobbleRise: Variant = {
+  x: 10,
+  y: -100,
+  opacity: [1, 0],
+  transition: {
+    y: {
+      duration: 1,
+      ease: 'easeOut',
+    },
+    x: {
+      repeat: Infinity,
+      type: 'tween',
+      ease: 'easeInOut',
+      duration: 0.3,
+      repeatType: 'mirror',
+    },
+    opacity: {
+      duration: 1,
+    },
+  },
+}
+
 const _Sparkler: FC<Props> = ({ happening, count, children }) => {
   const firstUpdate = useRef(true)
+  const animation = useAnimation()
   const [hap, setHap] = useState('')
+  const [k, setK] = useState('')
 
   useLayoutEffect(() => {
     if (firstUpdate.current) {
@@ -18,42 +42,16 @@ const _Sparkler: FC<Props> = ({ happening, count, children }) => {
 
     setTimeout(() => {
       setHap(happening)
+      setK(nanoid())
+      animation.start(wobbleRise)
     }, 400)
-
-    setTimeout(() => {
-      setHap('')
-    }, 5000)
-  }, [happening, count])
+  }, [happening, count, animation])
 
   const renderContent = () => {
     if (firstUpdate.current) return null
-    if (!hap) return null
     switch (hap) {
       case 'burn':
-        return (
-          <motion.h3
-            animate={{
-              y: -100,
-              x: 10,
-              opacity: [1, 0],
-            }}
-            transition={{
-              y: {
-                duration: 1,
-                ease: 'easeOut',
-              },
-              x: {
-                repeat: Infinity,
-                type: 'tween',
-                ease: 'easeInOut',
-                duration: 0.3,
-                repeatType: 'mirror',
-              },
-            }}
-          >
-            Burn!
-          </motion.h3>
-        )
+        return <h3>Burn!</h3>
       default:
         return null
     }
@@ -63,6 +61,8 @@ const _Sparkler: FC<Props> = ({ happening, count, children }) => {
     <div style={{ position: 'relative' }}>
       {children}
       <motion.div
+        key={k}
+        animate={animation}
         style={{
           position: 'absolute',
           backgroundColor: 'red',

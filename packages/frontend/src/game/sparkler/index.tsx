@@ -1,10 +1,11 @@
-import { motion, useAnimation, Variant, Variants } from 'framer-motion'
-import { GameState } from 'game'
+import { AnimatePresence, motion, useAnimation, Variant } from 'framer-motion'
+import { GameState, hasLock } from 'game'
 import { nanoid } from 'nanoid'
 import React, { FC, useState } from 'react'
 import { useLayoutEffect } from 'react'
 import { useRef } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
+import { styled } from '@linaria/react'
 
 const wobbleRise: Variant = {
   x: 10,
@@ -28,41 +29,48 @@ const wobbleRise: Variant = {
   },
 }
 
-const _Sparkler: FC<Props> = ({ happening, count, children }) => {
-  const firstUpdate = useRef(true)
-  const animation = useAnimation()
-  const [hap, setHap] = useState('')
-  const [k, setK] = useState('')
+const burn: Variant = {
+  opacity: 0,
+  transition: {
+    duration: 0.25,
+    delay: 1.5,
+  },
+}
 
-  useLayoutEffect(() => {
-    if (firstUpdate.current) {
-      firstUpdate.current = false
-      return
-    }
+const StackWrapper = styled(motion.div)`
+  width: 146px;
+  height: 196px;
+  background: #000;
+`
 
-    setTimeout(() => {
-      setHap(happening)
-      setK(nanoid())
-      animation.start(wobbleRise)
-    }, 400)
-  }, [happening, count, animation])
+const BurnBox = styled(motion.div)`
+  background: red;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
 
-  const renderContent = () => {
-    if (firstUpdate.current) return null
-    switch (hap) {
-      case 'burn':
-        return <h3>Burn!</h3>
-      default:
-        return null
-    }
-  }
-
+const _Sparkler: FC<Props> = ({
+  happening,
+  count,
+  show,
+  children,
+  burning,
+}) => {
   return (
     <div style={{ position: 'relative' }}>
-      {children}
+      <StackWrapper>
+        <AnimatePresence>
+          {show && <motion.div exit={{ opacity: 0 }}>{children}</motion.div>}
+        </AnimatePresence>
+        {burning && <BurnBox animate={burn}>FLAMES</BurnBox>}
+      </StackWrapper>
       <motion.div
-        key={k}
-        animate={animation}
         style={{
           position: 'absolute',
           backgroundColor: 'red',
@@ -72,13 +80,17 @@ const _Sparkler: FC<Props> = ({ happening, count, children }) => {
           height: 50,
         }}
       >
-        {renderContent()}
+        {burning && <motion.h3 animate={wobbleRise}>Burn!</motion.h3>}
       </motion.div>
     </div>
   )
 }
 
+const isBurning = hasLock('burn')
+
 const mapState = (state: GameState) => ({
+  show: state.stack.length > 0,
+  burning: isBurning(state),
   count: state.happenings ? state.happenings.length : 0,
   happening:
     state.happenings && state.happenings.length

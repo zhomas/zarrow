@@ -1,18 +1,7 @@
 import { styled } from '@linaria/react'
-import { motion } from 'framer-motion'
-import {
-  canCardPlay,
-  CardModel,
-  GameState,
-  playCardThunk,
-  stackDestinationSelector,
-  focus,
-  GameDispatch,
-  userModeSelector,
-} from 'game'
+import { GameState } from 'game'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { FluidCardProps } from '../../typings'
 import { FluidCard } from '../card'
 
 const Wrapper = styled.div`
@@ -24,7 +13,7 @@ const Wrapper = styled.div`
   right: 0;
 `
 
-const _EnemyHand: FC<Props> = ({ ownerID, list }) => {
+const _EnemyHand: FC<Props> = ({ list }) => {
   return (
     <Wrapper>
       {list.map((c) => (

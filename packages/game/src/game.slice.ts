@@ -19,7 +19,12 @@ import { joinGame as join, changeFaction as faction } from './rules/create'
 import { GameDispatch, hasLock } from '.'
 import { createCardByID } from './deck'
 
-type TurnLock = 'burn' | 'user:replenish' | 'user:target' | 'user:faceuptake'
+type TurnLock =
+  | 'animate'
+  | 'burn'
+  | 'user:replenish'
+  | 'user:target'
+  | 'user:faceuptake'
 
 type Happening = {
   type: 'burn' | 'ww7'
@@ -144,7 +149,9 @@ export const playCardThunk = createAppThunk(
 
     // Add to stack
     dispatch(addToStack({ cards }))
-
+    dispatch(lockTurn('animate'))
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    dispatch(unlockTurn({ channel: 'animate' }))
     let aceTarget: string = undefined
 
     // Consider burn

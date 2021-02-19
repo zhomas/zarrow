@@ -199,18 +199,14 @@ it('burns the stack when a 10 is played', async (t) => {
   })
   const store = getStore(state)
 
-  store.dispatch(action)
+  await store.dispatch(action)
 
-  t.is(isBurning(store.getState()), true)
-  await new Promise((resolve) => setTimeout(resolve, 1500))
   const st = store.getState()
-
   t.is(st.stack.length, 0)
-  t.is(isBurning(st), false)
   t.deepEqual(st.happenings[0], { type: 'burn', uid: 'a' })
 })
 
-it('burns when a fourth 8 is played', (t) => {
+it('burns when a fourth 8 is played', async (t) => {
   const isBurning = hasLock('burn')
   const st = {
     ...state,
@@ -219,12 +215,12 @@ it('burns when a fourth 8 is played', (t) => {
 
   const action = playCardThunk({ cards: [createCard('8', 'D')], playerID: 'a' })
   const store = getStore(st)
-  store.dispatch(action)
-  t.is(isBurning(store.getState()), true)
+  await store.dispatch(action)
+  t.is(store.getState().stack.length, 0)
   t.deepEqual(store.getState().happenings[0], { type: 'burn', uid: 'a' })
 })
 
-it('burns when three 8s are played on a fourth', (t) => {
+it('burns when three 8s are played on a fourth', async (t) => {
   const st = {
     ...state,
     stack: [createCard('8', 'C')],
@@ -235,11 +231,11 @@ it('burns when three 8s are played on a fourth', (t) => {
     playerID: 'a',
   })
   const store = getStore(st)
-  store.dispatch(action)
-  t.is(isBurning(store.getState()), true)
+  await store.dispatch(action)
+  t.is(store.getState().stack.length, 0)
 })
 
-it('burns when four of a kind are added to the stack', (t) => {
+it('burns when four of a kind are added to the stack', async (t) => {
   const st = {
     ...state,
     stack: [createCard('3', 'C'), createCard('3', 'H'), createCard('3', 'S')],
@@ -247,12 +243,12 @@ it('burns when four of a kind are added to the stack', (t) => {
 
   const action = playCardThunk({ cards: [createCard('3', 'D')], playerID: 'a' })
   const store = getStore(st)
-  store.dispatch(action)
-  t.is(isBurning(store.getState()), true)
+  await store.dispatch(action)
+  t.is(store.getState().stack.length, 0)
   t.deepEqual(store.getState().happenings[0], { type: 'burn', uid: 'a' })
 })
 
-it('ignores 8s for four of a kind calculations', (t) => {
+it('ignores 8s for four of a kind calculations', async (t) => {
   const st = {
     ...state,
     stack: [
@@ -265,8 +261,8 @@ it('ignores 8s for four of a kind calculations', (t) => {
 
   const action = playCardThunk({ cards: [createCard('3', 'D')], playerID: 'a' })
   const store = getStore(st)
-  store.dispatch(action)
-  t.is(isBurning(store.getState()), true)
+  await store.dispatch(action)
+  t.is(state.stack.length, 0)
 })
 
 it('does not burn when 3 of a kind are added to the stack', (t) => {
@@ -664,9 +660,10 @@ it('hangs the turn if there is a pickup pile', async (t) => {
     pickupPile: [card, card, card, card, card],
   })
 
-  store.dispatch(
+  await store.dispatch(
     playCardThunk({ cards: [createCard('9', 'D')], playerID: 'a' }),
   )
+
   t.is(store.getState().stack.length, 2)
   t.is(isReplenishing(store.getState()), true)
 })

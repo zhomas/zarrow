@@ -142,15 +142,16 @@ export const useCardBuilder = (uid: string) => {
     }
 
     const playAllSiblings = () => {
-      const siblings = activeCards
+      const cards = activeCards
         .filter((a) => a.card.value === c.value)
         .map((a) => a.card)
 
-      const action = playCardThunk({
-        cards: [createCardByID('10S')],
-        playerID: uid,
-      })
-      dispatch(action)
+      dispatch(
+        playCardThunk({
+          cards, //: [createCardByID('10S')],
+          playerID: uid,
+        }),
+      )
     }
 
     return getCardProps({

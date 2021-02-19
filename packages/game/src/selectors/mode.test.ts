@@ -1,5 +1,10 @@
 import it from 'ava'
-import { getStore, highlightedLocationSelector, playCardThunk } from '..'
+import {
+  getStore,
+  hasLock,
+  highlightedLocationSelector,
+  playCardThunk,
+} from '..'
 import { createCard } from '../deck'
 import { userModeSelector } from './mode'
 
@@ -279,7 +284,7 @@ it('highlights the stack if I need to pick up', (t) => {
   t.deepEqual(location, 'stack')
 })
 
-it('highlights the replenish pile when necessary', (t) => {
+it('highlights the replenish pile when necessary', async (t) => {
   const selector = highlightedLocationSelector('abc')
   const store = getStore({
     burnt: [],
@@ -302,6 +307,8 @@ it('highlights the replenish pile when necessary', (t) => {
   store.dispatch(
     playCardThunk({ cards: [createCard('3', 'S')], playerID: 'abc' }),
   )
+
+  await new Promise((r) => setTimeout(r, 500))
 
   const location = selector(store.getState())
 
@@ -528,4 +535,39 @@ it('highlights play:downs when I am on my down cards', (t) => {
   const selector = userModeSelector('NRUF3fQBIvTw8GkKMAoaMH9z6wC2')
   const mode = selector(store.getState())
   t.is(mode, 'play:downs')
+})
+
+it('does not highlight while burning', async (t) => {
+  const selector = highlightedLocationSelector('abc')
+  const { getState, dispatch } = getStore({
+    burnt: [],
+    direction: 1,
+    pickupPile: [],
+    queue: ['abc'],
+    turnLocks: [],
+    stack: [createCard('3', 'S')],
+    players: [
+      {
+        id: 'abc',
+        faction: 0,
+        displayName: 'Tom',
+        cards: [
+          { card: createCard('10', 'S'), tier: 2 },
+          { card: createCard('2', 'S'), tier: 2 },
+        ],
+      },
+    ],
+    focused: '',
+  })
+
+  dispatch(
+    playCardThunk({
+      cards: [createCard('10', 'S')],
+      playerID: 'abc',
+    }),
+  )
+
+  await new Promise((r) => setTimeout(r, 500))
+  t.is(hasLock('burn')(getState()), true)
+  t.is(selector(getState()), 'none')
 })

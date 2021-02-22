@@ -52,6 +52,10 @@ const WrapperWrapper = styled.div`
   max-width: fit-content;
 `
 
+const Checkbox = styled.input`
+  transform: scale(1.5);
+`
+
 export const FluidCard: FC<Props> = ({
   card,
   faceDown,
@@ -110,7 +114,7 @@ export const FluidCard: FC<Props> = ({
             <div>
               {(!!onSelect || !!selected) && (
                 <>
-                  <input
+                  <Checkbox
                     key={(!!selected).toString()}
                     type="checkbox"
                     checked={!!selected}

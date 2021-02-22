@@ -27,6 +27,7 @@ const CardsWrapper = styled.div`
   justify-content: center;
   position: relative;
   max-width: 80vw;
+  margin: 0 auto;
 `
 
 const SortButton = styled.button`

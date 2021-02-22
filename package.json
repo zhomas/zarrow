@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "deploy": "yarn workspace frontend build && firebase deploy",
     "compile": "tsc --build --force tsconfig.json",
     "cp": "cpx 'packages/game/src/**/*.csv'  ",
     "dev:server": "nodemon",

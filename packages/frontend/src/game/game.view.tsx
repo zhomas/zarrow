@@ -41,7 +41,6 @@ const _GameView: FC<Props> = ({
     buildForPlayerStrata,
     buildNPC,
     playSelectedCards,
-    hovered,
   } = useLocalCardContext(uid)
 
   const opponent = players.find((p) => p.id !== uid)
@@ -84,7 +83,6 @@ const _GameView: FC<Props> = ({
               </div>
               <div className="table"></div>
               <div className="table-main">
-                {hovered}
                 <Sparkler>
                   <Zone
                     onPrompt={pickupStack}

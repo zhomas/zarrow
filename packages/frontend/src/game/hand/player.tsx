@@ -1,5 +1,12 @@
 import { styled } from '@linaria/react'
-import { CardModel, GameState, highlightedLocationSelector } from 'game'
+import {
+  CardModel,
+  GameDispatch,
+  GameState,
+  highlightedLocationSelector,
+  isHandSortedSelector,
+  sortHand,
+} from 'game'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCardProps } from '../../typings'
@@ -16,13 +23,33 @@ const Wrapper = styled.div`
 `
 
 const CardsWrapper = styled.div`
-  max-width: 160px;
   display: flex;
   justify-content: center;
   position: relative;
+  max-width: 80vw;
 `
 
-const _PlayerHand: FC<Props> = ({ list, variant, curried }) => {
+const SortButton = styled.button`
+  position: absolute;
+  top: 0;
+  right: 0;
+`
+
+export const PlaySelectedButton = styled.button`
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  padding: 15px;
+`
+
+const _PlayerHand: FC<Props> = ({
+  list,
+  variant,
+  curried,
+  sorted,
+  sort,
+  playSelected,
+}) => {
   return (
     <Wrapper>
       <CardsWrapper>
@@ -32,6 +59,14 @@ const _PlayerHand: FC<Props> = ({ list, variant, curried }) => {
         })}
         {variant === 'hand' && <Throbber point="right" left={-75} top={30} />}
       </CardsWrapper>
+      <SortButton disabled={sorted} onClick={sort}>
+        Sort it!
+      </SortButton>
+      {!!playSelected && (
+        <PlaySelectedButton onClick={playSelected}>
+          Play Selected
+        </PlaySelectedButton>
+      )}
     </Wrapper>
   )
 }
@@ -42,18 +77,28 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
   const getHighlight = highlightedLocationSelector(ownProps.ownerID)
 
   return {
+    sorted: isHandSortedSelector(ownProps.ownerID)(state),
     list: myCards.filter((c) => c.tier === 2),
     variant: getHighlight(state),
+  }
+}
+
+const mapDispatch = (dispatch: GameDispatch, ownProps: OwnProps) => {
+  return {
+    sort: () => {
+      dispatch(sortHand(ownProps.ownerID))
+    },
   }
 }
 
 interface OwnProps {
   ownerID: string
   curried: (c: CardModel, a: boolean) => FluidCardProps
+  playSelected?: () => void
   children?: JSX.Element[]
 }
 
-const connector = connect(mapState)
+const connector = connect(mapState, mapDispatch)
 
 type ReduxProps = ConnectedProps<typeof connector>
 

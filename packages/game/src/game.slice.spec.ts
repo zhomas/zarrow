@@ -207,7 +207,6 @@ it('burns the stack when a 10 is played', async (t) => {
 })
 
 it('burns when a fourth 8 is played', async (t) => {
-  const isBurning = hasLock('burn')
   const st = {
     ...state,
     stack: [createCard('8', 'C'), createCard('8', 'H'), createCard('8', 'S')],
@@ -217,6 +216,7 @@ it('burns when a fourth 8 is played', async (t) => {
   const store = getStore(st)
   await store.dispatch(action)
   t.is(store.getState().stack.length, 0)
+  t.is(store.getState().burnt.length, 4)
 })
 
 it('burns when three 8s are played on a fourth', async (t) => {

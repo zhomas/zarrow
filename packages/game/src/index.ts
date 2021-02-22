@@ -5,6 +5,7 @@ export * from './selectors/status'
 
 export { createDeck } from './deck'
 export { createGame } from './rules/create'
+export { isHandSortedSelector } from './rules/sort'
 export type { CardModel } from './types'
 export type { PlayerModel } from './types'
 export type GameDispatch = StoreType['dispatch']

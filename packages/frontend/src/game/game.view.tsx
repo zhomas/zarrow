@@ -40,6 +40,7 @@ const _GameView: FC<Props> = ({
     buildHandCard,
     buildForPlayerStrata,
     buildNPC,
+    playSelectedCards,
     hovered,
   } = useLocalCardContext(uid)
 
@@ -53,7 +54,11 @@ const _GameView: FC<Props> = ({
           <>
             <StyledGame>
               <div className="h1">
-                <PlayerHand ownerID={uid} curried={buildHandCard} />
+                <PlayerHand
+                  ownerID={uid}
+                  curried={buildHandCard}
+                  playSelected={playSelectedCards}
+                />
               </div>
               <div className="h2">
                 <EnemyHand ownerID={opponent.id} />

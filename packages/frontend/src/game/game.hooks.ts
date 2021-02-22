@@ -111,7 +111,7 @@ const activeUserSelector = (state: GameState) => state.queue[0]
 const isAnimating = hasLock('animate')
 
 export const useCardBuilder = (uid: string) => {
-  const [selected, setSelected] = useState<CardModel[]>([])
+  const [selected, setSelected] = useState<string[]>([])
   const [hovered, setHovered] = useState<string>('')
   const destination = useSelector(stackDestinationSelector)
   const activeCards = useSelector(activeTierSelector)
@@ -129,29 +129,33 @@ export const useCardBuilder = (uid: string) => {
 
   useEffect(() => {
     setHovered('')
+    setSelected([])
   }, [active])
 
   const curried = (c: CardModel) => {
     const toggleSelected = () => {
-      const next = selected.includes(c)
-        ? selected.filter((h) => h.id !== c.id)
-        : [...selected, c]
+      const next = selected.includes(c.id)
+        ? selected.filter((h) => h !== c.id)
+        : [...selected, c.id]
 
       console.log('toggle selected!', next)
       setSelected(next)
     }
 
     const playAllSiblings = () => {
-      const cards = activeCards
-        .filter((a) => a.card.value === c.value)
-        .map((a) => a.card)
+      const cards = [
+        ...activeCards
+          .filter((a) => a.card.value === c.value && a.card.id !== c.id)
+          .map((a) => a.card),
+        c,
+      ]
 
       dispatch(playCardThunk({ cards, playerID: uid }))
     }
 
     return getCardProps({
       destID: destination.id,
-      selected: selected.map((c) => c.id),
+      selected,
       hovered,
       hand: activeCards.map((a) => a.card),
       id: c.id,
@@ -192,5 +196,13 @@ export const useCardBuilder = (uid: string) => {
     buildNPC: getNullishCard('default'),
     buildForPlayerStrata: getFaceUpBuilder(),
     hovered,
+    playSelectedCards:
+      selected.length > 0
+        ? () => {
+            const cards = selected.map((id) => createCardByID(id))
+            setSelected([])
+            dispatch(playCardThunk({ cards, playerID: uid }))
+          }
+        : undefined,
   }
 }

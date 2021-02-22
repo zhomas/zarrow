@@ -31,3 +31,13 @@ export const onTurnSelector = (uid: string) => {
     return state.queue[0] === player.id
   }
 }
+
+export const cardsInHandSelector = (uid: string) => (s: PartialState) => {
+  const player = playerSelector(uid)(s)
+  return player.cards.filter((c) => c.tier === 2).map((c) => c.card)
+}
+
+export const faceUpsSelector = (uid: string) => (s: PartialState) => {
+  const player = playerSelector(uid)(s)
+  return player.cards.filter((c) => c.tier === 1).map((c) => c.card)
+}

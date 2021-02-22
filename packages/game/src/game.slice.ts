@@ -18,6 +18,7 @@ import { CardModel, PlayerModel } from './types'
 import { joinGame as join, changeFaction as faction } from './rules/create'
 import { GameDispatch, hasLock } from '.'
 import { createCardByID } from './deck'
+import { sortHand as sort } from './rules/sort'
 
 type TurnLock =
   | 'animate'
@@ -277,6 +278,9 @@ const counterSlice = createSlice({
     reverse(state) {
       state.direction *= -1
     },
+    sortHand(state, action: PayloadAction<string>) {
+      sort(state, action.payload)
+    },
     lockTurn(state, action: PayloadAction<GameState['turnLocks'][number]>) {
       state.turnLocks = [...state.turnLocks, action.payload]
     },
@@ -351,6 +355,7 @@ export const {
   replace,
   focus,
   reverse,
+  sortHand,
 } = counterSlice.actions
 
 export default counterSlice.reducer

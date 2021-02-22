@@ -20,6 +20,16 @@ import { Throbber } from '../throbber'
 const Wrapper = styled(motion.div)`
   background: rgb(0 0 0 / 33%);
   padding: 20px 240px 85px 25px;
+  position: relative;
+`
+
+const HighlightPlane = styled(motion.div)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  cursor: pointer;
 `
 
 const _MiniPlayer: FC<Props> = ({
@@ -27,12 +37,18 @@ const _MiniPlayer: FC<Props> = ({
   ownerID,
   highlighted,
   nudge = 'down',
-  fadedStrata = false,
+  highlight = 'none',
   curried,
+  onHoverEnter,
+  onHoverExit,
+  onClick,
 }) => {
   return (
     <>
       <Wrapper
+        onHoverStart={onHoverEnter}
+        onHoverEnd={onHoverExit}
+        onClickCapture={onClick}
         initial={{
           transformOrigin: nudge === 'down' ? 'top' : 'bottom',
         }}
@@ -42,15 +58,23 @@ const _MiniPlayer: FC<Props> = ({
             nudge === 'down' ? '20px 62px 85px 25px' : '85px 62px 20px 25px',
         }}
       >
-        <div style={{ opacity: fadedStrata ? 0.5 : 1 }}>
-          <Strata
-            uid={uid}
-            ownerID={ownerID}
-            curried={curried}
-            active={false}
-            nudge={nudge}
+        <Strata
+          uid={uid}
+          ownerID={ownerID}
+          curried={curried}
+          active={false}
+          nudge={nudge}
+        />
+        {highlight !== 'none' && (
+          <HighlightPlane
+            style={{
+              backgroundColor:
+                highlight === 'ace:hover'
+                  ? 'rgb(255 0 0 / 33%)'
+                  : 'rgb(0 0 0 / 0',
+            }}
           />
-        </div>
+        )}
       </Wrapper>
       {highlighted && (
         <Throbber
@@ -119,6 +143,10 @@ interface OwnProps {
   fadedStrata?: boolean
   showActivityWidget?: boolean
   renderHandCards?: boolean
+  onHoverEnter?: () => void
+  onHoverExit?: () => void
+  onClick?: () => void
+  highlight?: 'none' | 'ace:able' | 'ace:hover'
 }
 
 const connector = connect(mapState, mapDispatch)

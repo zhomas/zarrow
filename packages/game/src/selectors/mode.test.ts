@@ -571,3 +571,29 @@ it('does not highlight while burning', async (t) => {
   t.is(hasLock('burn')(getState()), true)
   t.is(selector(getState()), 'none')
 })
+
+it('does not highlight while acing', async (t) => {
+  const selector = highlightedLocationSelector('abc')
+  const { getState, dispatch } = getStore({
+    burnt: [],
+    direction: 1,
+    pickupPile: [],
+    queue: ['abc'],
+    turnLocks: ['user:target'],
+    stack: [createCard('3', 'S')],
+    players: [
+      {
+        id: 'abc',
+        faction: 0,
+        displayName: 'Tom',
+        cards: [
+          { card: createCard('10', 'S'), tier: 2 },
+          { card: createCard('2', 'S'), tier: 2 },
+        ],
+      },
+    ],
+    focused: '',
+  })
+
+  t.is(selector(getState()), 'none')
+})

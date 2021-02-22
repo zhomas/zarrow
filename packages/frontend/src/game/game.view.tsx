@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import {
   CardModel,
   createDeck,
@@ -9,9 +9,10 @@ import {
   playCardThunk,
   pickupThunk,
   highlightedLocationSelector,
+  userModeSelector,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
-import { StyledGame } from './game.style'
+import { StyledGame, Screen } from './game.style'
 import { FluidCard } from './card'
 
 import { AnimateSharedLayout } from 'framer-motion'
@@ -23,13 +24,13 @@ import { Sparkler } from './sparkler'
 import { EnemyHand } from './hand/enemy'
 
 import { PlayerHand } from './hand/player'
-
-import { Reticule } from './reticule'
+import { Targeter } from './targeter'
 
 const _GameView: FC<Props> = ({
   stack,
   uid,
   replenishPile,
+  mode,
   deal,
   players,
   confirmReplenish,
@@ -45,60 +46,76 @@ const _GameView: FC<Props> = ({
 
   return (
     <AnimateSharedLayout type="switch">
-      <StyledGame>
-        <div className="h1">
-          <PlayerHand ownerID={uid} curried={buildHandCard} />
-        </div>
-        <div className="h2">
-          <EnemyHand ownerID={opponent.id} />
-        </div>
-        <div className="s2">
-          <Miniplayer ownerID={opponent.id} curried={buildNPC} uid={uid} />
-        </div>
-        <div className="s1">
-          <Miniplayer
-            ownerID={uid}
-            curried={buildForPlayerStrata}
-            nudge="up"
-            uid={uid}
-          />
-        </div>
-        <div className="table"></div>
-        <div className="table-main">
-          <Sparkler>
-            <Zone
-              onPrompt={pickupStack}
-              promptActive={highlight === 'stack'}
-              cards={stack.map((c) => (
-                <FluidCard key={c.id} card={c} />
-              ))}
-            />
-          </Sparkler>
-        </div>
-        <div className="br">
-          <Zone
-            onPrompt={confirmReplenish}
-            promptActive={highlight === 'replenish'}
-            cards={replenishPile.map((c) => (
-              <FluidCard key={c.id} card={c} faceDown />
-            ))}
-          />
-        </div>
-        <Reticule uid={uid} />
-        <FUPU uid={uid} />
-      </StyledGame>
-      <button onClick={deal}>Redeal</button>
+      <Targeter uid={uid}>
+        {({ screenComponent, setTarget, getCurrentHighlight, fire }) => (
+          <>
+            <StyledGame>
+              <div className="h1">
+                <PlayerHand ownerID={uid} curried={buildHandCard} />
+              </div>
+              <div className="h2">
+                <EnemyHand ownerID={opponent.id} />
+              </div>
+              <div className="s2">
+                <Miniplayer
+                  ownerID={opponent.id}
+                  curried={buildNPC}
+                  uid={uid}
+                  highlight={getCurrentHighlight(opponent.id)}
+                  onHoverEnter={() => setTarget(opponent.id)}
+                  onHoverExit={() => setTarget('')}
+                  onClick={fire}
+                />
+              </div>
+              <div className="s1">
+                <Miniplayer
+                  ownerID={uid}
+                  curried={buildForPlayerStrata}
+                  nudge="up"
+                  uid={uid}
+                />
+              </div>
+              <div className="table"></div>
+              <div className="table-main">
+                <Sparkler>
+                  <Zone
+                    onPrompt={pickupStack}
+                    promptActive={highlight === 'stack'}
+                    cards={stack.map((c) => (
+                      <FluidCard key={c.id} card={c} />
+                    ))}
+                  />
+                </Sparkler>
+              </div>
+              <div className="br">
+                <Zone
+                  onPrompt={confirmReplenish}
+                  promptActive={highlight === 'replenish'}
+                  cards={replenishPile.map((c) => (
+                    <FluidCard key={c.id} card={c} faceDown />
+                  ))}
+                />
+              </div>
+              {screenComponent}
+              <FUPU uid={uid} />
+            </StyledGame>
+            <button onClick={deal}>Redeal</button>
+          </>
+        )}
+      </Targeter>
     </AnimateSharedLayout>
   )
 }
 
 const mapState = (state: GameState, ownProps: OwnProps) => {
   const getHighlight = highlightedLocationSelector(ownProps.uid)
+  const selectMode = userModeSelector(ownProps.uid)
   return {
     stack: state.stack,
     players: state.players,
     replenishPile: state.pickupPile,
     highlight: getHighlight(state),
+    mode: selectMode(state),
   } as const
 }
 

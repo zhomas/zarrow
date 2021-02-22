@@ -36,6 +36,7 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
 
   const isBurning = hasLock('burn')
   const isAnimating = hasLock('animate')
+  const isAcing = hasLock('user:target')
   const isReplenishing = hasLock('user:replenish')
 
   if (isBurning(state)) return 'idle:burn'
@@ -46,6 +47,8 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
       return winners.includes(uid) ? 'idle:victory' : 'idle:defeat'
     default:
       if (turnActive) {
+        if (isAcing(state)) return 'play:target'
+
         if (isAnimating(state)) {
           if (max === 2) return 'play:hand'
           if (max === 1) return 'play:ups'
@@ -81,6 +84,7 @@ export const highlightedLocationSelector = (uid: string) => {
     const active = state.queue[0]
 
     if (active === uid) {
+      if (mode === 'play:target') return 'none'
       if (mode === 'idle:burn') return 'none'
       if (mode === 'pickup:stack') return 'stack'
       if (mode === 'pickup:replenish') return 'replenish'

@@ -3,10 +3,9 @@ import {
   activeTierSelector,
   canCardPlay,
   CardModel,
-  currentTierSelector,
   GameState,
+  hasLock,
   highlightedLocationSelector,
-  onTurnSelector,
   playCardThunk,
   stackDestinationSelector,
   userModeSelector,
@@ -19,9 +18,10 @@ interface Inyerface {
   id: string
   destID: string
   playAllSiblings: (c: CardModel) => void
-  toggleHover: (c: CardModel) => void
+  hoverStart: () => void
+  hoverEnd: () => void
   selected: string[]
-  hovered: string[]
+  hovered: string
   toggleSelected: (selected: boolean) => void
   hand?: CardModel[]
 }
@@ -39,10 +39,11 @@ export const getCardProps = ({
   id,
   destID,
   playAllSiblings,
-  toggleHover,
   selected,
   hovered,
   toggleSelected,
+  hoverStart,
+  hoverEnd,
   hand = [],
 }: Inyerface): FluidCardProps => {
   const card = createCardByID(id)
@@ -61,11 +62,10 @@ export const getCardProps = ({
       return 'default'
     }
 
-    if (!selected.length) {
-      if (hovered.includes(card.id)) return 'highlight'
+    if (!!hovered && !selected.length) {
+      if (hovered === card.id) return 'highlight'
 
-      if (hovered.some((h) => createCardByID(h).value === card.value))
-        return 'lowlight'
+      if (createCardByID(hovered).value === card.value) return 'lowlight'
     }
 
     return 'default'
@@ -90,8 +90,8 @@ export const getCardProps = ({
   return {
     card: card,
     selected: selected.includes(card.id),
-    onMouseEnter: () => toggleHover(card),
-    onMouseExit: () => toggleHover(card),
+    onMouseEnter: hoverStart,
+    onMouseExit: hoverEnd,
     onClick: getOnClick(),
     onSelect: getSelectable()
       ? (selected) => toggleSelected(selected)
@@ -103,35 +103,35 @@ export const getCardProps = ({
 const pSelect = (id: string) => (s: GameState) =>
   s.players.find((p) => p.id === id)
 
+const stackSelect = (state: GameState) => state.stack
+const burnSelect = (state: GameState) => state.burnt
+
+const activeUserSelector = (state: GameState) => state.queue[0]
+
+const isAnimating = hasLock('animate')
+
 export const useCardBuilder = (uid: string) => {
   const [selected, setSelected] = useState<CardModel[]>([])
-  const [hovered, setHovered] = useState<CardModel[]>([])
+  const [hovered, setHovered] = useState<string>('')
   const destination = useSelector(stackDestinationSelector)
   const activeCards = useSelector(activeTierSelector)
   const dispatch = useDispatch()
   const focused = useSelector(highlightedLocationSelector(uid))
   const player = useSelector(pSelect(uid))
   const userMode = useSelector(userModeSelector(uid))
-  const onTurn = useSelector(onTurnSelector)
-  const activeTier = useSelector(currentTierSelector)
+  const active = useSelector(activeUserSelector)
 
   const handCards = player?.cards.filter((c) => c.tier === 2)
 
   const focusedOnPlayerStrata = focused[1] === uid
 
+  const anim = useSelector(isAnimating)
+
   useEffect(() => {
-    setHovered([])
-    setSelected([])
-  }, [activeCards])
+    setHovered('')
+  }, [active])
 
   const curried = (c: CardModel) => {
-    const toggleHover = () => {
-      const next = hovered.includes(c)
-        ? hovered.filter((h) => h.id !== c.id)
-        : [...hovered, c]
-      setHovered(next)
-    }
-
     const toggleSelected = () => {
       const next = selected.includes(c)
         ? selected.filter((h) => h.id !== c.id)
@@ -146,43 +146,51 @@ export const useCardBuilder = (uid: string) => {
         .filter((a) => a.card.value === c.value)
         .map((a) => a.card)
 
-      dispatch(
-        playCardThunk({
-          cards, //: [createCardByID('10S')],
-          playerID: uid,
-        }),
-      )
+      dispatch(playCardThunk({ cards, playerID: uid }))
     }
 
     return getCardProps({
       destID: destination.id,
       selected: selected.map((c) => c.id),
-      hovered: hovered.map((h) => h.id),
+      hovered,
       hand: activeCards.map((a) => a.card),
       id: c.id,
-      toggleHover,
       toggleSelected,
       playAllSiblings,
+      hoverStart: () => {
+        setHovered(c.id)
+      },
+      hoverEnd: () => {
+        if (hovered === c.id) {
+          setHovered('')
+        }
+      },
     })
   }
 
   const getHandCardBuilder = () => {
+    if (anim) return getNullishCard('idle')
+
     switch (userMode) {
       case 'play:hand':
         return curried
-      case 'pickup:stack':
-        return getNullishCard('disabled')
       default:
         return getNullishCard('idle')
     }
   }
 
+  const getFaceUpBuilder = () => {
+    if (anim) return getNullishCard('idle')
+
+    return handCards?.length === 0 && focusedOnPlayerStrata
+      ? curried
+      : getNullishCard('idle')
+  }
+
   return {
     buildHandCard: getHandCardBuilder(),
     buildNPC: getNullishCard('default'),
-    buildForPlayerStrata:
-      handCards?.length === 0 && focusedOnPlayerStrata
-        ? curried
-        : getNullishCard('idle'),
+    buildForPlayerStrata: getFaceUpBuilder(),
+    hovered,
   }
 }

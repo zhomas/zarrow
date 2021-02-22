@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect } from 'react'
 import { AnimationProps, motion } from 'framer-motion'
 import type { FluidCardProps } from '../../typings'
 import { styled } from '@linaria/react'
@@ -88,6 +88,7 @@ export const FluidCard: FC<Props> = ({
         onClick={onClick}
         onMouseOverCapture={onMouseEnter}
         onMouseOutCapture={onMouseExit}
+        onMouseMove={onMouseEnter}
         initial={{
           rotateY: faceDown ? -180 : 0,
         }}

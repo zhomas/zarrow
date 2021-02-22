@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC } from 'react'
 import {
   CardModel,
   createDeck,
@@ -12,7 +12,7 @@ import {
   userModeSelector,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
-import { StyledGame, Screen } from './game.style'
+import { StyledGame } from './game.style'
 import { FluidCard } from './card'
 
 import { AnimateSharedLayout } from 'framer-motion'
@@ -30,16 +30,18 @@ const _GameView: FC<Props> = ({
   stack,
   uid,
   replenishPile,
-  mode,
   deal,
   players,
   confirmReplenish,
   pickupStack,
   highlight,
 }) => {
-  const { buildHandCard, buildForPlayerStrata, buildNPC } = useLocalCardContext(
-    uid,
-  )
+  const {
+    buildHandCard,
+    buildForPlayerStrata,
+    buildNPC,
+    hovered,
+  } = useLocalCardContext(uid)
 
   const opponent = players.find((p) => p.id !== uid)
   if (!opponent) throw new Error('Oh no')
@@ -77,6 +79,7 @@ const _GameView: FC<Props> = ({
               </div>
               <div className="table"></div>
               <div className="table-main">
+                {hovered}
                 <Sparkler>
                   <Zone
                     onPrompt={pickupStack}
@@ -126,7 +129,7 @@ const mapDispatch = (d: GameDispatch, ownProps: OwnProps) => {
       d(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck(25) })
+      const action = deal({ deck: createDeck(24) })
       d(action)
     },
     confirmReplenish: () => {

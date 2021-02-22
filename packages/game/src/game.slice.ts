@@ -185,8 +185,6 @@ export const playCardThunk = createAppThunk(
     await sleep(400)
     dispatch(unlockTurn({ channel: 'animate' }))
 
-    // Consider burn
-
     if (shouldBurn(getState())) {
       dispatch(applyClock('burn'))
       dispatch(lockTurn('burn'))
@@ -227,6 +225,7 @@ export const playCardThunk = createAppThunk(
     if (pickupRequired) {
       dispatch(lockTurn('user:replenish'))
       await sleepUntil(() => getState().turnLocks.length === 0)
+
       dispatch(unlockTurn({ channel: 'user:replenish' }))
     }
 

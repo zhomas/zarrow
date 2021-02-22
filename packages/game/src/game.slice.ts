@@ -26,10 +26,7 @@ type TurnLock =
   | 'user:target'
   | 'user:faceuptake'
 
-type Happening = {
-  type: 'burn' | 'ww7'
-  uid: string
-}
+type TurnClock = 'ww7' | 'skip' | 'glideonby' | 'dw7' | 'burn' | 'reset'
 
 export interface GameState {
   direction: number
@@ -38,13 +35,13 @@ export interface GameState {
   stack: CardModel[]
   burnt: CardModel[]
   pickupPile: CardModel[]
-  happenings?: Happening[]
   focused?: string
   local?: {
     faceUpPickID: string
     targetUID: string
   }
   turnLocks?: TurnLock[]
+  turnClocks: TurnClock[]
 }
 
 export const initialState: GameState = {
@@ -55,11 +52,11 @@ export const initialState: GameState = {
   burnt: [],
   pickupPile: [],
   turnLocks: [],
-  happenings: [],
   local: {
     faceUpPickID: '',
     targetUID: '',
   },
+  turnClocks: [],
 }
 
 interface GameInitialiser {
@@ -100,6 +97,30 @@ interface PlayCardArgs {
   playerID: string
 }
 
+const applyClock = createAppThunk(
+  'game/clock',
+  async (clock: TurnClock, { dispatch }) => {
+    dispatch(addClock(clock))
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+    dispatch(resolveClock(clock))
+  },
+)
+
+const getCardEffect = (cards: CardModel[]) => {
+  const [card] = cards
+  if (card.value === 'A') return 'ace'
+  if (card.value === '5') return 'skip'
+  if (card.value === '8') return 'glide'
+  if (card.value === '2') return 'neutralise'
+  if (card.value === 'Q') return 'psychic'
+  if (card.value === 'K') return 'steal'
+  if (cards.some((c) => c.value === '7')) {
+    const count = cards.filter((c) => c.value === '7').length
+    if (count % 2 === 1) return 'ww7'
+    return 'dw7'
+  }
+}
+
 export const pickupThunk = createAppThunk(
   'counter/pickup:stack',
   async (_, { dispatch, getState }) => {
@@ -132,76 +153,84 @@ export const pickupThunk = createAppThunk(
   },
 )
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+const sleepUntil = async (fn: () => boolean) => {
+  while (!fn()) {
+    await sleep(100)
+  }
+}
+
 export const playCardThunk = createAppThunk(
   'counter/play:cards',
   async ({ cards, playerID }: PlayCardArgs, { dispatch, getState }) => {
-    if (cards.length === 0) throw new Error('Cannot play zero cards')
-    if (getState().queue[0] !== playerID)
+    if (getState().queue[0] !== playerID) {
       throw new Error('Cannot play card as not player')
-    const state = getState()
-    const destination = stackDestinationSelector(state)
+    }
+
+    const destination = stackDestinationSelector(getState())
     cards = cards.filter((c) => canCardPlay(c, destination))
 
-    const ok = cards.length > 0
-    const ace = cards.some((c) => c.value === 'A')
+    const effect = getCardEffect(cards)
 
-    if (!ok) throw new Error('card cannot play')
+    let aceTarget: string = undefined
+
+    if (cards.length === 0) {
+      throw new Error('card cannot play')
+    }
 
     // Add to stack
     dispatch(addToStack({ cards }))
     dispatch(lockTurn('animate'))
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await sleep(400)
     dispatch(unlockTurn({ channel: 'animate' }))
-    let aceTarget: string = undefined
 
     // Consider burn
 
     if (shouldBurn(getState())) {
+      dispatch(applyClock('burn'))
       dispatch(lockTurn('burn'))
-      dispatch(logHappening({ uid: playerID, type: 'burn' }))
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await sleep(1500)
       dispatch(unlockTurn({ channel: 'burn' }))
-    }
-
-    // Acquire target
-    if (ace) {
-      dispatch(lockTurn('user:target'))
-      while (getState().turnLocks.length > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 100))
+    } else {
+      switch (effect) {
+        case 'ace':
+          dispatch(lockTurn('user:target'))
+          await sleepUntil(() => getState().turnLocks.length === 0)
+          aceTarget = getState().local.targetUID
+          break
+        case 'glide':
+          dispatch(applyClock('glideonby'))
+          break
+        case 'neutralise':
+          dispatch(applyClock('reset'))
+          break
+        case 'skip':
+          dispatch(applyClock('skip'))
+          break
+        case 'ww7':
+          dispatch(reverse())
+          dispatch(applyClock('ww7'))
+          break
+        case 'dw7':
+          dispatch(applyClock('dw7'))
+          break
+        default:
+          break
       }
-
-      aceTarget = getState().local.targetUID
     }
-
-    // Process reverse
-    if (cards.filter((c) => c.value === '7').length % 2 === 1) {
-      dispatch(logHappening({ uid: playerID, type: 'ww7' }))
-      dispatch(reverse())
-    }
-
-    // Get next player
-    const next = aceTarget || getNextPlayer(getState())
-    console.log('NEXT PLAYER', next)
-
-    const tier = activeTierSelector(getState())
-    const [] = tier
 
     // Replenish stack
-    const needsConfirmation =
-      getState().pickupPile.length > 0 && tier.length < 4
+    const tier = activeTierSelector(getState())
+    const pickupRequired = getState().pickupPile.length > 0 && tier.length < 4
 
-    if (needsConfirmation) {
+    if (pickupRequired) {
       dispatch(lockTurn('user:replenish'))
-      while (true) {
-        await new Promise((resolve) => setTimeout(resolve, 100))
-        if (getState().turnLocks.length === 0) {
-          break
-        }
-      }
+      await sleepUntil(() => getState().turnLocks.length === 0)
+      dispatch(unlockTurn({ channel: 'user:replenish' }))
     }
 
-    dispatch(unlockTurn({ channel: 'user:replenish' }))
-    return next
+    return aceTarget || getNextPlayer(getState())
   },
 )
 
@@ -217,10 +246,8 @@ const counterSlice = createSlice({
       state.burnt = action.payload.burnt
       state.direction = action.payload.direction
       state.focused = action.payload.focused
-    },
-    logHappening(state, action: PayloadAction<Happening>) {
-      state.happenings = state.happenings || []
-      state.happenings.push(action.payload)
+      state.turnLocks = action.payload.turnLocks
+      state.turnClocks = action.payload.turnClocks
     },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)
@@ -275,6 +302,12 @@ const counterSlice = createSlice({
           break
       }
     },
+    addClock(state, action: PayloadAction<TurnClock>) {
+      state.turnClocks.push(action.payload)
+    },
+    resolveClock(state, action: PayloadAction<TurnClock>) {
+      state.turnClocks = state.turnClocks.filter((c) => c !== action.payload)
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(playCardThunk.pending, (state) => {
@@ -303,7 +336,13 @@ const counterSlice = createSlice({
   },
 })
 
-const { addToStack, lockTurn, pickupStack, logHappening } = counterSlice.actions
+const {
+  addToStack,
+  lockTurn,
+  pickupStack,
+  addClock,
+  resolveClock,
+} = counterSlice.actions
 
 export const {
   deal,

@@ -56,12 +56,35 @@ const BurnBox = styled(motion.div)`
 `
 
 const _Sparkler: FC<Props> = ({
-  happening,
-  count,
   show,
   children,
+  sparkles,
   burning,
+  weirdWackySevensTime,
 }) => {
+  const renderSparkles = () => {
+    return sparkles.map((sp) => {
+      switch (sp) {
+        case 'burn':
+          return <motion.h3 animate={wobbleRise}>Burn!</motion.h3>
+        case 'ww7':
+          return (
+            <motion.h3 animate={wobbleRise}>Weird whacky sevens time</motion.h3>
+          )
+        case 'skip':
+          return <motion.h3 animate={wobbleRise}>Skip a go</motion.h3>
+        case 'dw7':
+          return (
+            <motion.h3 animate={wobbleRise}>Double whacky sevens</motion.h3>
+          )
+        case 'glideonby':
+          return <motion.h3 animate={wobbleRise}>Glide on by</motion.h3>
+        default:
+          break
+      }
+    })
+  }
+
   return (
     <div style={{ position: 'relative' }}>
       <StackWrapper>
@@ -80,7 +103,7 @@ const _Sparkler: FC<Props> = ({
           height: 50,
         }}
       >
-        {burning && <motion.h3 animate={wobbleRise}>Burn!</motion.h3>}
+        {renderSparkles()}
       </motion.div>
     </div>
   )
@@ -88,15 +111,16 @@ const _Sparkler: FC<Props> = ({
 
 const isBurning = hasLock('burn')
 
-const mapState = (state: GameState) => ({
-  show: state.stack.length > 0,
-  burning: isBurning(state),
-  count: state.happenings ? state.happenings.length : 0,
-  happening:
-    state.happenings && state.happenings.length
-      ? state.happenings[state.happenings.length - 1].type
-      : '',
-})
+const mapState = (state: GameState) => {
+  const sparkles = [...state.turnClocks]
+
+  return {
+    sparkles,
+    show: state.stack.length > 0,
+    burning: isBurning(state),
+    weirdWackySevensTime: state.turnClocks.some((c) => c === 'ww7'),
+  }
+}
 
 const connector = connect(mapState)
 

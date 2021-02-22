@@ -16,6 +16,7 @@ const getState = (): GameState => ({
   pickupPile: [],
   turnLocks: [],
   burnt: [],
+  turnClocks: [],
   players: [
     {
       id: 'a',

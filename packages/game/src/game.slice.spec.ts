@@ -22,6 +22,7 @@ it('chooses from the active tier', (t) => {
 
   const a = activeTierSelector({
     pickupPile: [],
+    turnClocks: [],
     burnt: [],
     direction: 1,
     queue: ['a'],
@@ -203,7 +204,6 @@ it('burns the stack when a 10 is played', async (t) => {
 
   const st = store.getState()
   t.is(st.stack.length, 0)
-  t.deepEqual(st.happenings[0], { type: 'burn', uid: 'a' })
 })
 
 it('burns when a fourth 8 is played', async (t) => {
@@ -217,7 +217,6 @@ it('burns when a fourth 8 is played', async (t) => {
   const store = getStore(st)
   await store.dispatch(action)
   t.is(store.getState().stack.length, 0)
-  t.deepEqual(store.getState().happenings[0], { type: 'burn', uid: 'a' })
 })
 
 it('burns when three 8s are played on a fourth', async (t) => {
@@ -245,7 +244,6 @@ it('burns when four of a kind are added to the stack', async (t) => {
   const store = getStore(st)
   await store.dispatch(action)
   t.is(store.getState().stack.length, 0)
-  t.deepEqual(store.getState().happenings[0], { type: 'burn', uid: 'a' })
 })
 
 it('ignores 8s for four of a kind calculations', async (t) => {
@@ -282,6 +280,7 @@ it('does not burn when 3 of a kind are added to the stack', (t) => {
 
 it('properly increments the turn when I play an ace', async (t) => {
   const data: GameState = {
+    turnClocks: [],
     stack: [],
     players: [
       {
@@ -456,7 +455,6 @@ it('reverses direction when a 7 is played', async (t) => {
   )
   t.is(store.getState().direction, -1)
   t.is(activePlayerSelector(store.getState()).id, 'd')
-  t.deepEqual(store.getState().happenings[0], { type: 'ww7', uid: 'a' })
 })
 
 it('preserves direction when a double whacky 7 is played', async (t) => {

@@ -12,6 +12,7 @@ it('requires playing from the face ups when a card can play', (t) => {
   const selector = userModeSelector('abc')
   const mode = selector({
     burnt: [],
+    turnClocks: [],
     direction: 1,
     pickupPile: [],
     turnLocks: [],
@@ -40,6 +41,7 @@ it('prompts a pickup when no face up card can play', (t) => {
     direction: 1,
     pickupPile: [],
     turnLocks: [],
+    turnClocks: [],
     queue: ['abc'],
     stack: [createCard('A', 'S')],
     players: [
@@ -65,6 +67,7 @@ it('requires playing from the face downs even when no card can play', (t) => {
     direction: 1,
     pickupPile: [],
     turnLocks: [],
+    turnClocks: [],
     queue: ['abc'],
     stack: [createCard('A', 'S')],
     players: [
@@ -89,6 +92,7 @@ it('requires pickup when the revealed facedown card cannot play on the stack', (
     burnt: [],
     direction: 1,
     pickupPile: [],
+    turnClocks: [],
     queue: ['abc'],
     turnLocks: [],
     stack: [createCard('A', 'S')],
@@ -115,6 +119,7 @@ it('requires no pickup with a falsy focus card', (t) => {
     burnt: [],
     direction: 1,
     pickupPile: [],
+    turnClocks: [],
     queue: ['abc'],
     turnLocks: [],
     stack: [createCard('A', 'S')],
@@ -139,6 +144,7 @@ it('highlights my hand if active', (t) => {
   const selector = highlightedLocationSelector('a')
   const location = selector({
     direction: 1,
+    turnClocks: [],
     queue: ['a', 'b'],
     players: [
       {
@@ -184,6 +190,7 @@ it('highlights my face ups if active', (t) => {
     direction: 1,
     pickupPile: [],
     queue: ['abc'],
+    turnClocks: [],
     turnLocks: [],
     stack: [createCard('A', 'S')],
     players: [
@@ -209,6 +216,7 @@ it('highlights my opponents', (t) => {
     burnt: [],
     direction: 1,
     pickupPile: [],
+    turnClocks: [],
     queue: ['def'],
     turnLocks: [],
     stack: [createCard('A', 'S')],
@@ -244,6 +252,7 @@ it('highlights my face downs if active', (t) => {
     burnt: [],
     direction: 1,
     pickupPile: [],
+    turnClocks: [],
     queue: ['abc'],
     turnLocks: [],
     stack: [createCard('A', 'S')],
@@ -267,6 +276,7 @@ it('highlights the stack if I need to pick up', (t) => {
     burnt: [],
     direction: 1,
     pickupPile: [],
+    turnClocks: [],
     queue: ['abc'],
     turnLocks: [],
     stack: [createCard('A', 'S')],

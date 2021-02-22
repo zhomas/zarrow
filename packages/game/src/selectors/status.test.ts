@@ -10,6 +10,7 @@ it('is in the lobby when only one player present', (t) => {
     pickupPile: [],
     queue: [],
     stack: [],
+    turnClocks: [],
     players: [{ id: 'a', faction: 0, cards: [], displayName: '' }],
   })
 
@@ -23,6 +24,7 @@ it('is in the lobby when players are not divided into factions', (t) => {
     pickupPile: [],
     queue: [],
     stack: [],
+    turnClocks: [],
     players: [
       { id: 'a', faction: 0, cards: [], displayName: '' },
       { id: 'b', faction: -1, cards: [], displayName: '' },
@@ -39,6 +41,7 @@ it('is in a valid lobby when 4 players are in 2 factions and no cards are dealt'
     pickupPile: [],
     queue: [],
     stack: [],
+    turnClocks: [],
     players: [
       { id: 'a', faction: 0, cards: [], displayName: '' },
       { id: 'b', faction: 0, cards: [], displayName: '' },
@@ -56,6 +59,7 @@ it('is a valid lobby when 2 players are in 2 factions', (t) => {
     direction: 1,
     pickupPile: [],
     queue: [],
+    turnClocks: [],
     stack: [],
     players: [
       {
@@ -97,6 +101,7 @@ it('is able to start when 4 players are in 4 factions', (t) => {
     pickupPile: [],
     queue: [],
     stack: [],
+    turnClocks: [],
     players: [
       { id: 'a', faction: 0, cards: [], displayName: '' },
       { id: 'b', faction: 1, cards: [], displayName: '' },
@@ -116,6 +121,7 @@ it('is running when the cards are dealt', (t) => {
     pickupPile: [],
     queue: [],
     stack: [],
+    turnClocks: [],
     players: [
       { id: 'a', faction: 0, cards: [{ card, tier: 0 }], displayName: '' },
       { id: 'b', faction: 1, cards: [{ card, tier: 0 }], displayName: '' },

@@ -2,9 +2,10 @@ import type { CardModel } from 'game'
 
 export type FluidCardProps = {
   card: CardModel
+  selectable?: boolean
   selected?: boolean
   faceDown?: boolean
-  onSelect?: (checked: boolean) => void
+  onSelect?: (e: React.SyntheticEvent) => void
   onClick?: () => void
   onMouseEnter?: () => void
   onMouseExit?: () => void

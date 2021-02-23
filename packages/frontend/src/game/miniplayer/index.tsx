@@ -18,6 +18,9 @@ import { Strata } from '../strata'
 import { Throbber } from '../throbber'
 
 const Wrapper = styled(motion.div)`
+  width: 450px;
+  height: 250px;
+  margin: 0 auto;
   background: rgb(0 0 0 / 33%);
   padding: 20px 240px 85px 25px;
   position: relative;
@@ -55,7 +58,7 @@ const _MiniPlayer: FC<Props> = ({
         style={{
           borderRadius: nudge === 'down' ? '0 0 9px 9px' : '9px 9px 0 0',
           padding:
-            nudge === 'down' ? '20px 62px 85px 25px' : '85px 62px 20px 25px',
+            nudge === 'down' ? '20px 62px 55px 25px' : '55px 62px 20px 25px',
         }}
       >
         <Strata

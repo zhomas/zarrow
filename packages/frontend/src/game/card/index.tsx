@@ -64,6 +64,7 @@ export const FluidCard: FC<Props> = ({
   onMouseEnter,
   onMouseExit,
   selected,
+  selectable = false,
   variant = 'default',
   keyPrefix = '',
   style,
@@ -93,11 +94,13 @@ export const FluidCard: FC<Props> = ({
         onMouseOverCapture={onMouseEnter}
         onMouseOutCapture={onMouseExit}
         onMouseMove={onMouseEnter}
+        onContextMenuCapture={onSelect}
         initial={{
           rotateY: faceDown ? -180 : 0,
         }}
         animate={{
           rotateY: faceDown ? -180 : 0,
+          y: selected ? -20 : 0,
         }}
       >
         <motion.div>
@@ -112,7 +115,7 @@ export const FluidCard: FC<Props> = ({
               {card.suit}
             </span>
             <div>
-              {(!!onSelect || !!selected) && (
+              {selectable && (
                 <>
                   <Checkbox
                     key={(!!selected).toString()}
@@ -129,7 +132,7 @@ export const FluidCard: FC<Props> = ({
                     }}
                     onChange={(e) => {
                       console.log('change')
-                      onSelect && onSelect(!!e.target.value)
+                      onSelect && onSelect(e)
                     }}
                   />
                 </>

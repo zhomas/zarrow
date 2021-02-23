@@ -11,9 +11,10 @@ it('highlights self when hovered', (t) => {
     destID: '3S',
     playAllSiblings: playAll,
     selected: [],
-    hovered: ['3D'],
-    toggleHover: sinon.spy(),
+    hovered: '3D',
     toggleSelected: sinon.spy(),
+    hoverStart: sinon.spy(),
+    hoverEnd: sinon.spy(),
   })
 
   t.truthy(props.variant === 'highlight')
@@ -27,10 +28,12 @@ it('highlights selected cards', (t) => {
     destID: '3S',
     playAllSiblings: playAll,
     selected: ['3D'],
-    hovered: ['3D'],
-    toggleHover: sinon.spy(),
+    hovered: '3D',
+
     toggleSelected: sinon.spy(),
     hand: [createCardByID('3D')],
+    hoverStart: sinon.spy(),
+    hoverEnd: sinon.spy(),
   })
 
   t.is(props.variant, 'highlight')
@@ -44,10 +47,12 @@ it('lowlights hovered unselected cards', (t) => {
     destID: '3S',
     playAllSiblings: playAll,
     selected: ['3H'],
-    hovered: ['3D'],
-    toggleHover: sinon.spy(),
+    hovered: '3D',
+
     toggleSelected: sinon.spy(),
     hand: [createCardByID('3D')],
+    hoverStart: sinon.spy(),
+    hoverEnd: sinon.spy(),
   })
 
   t.is(props.variant, 'lowlight')
@@ -59,9 +64,10 @@ it('lowlights siblings when hovered', (t) => {
     destID: '3S',
     playAllSiblings: sinon.spy(),
     selected: [],
-    hovered: ['3D'],
-    toggleHover: sinon.spy(),
+    hovered: '3D',
     toggleSelected: sinon.spy(),
+    hoverStart: sinon.spy(),
+    hoverEnd: sinon.spy(),
   })
 
   t.truthy(props.variant === 'lowlight')
@@ -73,12 +79,13 @@ it('selects the selected', (t) => {
     destID: '3S',
     playAllSiblings: sinon.spy(),
     selected: ['3H'],
-    hovered: ['3D'],
-    toggleHover: sinon.spy(),
+    hovered: '3D',
+    hoverStart: sinon.spy(),
+    hoverEnd: sinon.spy(),
     toggleSelected: sinon.spy(),
   })
 
-  t.truthy(props.selected)
+  t.true(props.selected)
 })
 
 it('marks siblings as selectable', (t) => {
@@ -87,13 +94,15 @@ it('marks siblings as selectable', (t) => {
     destID: '3S',
     playAllSiblings: sinon.spy(),
     selected: ['3H'],
-    hovered: ['3H'],
-    toggleHover: sinon.spy(),
+    hovered: '3H',
+    hoverStart: sinon.spy(),
+    hoverEnd: sinon.spy(),
     toggleSelected: sinon.spy(),
     hand: [createCardByID('3C')],
   })
 
-  t.truthy(typeof props.onSelect === 'function')
+  t.is(typeof props.onSelect, 'function')
+  t.is(props.selectable, true)
 })
 
 it('marks non-siblings as unselectable', (t) => {
@@ -102,13 +111,14 @@ it('marks non-siblings as unselectable', (t) => {
     destID: '3S',
     playAllSiblings: sinon.spy(),
     selected: ['3H'],
-    hovered: ['3H'],
-    toggleHover: sinon.spy(),
+    hovered: '3H',
+    hoverStart: sinon.spy(),
+    hoverEnd: sinon.spy(),
     toggleSelected: sinon.spy(),
     hand: [createCardByID('4C')],
   })
 
-  t.truthy(typeof props.onSelect === 'undefined')
+  t.is(props.selectable, false)
 })
 
 it('marks cards as disabled when I cannot play', (t) => {
@@ -117,8 +127,9 @@ it('marks cards as disabled when I cannot play', (t) => {
     destID: '9S',
     playAllSiblings: sinon.spy(),
     selected: [],
-    hovered: [],
-    toggleHover: sinon.spy(),
+    hovered: '',
+    hoverStart: sinon.spy(),
+    hoverEnd: sinon.spy(),
     toggleSelected: sinon.spy(),
     hand: [createCardByID('4C')],
   })

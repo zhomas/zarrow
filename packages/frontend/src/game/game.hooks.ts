@@ -22,8 +22,13 @@ interface Inyerface {
   hoverEnd: () => void
   selected: string[]
   hovered: string
-  toggleSelected: (selected: boolean) => void
+  toggleSelected: (_: React.SyntheticEvent) => void
   hand?: CardModel[]
+}
+
+const nullishEventHandler = (e: React.SyntheticEvent) => {
+  e.preventDefault()
+  e.stopPropagation()
 }
 
 const getNullishCard = (v: FluidCardProps['variant']) => (
@@ -31,6 +36,7 @@ const getNullishCard = (v: FluidCardProps['variant']) => (
 ): FluidCardProps => {
   return {
     card: c,
+    onSelect: nullishEventHandler,
     variant: v,
   }
 }
@@ -53,14 +59,14 @@ export const getCardProps = ({
   const canPlay = canCardPlay(card, destination)
 
   const getVariant = (): FluidCardProps['variant'] => {
-    if (!canPlay) return 'disabled'
-
     if (selected.length > 0) {
-      if (card.value !== createCardByID(selected[0]).value) return 'default'
+      if (card.value !== createCardByID(selected[0]).value) return 'idle'
       if (selected.some((c) => c === id)) return 'highlight'
       if (hovered.includes(card.id)) return 'lowlight'
       return 'default'
     }
+
+    if (!canPlay) return 'disabled'
 
     if (!!hovered && !selected.length) {
       if (hovered === card.id) return 'highlight'
@@ -74,11 +80,12 @@ export const getCardProps = ({
   const getSelectable = () => {
     if (!inCurrentTier) return false
     if (!canPlay) return false
-    if (selected.some((cID) => createCardByID(cID).value === card.value))
-      return true
 
-    if (hand.some((x) => x.id !== id && x.value === card.value)) return true
-    return false
+    if (selected.length > 0) {
+      return selected.some((cID) => createCardByID(cID).value === card.value)
+    }
+
+    return true
   }
 
   const getOnClick = () => {
@@ -93,18 +100,14 @@ export const getCardProps = ({
     onMouseEnter: hoverStart,
     onMouseExit: hoverEnd,
     onClick: getOnClick(),
-    onSelect: getSelectable()
-      ? (selected) => toggleSelected(selected)
-      : undefined,
+    onSelect: getSelectable() ? toggleSelected : nullishEventHandler,
     variant: getVariant(),
+    selectable: getSelectable(),
   }
 }
 
 const pSelect = (id: string) => (s: GameState) =>
   s.players.find((p) => p.id === id)
-
-const stackSelect = (state: GameState) => state.stack
-const burnSelect = (state: GameState) => state.burnt
 
 const activeUserSelector = (state: GameState) => state.queue[0]
 
@@ -133,7 +136,9 @@ export const useCardBuilder = (uid: string) => {
   }, [active])
 
   const curried = (c: CardModel) => {
-    const toggleSelected = () => {
+    const toggleSelected = (e: React.SyntheticEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
       const next = selected.includes(c.id)
         ? selected.filter((h) => h !== c.id)
         : [...selected, c.id]

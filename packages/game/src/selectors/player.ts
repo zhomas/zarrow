@@ -41,3 +41,12 @@ export const faceUpsSelector = (uid: string) => (s: PartialState) => {
   const player = playerSelector(uid)(s)
   return player.cards.filter((c) => c.tier === 1).map((c) => c.card)
 }
+
+export const playerHasCardInTierSelector = (
+  uid: string,
+  cardID: string,
+  tier: number,
+) => (state: GameState) => {
+  const player = playerSelector(uid)(state)
+  return player.cards.some((c) => c.card.id === cardID && c.tier === tier)
+}

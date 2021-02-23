@@ -140,6 +140,33 @@ it('requires no pickup with a falsy focus card', (t) => {
   t.is(mode, 'play:downs')
 })
 
+it('enters psychic reveal mode when I play a queen', async (t) => {
+  const selector = userModeSelector('abc')
+  const mode = selector({
+    burnt: [],
+    direction: 1,
+    pickupPile: [],
+    turnClocks: [],
+    queue: ['abc'],
+    turnLocks: ['user:psychicreveal'],
+    stack: [createCard('A', 'S')],
+    players: [
+      {
+        id: 'abc',
+        faction: 0,
+        displayName: 'Tom',
+        cards: [
+          { card: createCard('3', 'S'), tier: 0 },
+          { card: createCard('2', 'S'), tier: 0 },
+        ],
+      },
+    ],
+    focused: '',
+  })
+
+  t.is(mode, 'play:reveal')
+})
+
 it('highlights my hand if active', (t) => {
   const selector = highlightedLocationSelector('a')
   const location = selector({
@@ -606,4 +633,31 @@ it('does not highlight while acing', async (t) => {
   })
 
   t.is(selector(getState()), 'none')
+})
+
+it('highlights my tiers while revealing', async (t) => {
+  const selector = highlightedLocationSelector('abc')
+  const mode = selector({
+    burnt: [],
+    direction: 1,
+    pickupPile: [],
+    turnClocks: [],
+    queue: ['abc'],
+    turnLocks: ['user:psychicreveal'],
+    stack: [createCard('A', 'S')],
+    players: [
+      {
+        id: 'abc',
+        faction: 0,
+        displayName: 'Tom',
+        cards: [
+          { card: createCard('3', 'S'), tier: 0 },
+          { card: createCard('2', 'S'), tier: 0 },
+        ],
+      },
+    ],
+    focused: '',
+  })
+
+  t.deepEqual(mode, ['playerID', 'abc'])
 })

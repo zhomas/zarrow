@@ -7,7 +7,7 @@ import {
 } from './selectors'
 import it from 'ava'
 import { CardModel } from './types'
-import { createCard } from './deck'
+import { createCard, createCardByID } from './deck'
 import { GameState, getStore } from '.'
 
 const isBurning = hasLock('burn')
@@ -405,6 +405,7 @@ it('cannot play a 3 on a 4', async (t) => {
 
 it('treats 8s as invisible', async (t) => {
   const { getState, dispatch } = getStore({
+    queue: ['a'],
     stack: [createCard('8', 'D'), createCard('3', 'S')],
   })
 
@@ -416,6 +417,23 @@ it('treats 8s as invisible', async (t) => {
 
   //   addToStack(state, card)
   //   t.is(state.stack.length, 3)
+})
+
+it('clears the afterimage when I play a non-queen', async (t) => {
+  const { getState, dispatch } = getStore({
+    queue: ['a'],
+    stack: [createCard('8', 'D'), createCard('3', 'S')],
+    afterimage: [createCardByID('QD')],
+  })
+
+  t.is(stackDestinationSelector(getState()).id, 'QD')
+
+  await dispatch(
+    playCardThunk({ cards: [createCard('2', 'H')], playerID: 'a' }),
+  )
+
+  t.is(getState().afterimage.length, 0)
+  t.is(stackDestinationSelector(getState()).id, '2H')
 })
 
 it('reverses direction when a 7 is played', async (t) => {

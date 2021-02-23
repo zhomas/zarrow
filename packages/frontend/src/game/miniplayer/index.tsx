@@ -61,13 +61,7 @@ const _MiniPlayer: FC<Props> = ({
             nudge === 'down' ? '20px 62px 55px 25px' : '55px 62px 20px 25px',
         }}
       >
-        <Strata
-          uid={uid}
-          ownerID={ownerID}
-          curried={curried}
-          active={false}
-          nudge={nudge}
-        />
+        <Strata uid={uid} ownerID={ownerID} curried={curried} nudge={nudge} />
         {highlight !== 'none' && (
           <HighlightPlane
             style={{
@@ -93,33 +87,16 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
   const myCards =
     state.players.find((p) => p.id === ownProps.ownerID)?.cards || []
   const dest = stackDestinationSelector(state)
-  const modeSelector = userModeSelector(ownProps.ownerID)
-
-  const getString = () => {
-    switch (modeSelector(state)) {
-      case 'play:hand':
-      case 'play:downs':
-      case 'play:ups':
-        return 'Green...'
-      case 'pickup:stack':
-        return 'Red...'
-      case 'pickup:replenish':
-        return 'Amber...'
-      default:
-        return 'gray'
-    }
-  }
 
   const selector = highlightedLocationSelector(ownProps.uid)
   const h = selector(state)
+
   return {
     highlighted: h[1] === ownProps.ownerID,
     downs: myCards.filter((c) => c.tier === 0),
     ups: myCards.filter((c) => c.tier === 1),
     canCardPlay: (c: CardModel) => canCardPlay(c, dest),
     isFocused: (c: CardModel) => !!state.focused && state.focused === c.id,
-    active: !modeSelector(state).includes('idle'),
-    modeString: getString(),
     cardsInHand: myCards.filter((c) => c.tier === 2).length,
     hand: myCards.filter((c) => c.tier === 2),
   }

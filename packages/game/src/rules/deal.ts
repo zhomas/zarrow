@@ -40,6 +40,7 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
   state.burnt = []
   state.stack = []
   state.turnClocks = []
+  state.afterimage = []
   state.local = {
     targetUID: '',
     faceUpPickID: '',

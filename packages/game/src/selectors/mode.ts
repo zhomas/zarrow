@@ -38,6 +38,7 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
   const isAnimating = hasLock('animate')
   const isAcing = hasLock('user:target')
   const isReplenishing = hasLock('user:replenish')
+  const isRevealing = hasLock('user:psychicreveal')
 
   if (isBurning(state)) return 'idle:burn'
 
@@ -48,6 +49,7 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
     default:
       if (turnActive) {
         if (isAcing(state)) return 'play:target'
+        if (isRevealing(state)) return 'play:reveal'
 
         if (isAnimating(state)) {
           if (max === 2) return 'play:hand'
@@ -84,6 +86,7 @@ export const highlightedLocationSelector = (uid: string) => {
     const active = state.queue[0]
 
     if (active === uid) {
+      if (mode === 'play:reveal') return ['playerID', uid]
       if (mode === 'play:target') return 'none'
       if (mode === 'idle:burn') return 'none'
       if (mode === 'pickup:stack') return 'stack'

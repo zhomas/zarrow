@@ -96,10 +96,10 @@ export const FluidCard: FC<Props> = ({
         onMouseMove={onMouseEnter}
         onContextMenuCapture={onSelect}
         initial={{
-          rotateY: faceDown ? -180 : 0,
+          rotateY: faceDown ? 180 : 0,
         }}
         animate={{
-          rotateY: faceDown ? -180 : 0,
+          rotateY: faceDown ? 180 : 0,
           y: selected ? -20 : 0,
         }}
       >

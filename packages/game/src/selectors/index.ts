@@ -1,8 +1,11 @@
 import { canCardPlay, GameState } from '..'
 import { createCard } from '../deck'
-import { getWrappedIndex } from '../utils'
+import { stackDestinationSelector } from './destination'
+
 export * from './mode'
 export * from './player'
+export * from './next'
+export * from './destination'
 
 export const getPlayerSelector = (id: string) => {
   return (state: GameState) => {
@@ -52,48 +55,9 @@ export const shouldBurn = (state: GameState) => {
   return eights >= 4
 }
 
-export const getNextPlayer = (state: GameState) => {
-  const dir = Math.sign(state.direction)
-  const { players } = state
-  const currentID = state.queue[0]
-
-  if (state.stack.length === 0) {
-    return currentID
-  }
-
-  if (players.length < 2) return currentID
-
-  const topOfStack = state.stack[0]
-  let index = players.findIndex((p) => p.id === currentID) + 1 * dir
-
-  if (topOfStack.value === '5') {
-    index += 1 * dir
-  }
-
-  while (true) {
-    const next = getWrappedIndex(index, players.length)
-    const nextPlayer = players[next]
-
-    if (nextPlayer.cards.length > 0) {
-      return nextPlayer.id
-    }
-
-    index += 1 * dir
-  }
-}
-
 export const activePlayerSelector = (state: GameState) => {
   const id = state.queue[0]
   return state.players.find((p) => p.id === id)
-}
-
-export const stackDestinationSelector = (state: GameState) => {
-  for (const card of state.stack) {
-    if (card.value === '8') continue
-    return card
-  }
-
-  return createCard('3', 'H') // anything can play on a 3
 }
 
 export const activeTierSelector = (state: GameState) => {

@@ -16,7 +16,7 @@ import {
 } from './selectors'
 import { CardModel, PlayerModel } from './types'
 import { joinGame as join, changeFaction as faction } from './rules/create'
-import { GameDispatch, hasLock } from '.'
+import { GameDispatch, hasLock, playerHasCardInTierSelector } from '.'
 import { createCardByID } from './deck'
 import { sortHand as sort } from './rules/sort'
 
@@ -26,8 +26,17 @@ type TurnLock =
   | 'user:replenish'
   | 'user:target'
   | 'user:faceuptake'
+  | 'user:psychicreveal'
 
-type TurnClock = 'ww7' | 'skip' | 'glideonby' | 'dw7' | 'burn' | 'reset'
+type TurnClock =
+  | 'ww7'
+  | 'skip'
+  | 'glideonby'
+  | 'dw7'
+  | 'burn'
+  | 'reset'
+  | 'chainedqueen'
+  | 'queen'
 
 export interface GameState {
   direction: number
@@ -36,6 +45,7 @@ export interface GameState {
   stack: CardModel[]
   burnt: CardModel[]
   pickupPile: CardModel[]
+  afterimage?: CardModel[]
   focused?: string
   local?: {
     faceUpPickID: string
@@ -53,6 +63,7 @@ export const initialState: GameState = {
   burnt: [],
   pickupPile: [],
   turnLocks: [],
+  afterimage: [],
   local: {
     faceUpPickID: '',
     targetUID: '',
@@ -107,13 +118,19 @@ const applyClock = createAppThunk(
   },
 )
 
-const getCardEffect = (cards: CardModel[]) => {
+const getCardEffect = (cards: CardModel[], state: GameState) => {
   const [card] = cards
+  const player = activePlayerSelector(state)
   if (card.value === 'A') return 'ace'
   if (card.value === '5') return 'skip'
   if (card.value === '8') return 'glide'
   if (card.value === '2') return 'neutralise'
-  if (card.value === 'Q') return 'psychic'
+
+  if (card.value === 'Q') {
+    if (player.cards.filter((c) => c.tier === 0).length > 0) {
+      return 'psychic'
+    }
+  }
   if (card.value === 'K') return 'steal'
   if (cards.some((c) => c.value === '7')) {
     const count = cards.filter((c) => c.value === '7').length
@@ -121,6 +138,27 @@ const getCardEffect = (cards: CardModel[]) => {
     return 'dw7'
   }
 }
+
+type CardEffect = ReturnType<typeof getCardEffect>
+
+const applyCardVisuals = createAppThunk(
+  'game/clock',
+  async (cards: CardModel[], { dispatch, getState }) => {
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+  },
+)
+
+export const revealThunk = createAppThunk(
+  'game/psychic:reveal',
+  async ({ cards, playerID }: PlayCardArgs, { dispatch, getState }) => {
+    const [revealed] = cards
+    dispatch(unlockTurn({ channel: 'user:psychicreveal', data: revealed.id }))
+    if (revealed.value === 'Q') {
+      dispatch(applyClock('chainedqueen'))
+      dispatch(lockTurn({ channel: 'user:psychicreveal' }))
+    }
+  },
+)
 
 export const pickupThunk = createAppThunk(
   'counter/pickup:stack',
@@ -131,7 +169,7 @@ export const pickupThunk = createAppThunk(
 
     if (activeCards.some((c) => c.tier === 1)) {
       // Face up pickup rule
-      dispatch(lockTurn('user:faceuptake'))
+      dispatch(lockTurn({ channel: 'user:faceuptake', count: 1 }))
       const locked = hasLock('user:faceuptake')
 
       while (locked(getState())) {
@@ -172,7 +210,7 @@ export const playCardThunk = createAppThunk(
     const destination = stackDestinationSelector(getState())
     cards = cards.filter((c) => canCardPlay(c, destination))
 
-    const effect = getCardEffect(cards)
+    const effect = getCardEffect(cards, getState())
 
     let aceTarget: string = undefined
 
@@ -182,49 +220,29 @@ export const playCardThunk = createAppThunk(
 
     // Add to stack
     dispatch(addToStack({ cards }))
-    dispatch(lockTurn('animate'))
+    dispatch(lockTurn({ channel: 'animate' }))
     await sleep(400)
     dispatch(unlockTurn({ channel: 'animate' }))
 
     if (shouldBurn(getState())) {
       dispatch(applyClock('burn'))
-      dispatch(lockTurn('burn'))
+      dispatch(lockTurn({ channel: 'burn' }))
       await sleep(1500)
       dispatch(unlockTurn({ channel: 'burn' }))
     } else {
-      switch (effect) {
-        case 'ace':
-          dispatch(lockTurn('user:target'))
-          await sleepUntil(() => getState().turnLocks.length === 0)
-          aceTarget = getState().local.targetUID
-          break
-        case 'glide':
-          dispatch(applyClock('glideonby'))
-          break
-        case 'neutralise':
-          dispatch(applyClock('reset'))
-          break
-        case 'skip':
-          dispatch(applyClock('skip'))
-          break
-        case 'ww7':
-          dispatch(reverse())
-          dispatch(applyClock('ww7'))
-          break
-        case 'dw7':
-          dispatch(applyClock('dw7'))
-          break
-        default:
-          break
-      }
+      dispatch(applyCardEffect(cards))
+      dispatch(applyCardVisuals(cards))
     }
+
+    await sleepUntil(() => getState().turnLocks.length === 0)
+    aceTarget = getState().local.targetUID
 
     // Replenish stack
     const tier = activeTierSelector(getState())
     const pickupRequired = getState().pickupPile.length > 0 && tier.length < 4
 
     if (pickupRequired) {
-      dispatch(lockTurn('user:replenish'))
+      dispatch(lockTurn({ channel: 'user:replenish' }))
       await sleepUntil(() => getState().turnLocks.length === 0)
 
       dispatch(unlockTurn({ channel: 'user:replenish' }))
@@ -248,6 +266,7 @@ const counterSlice = createSlice({
       state.focused = action.payload.focused
       state.turnLocks = action.payload.turnLocks
       state.turnClocks = action.payload.turnClocks
+      state.afterimage = action.payload.afterimage
     },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)
@@ -281,17 +300,51 @@ const counterSlice = createSlice({
     sortHand(state, action: PayloadAction<string>) {
       sort(state, action.payload)
     },
-    lockTurn(state, action: PayloadAction<GameState['turnLocks'][number]>) {
-      state.turnLocks = [...state.turnLocks, action.payload]
+    applyCardEffect(state, action: PayloadAction<CardModel[]>) {
+      const cards = action.payload
+      const [card] = cards
+      const player = activePlayerSelector(state)
+      const count = cards.length
+      const effect = getCardEffect(cards, state)
+      switch (effect) {
+        case 'ace':
+          state.turnLocks.push('user:target')
+        case 'ww7':
+          state.direction *= -1
+        case 'psychic':
+          const faceDowns = player.cards.filter((c) => c.tier === 0)
+          const count = Math.min(cards.length, faceDowns.length)
+          for (let i = 0; i < count; i++) {
+            const card = cards[i]
+            const stackIndex = state.stack.findIndex((c) => c.id === card.id)
+
+            state.turnLocks.push('user:psychicreveal')
+            state.stack.splice(stackIndex, 1)
+            state.burnt.push(card)
+            state.afterimage.push(card)
+          }
+
+          break
+        default:
+      }
+
+      if (card.value !== 'Q') {
+        state.afterimage = []
+      }
+    },
+    lockTurn(
+      state,
+      action: PayloadAction<{ channel: TurnLock; count?: number }>,
+    ) {
+      const count = action.payload.count || 1
+      const arr = new Array(count).fill(action.payload.channel)
+
+      state.turnLocks = [...state.turnLocks, ...arr]
     },
     unlockTurn(
       state,
       action: PayloadAction<{ channel: TurnLock; data?: string }>,
     ) {
-      state.turnLocks = state.turnLocks.filter(
-        (t) => t !== action.payload.channel,
-      )
-
       switch (action.payload.channel) {
         case 'user:target':
           state.local.targetUID = action.payload.data
@@ -303,7 +356,23 @@ const counterSlice = createSlice({
         case 'user:faceuptake':
           state.local.faceUpPickID = action.payload.data
           break
+        case 'user:psychicreveal':
+          const revealed = action.payload.data
+          const player = activePlayerSelector(state)
+          const ok = playerHasCardInTierSelector(player.id, revealed, 0)(state)
+          if (!ok) return
+
+          const others = player.cards.filter((c) => c.card.id !== revealed)
+          player.cards = [
+            ...others,
+            { card: createCardByID(revealed), tier: 1 },
+          ]
+
+          break
       }
+
+      const idx = state.turnLocks.findIndex((t) => t === action.payload.channel)
+      state.turnLocks.splice(idx, 1)
     },
     addClock(state, action: PayloadAction<TurnClock>) {
       state.turnClocks.push(action.payload)
@@ -326,15 +395,42 @@ const counterSlice = createSlice({
 
       const player = activePlayerSelector(state)
       const { pickupPile } = state
-
       while (
         pickupPile.length > 0 &&
         player.cards.filter((c) => c.tier === 2).length < 4
       ) {
         player.cards.push({ card: pickupPile.shift(), tier: 2 })
       }
-      console.log({ next })
       state.queue = [...new Set([next, ...state.queue])].filter((id) => !!id)
+    })
+    builder.addCase(applyCardVisuals.pending, (state, action) => {
+      const cards = action.meta.arg
+      const effect = getCardEffect(cards, state)
+      switch (effect) {
+        case 'glide':
+          state.turnClocks.push('glideonby')
+          break
+        case 'neutralise':
+          state.turnClocks.push('reset')
+          break
+        case 'skip':
+          state.turnClocks.push('skip')
+          break
+        case 'ww7':
+          state.turnClocks.push('ww7')
+          break
+        case 'dw7':
+          state.turnClocks.push('dw7')
+          break
+        case 'psychic':
+          state.turnClocks.push('queen')
+          break
+        default:
+          break
+      }
+    })
+    builder.addCase(applyCardVisuals.fulfilled, (state, action) => {
+      state.turnClocks = []
     })
   },
 })
@@ -345,6 +441,7 @@ const {
   pickupStack,
   addClock,
   resolveClock,
+  applyCardEffect,
 } = counterSlice.actions
 
 export const {

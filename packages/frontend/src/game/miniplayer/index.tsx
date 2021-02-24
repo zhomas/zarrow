@@ -41,6 +41,7 @@ const _MiniPlayer: FC<Props> = ({
   highlighted,
   nudge = 'down',
   highlight = 'none',
+  isRevealing = false,
   curried,
   onHoverEnter,
   onHoverExit,
@@ -61,7 +62,13 @@ const _MiniPlayer: FC<Props> = ({
             nudge === 'down' ? '20px 62px 55px 25px' : '55px 62px 20px 25px',
         }}
       >
-        <Strata uid={uid} ownerID={ownerID} curried={curried} nudge={nudge} />
+        <Strata
+          uid={uid}
+          ownerID={ownerID}
+          curried={curried}
+          nudge={nudge}
+          revealing={isRevealing}
+        />
         {highlight !== 'none' && (
           <HighlightPlane
             style={{
@@ -126,6 +133,7 @@ interface OwnProps {
   onHoverEnter?: () => void
   onHoverExit?: () => void
   onClick?: () => void
+  isRevealing?: boolean
   highlight?: 'none' | 'ace:able' | 'ace:hover'
 }
 

@@ -45,7 +45,7 @@ export interface GameState {
   stack: CardModel[]
   burnt: CardModel[]
   pickupPile: CardModel[]
-  afterimage?: CardModel[]
+  afterimage: CardModel[]
   focused?: string
   local?: {
     faceUpPickID: string
@@ -139,10 +139,8 @@ const getCardEffect = (cards: CardModel[], state: GameState) => {
   }
 }
 
-type CardEffect = ReturnType<typeof getCardEffect>
-
 const applyCardVisuals = createAppThunk(
-  'game/clock',
+  'game/sparkles',
   async (cards: CardModel[], { dispatch, getState }) => {
     await new Promise((resolve) => setTimeout(resolve, 1500))
   },
@@ -155,7 +153,7 @@ export const revealThunk = createAppThunk(
     dispatch(unlockTurn({ channel: 'user:psychicreveal', data: revealed.id }))
     if (revealed.value === 'Q') {
       dispatch(applyClock('chainedqueen'))
-      dispatch(lockTurn({ channel: 'user:psychicreveal' }))
+      await playCardInternal(cards, dispatch, getState)
     }
   },
 )
@@ -200,6 +198,37 @@ const sleepUntil = async (fn: () => boolean) => {
   }
 }
 
+const playCardInternal = async (
+  cards: CardModel[],
+  dispatch: GameDispatch,
+  getState: () => GameState,
+) => {
+  const destination = stackDestinationSelector(getState())
+  cards = cards.filter((c) => canCardPlay(c, destination))
+
+  if (cards.length === 0) {
+    throw new Error('card cannot play')
+  }
+
+  // Add to stack
+  dispatch(addToStack({ cards }))
+  dispatch(lockTurn({ channel: 'animate' }))
+  await sleep(400)
+  dispatch(unlockTurn({ channel: 'animate' }))
+
+  if (shouldBurn(getState())) {
+    dispatch(applyClock('burn'))
+    dispatch(lockTurn({ channel: 'burn' }))
+    await sleep(1500)
+    dispatch(unlockTurn({ channel: 'burn' }))
+  } else {
+    dispatch(applyCardEffect(cards))
+    dispatch(applyCardVisuals(cards))
+  }
+
+  await sleepUntil(() => getState().turnLocks.length === 0)
+}
+
 export const playCardThunk = createAppThunk(
   'counter/play:cards',
   async ({ cards, playerID }: PlayCardArgs, { dispatch, getState }) => {
@@ -207,35 +236,7 @@ export const playCardThunk = createAppThunk(
       throw new Error('Cannot play card as not player')
     }
 
-    const destination = stackDestinationSelector(getState())
-    cards = cards.filter((c) => canCardPlay(c, destination))
-
-    const effect = getCardEffect(cards, getState())
-
-    let aceTarget: string = undefined
-
-    if (cards.length === 0) {
-      throw new Error('card cannot play')
-    }
-
-    // Add to stack
-    dispatch(addToStack({ cards }))
-    dispatch(lockTurn({ channel: 'animate' }))
-    await sleep(400)
-    dispatch(unlockTurn({ channel: 'animate' }))
-
-    if (shouldBurn(getState())) {
-      dispatch(applyClock('burn'))
-      dispatch(lockTurn({ channel: 'burn' }))
-      await sleep(1500)
-      dispatch(unlockTurn({ channel: 'burn' }))
-    } else {
-      dispatch(applyCardEffect(cards))
-      dispatch(applyCardVisuals(cards))
-    }
-
-    await sleepUntil(() => getState().turnLocks.length === 0)
-    aceTarget = getState().local.targetUID
+    await playCardInternal(cards, dispatch, getState)
 
     // Replenish stack
     const tier = activeTierSelector(getState())
@@ -248,7 +249,7 @@ export const playCardThunk = createAppThunk(
       dispatch(unlockTurn({ channel: 'user:replenish' }))
     }
 
-    return aceTarget || getNextPlayer(getState())
+    return getState().local.targetUID || getNextPlayer(getState())
   },
 )
 
@@ -309,8 +310,10 @@ const counterSlice = createSlice({
       switch (effect) {
         case 'ace':
           state.turnLocks.push('user:target')
+          break
         case 'ww7':
           state.direction *= -1
+          break
         case 'psychic':
           const faceDowns = player.cards.filter((c) => c.tier === 0)
           const count = Math.min(cards.length, faceDowns.length)
@@ -326,6 +329,7 @@ const counterSlice = createSlice({
 
           break
         default:
+          break
       }
 
       if (card.value !== 'Q') {
@@ -430,7 +434,7 @@ const counterSlice = createSlice({
       }
     })
     builder.addCase(applyCardVisuals.fulfilled, (state, action) => {
-      state.turnClocks = []
+      //state.turnClocks = []
     })
   },
 })

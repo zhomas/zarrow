@@ -10,6 +10,7 @@ export const getDummyState = (): GameState => ({
   queue: ['a'],
   turnLocks: [],
   turnClocks: [],
+  afterimage: [],
   players: [
     {
       id: 'a',

@@ -2,7 +2,8 @@ import it from 'ava'
 import { GameState, getNextPlayer } from '..'
 
 it('proceeds to the next player after a psychic reveal', (t) => {
-  const state: GameState = {
+  const next = getNextPlayer({
+    afterimage: [],
     direction: -1,
     queue: ['NRUF3fQBIvTw8GkKMAoaMH9z6wC2'],
     players: [
@@ -229,9 +230,7 @@ it('proceeds to the next player after a psychic reveal', (t) => {
     },
     turnClocks: [],
     focused: '',
-  }
-
-  const next = getNextPlayer(state)
+  })
 
   t.is(next, 'veCwfxLSOXRjyxxZD38OxQY9uEQ2')
 })

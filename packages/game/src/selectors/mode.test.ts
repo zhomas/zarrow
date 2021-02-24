@@ -13,6 +13,7 @@ it('requires playing from the face ups when a card can play', (t) => {
   const mode = selector({
     burnt: [],
     turnClocks: [],
+    afterimage: [],
     direction: 1,
     pickupPile: [],
     turnLocks: [],
@@ -42,6 +43,7 @@ it('prompts a pickup when no face up card can play', (t) => {
     pickupPile: [],
     turnLocks: [],
     turnClocks: [],
+    afterimage: [],
     queue: ['abc'],
     stack: [createCard('A', 'S')],
     players: [
@@ -69,6 +71,7 @@ it('requires playing from the face downs even when no card can play', (t) => {
     turnLocks: [],
     turnClocks: [],
     queue: ['abc'],
+    afterimage: [],
     stack: [createCard('A', 'S')],
     players: [
       {
@@ -95,6 +98,7 @@ it('requires pickup when the revealed facedown card cannot play on the stack', (
     turnClocks: [],
     queue: ['abc'],
     turnLocks: [],
+    afterimage: [],
     stack: [createCard('A', 'S')],
     players: [
       {
@@ -122,6 +126,7 @@ it('requires no pickup with a falsy focus card', (t) => {
     turnClocks: [],
     queue: ['abc'],
     turnLocks: [],
+    afterimage: [],
     stack: [createCard('A', 'S')],
     players: [
       {
@@ -148,6 +153,7 @@ it('enters psychic reveal mode when I play a queen', async (t) => {
     pickupPile: [],
     turnClocks: [],
     queue: ['abc'],
+    afterimage: [],
     turnLocks: ['user:psychicreveal'],
     stack: [createCard('A', 'S')],
     players: [
@@ -172,6 +178,7 @@ it('highlights my hand if active', (t) => {
   const location = selector({
     direction: 1,
     turnClocks: [],
+    afterimage: [],
     queue: ['a', 'b'],
     players: [
       {
@@ -219,6 +226,7 @@ it('highlights my face ups if active', (t) => {
     queue: ['abc'],
     turnClocks: [],
     turnLocks: [],
+    afterimage: [],
     stack: [createCard('A', 'S')],
     players: [
       {
@@ -246,6 +254,7 @@ it('highlights my opponents', (t) => {
     turnClocks: [],
     queue: ['def'],
     turnLocks: [],
+    afterimage: [],
     stack: [createCard('A', 'S')],
     players: [
       {
@@ -282,6 +291,7 @@ it('highlights my face downs if active', (t) => {
     turnClocks: [],
     queue: ['abc'],
     turnLocks: [],
+    afterimage: [],
     stack: [createCard('A', 'S')],
     players: [
       {
@@ -306,6 +316,7 @@ it('highlights the stack if I need to pick up', (t) => {
     turnClocks: [],
     queue: ['abc'],
     turnLocks: [],
+    afterimage: [],
     stack: [createCard('A', 'S')],
     players: [
       {
@@ -657,6 +668,7 @@ it('highlights my tiers while revealing', async (t) => {
       },
     ],
     focused: '',
+    afterimage: [],
   })
 
   t.deepEqual(mode, ['playerID', 'abc'])

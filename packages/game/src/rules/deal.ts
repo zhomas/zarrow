@@ -1,3 +1,4 @@
+import { createCardByID } from '../deck'
 import { GameState } from '../game.slice'
 import { CardModel, PlayerModel } from '../types'
 import { getWrappedIndex } from '../utils'

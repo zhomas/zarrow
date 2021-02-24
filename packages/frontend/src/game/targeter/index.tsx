@@ -19,15 +19,42 @@ const BottomThing = styled.div`
   }
 `
 
-const _Targeter: FC<Props> = ({ active, uid, children, bombsAway }) => {
+const TopThing = styled.div`
+  &&& {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 10;
+    text-align: center;
+    pointer-events: none;
+    padding: 136px;
+    color: white;
+  }
+`
+
+const _Targeter: FC<Props> = ({
+  activeTarget,
+  activeReveal,
+  uid,
+  children,
+  bombsAway,
+  psychicReveals,
+  chaining,
+}) => {
   const [targ, setTarg] = useState('')
 
   useEffect(() => {
-    document.body.classList.toggle('targeting', active)
-  }, [active])
+    document.body.classList.toggle('targeting', activeTarget)
+  }, [activeTarget])
+
+  useEffect(() => {
+    document.body.classList.toggle('revealing', activeReveal)
+  }, [activeReveal])
 
   const getPlayerHighlight = (id: string) => {
-    if (!active) return 'none'
+    if (!activeTarget) return 'none'
     if (id === uid) return 'none'
     if (targ === id) return 'ace:hover'
 
@@ -37,7 +64,8 @@ const _Targeter: FC<Props> = ({ active, uid, children, bombsAway }) => {
   return (
     <>
       {children({
-        isTargeting: active,
+        isTargeting: activeTarget,
+        isRevealing: activeReveal,
         targetID: targ,
         screenComponent: <Screen />,
         getCurrentHighlight: getPlayerHighlight,
@@ -45,10 +73,20 @@ const _Targeter: FC<Props> = ({ active, uid, children, bombsAway }) => {
         fire: () => bombsAway(targ),
       })}
 
-      {active && (
+      {activeTarget && (
         <>
           {' '}
           <BottomThing>Pick a target</BottomThing>
+        </>
+      )}
+
+      {activeReveal && (
+        <>
+          {' '}
+          <TopThing>
+            <h4>Psychic reveal ({psychicReveals})</h4>
+            {chaining && <h5>CHAIN!</h5>}
+          </TopThing>
         </>
       )}
     </>
@@ -57,6 +95,7 @@ const _Targeter: FC<Props> = ({ active, uid, children, bombsAway }) => {
 
 interface ChildrenProps {
   isTargeting: boolean
+  isRevealing: boolean
   targetID: string
   screenComponent: JSX.Element
   setTarget: (id: string) => void
@@ -68,7 +107,11 @@ const mapState = (state: GameState, props: OwnProps) => {
   const selectMode = userModeSelector(props.uid)
   const mode = selectMode(state)
   return {
-    active: mode === 'play:target',
+    activeReveal: mode === 'play:reveal',
+    activeTarget: mode === 'play:target',
+    chaining: state.turnClocks.includes('chainedqueen'),
+    psychicReveals: state.turnLocks?.filter((l) => l === 'user:psychicreveal')
+      .length,
   }
 }
 

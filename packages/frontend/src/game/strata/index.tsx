@@ -37,14 +37,10 @@ const _Strata: FC<Props> = ({
       const fn = ok ? playCard : focusCard
       fn(c)
     }
-
-    if (mode === 'play:reveal') {
-      revealCard(c)
-    }
   }
 
   const renderDowns = () => {
-    if (mode === 'play:reveal') return null
+    if (revealing) return null
     return (
       <div style={{ display: 'flex' }}>
         {downs.map(({ card }) => (
@@ -62,7 +58,7 @@ const _Strata: FC<Props> = ({
   }
 
   const renderReveal = () => {
-    if (mode !== 'play:reveal') return null
+    if (!revealing) return null
     return (
       <div
         style={{
@@ -76,7 +72,7 @@ const _Strata: FC<Props> = ({
         {downs.map(({ card }) => (
           <FluidCard
             key={card.id}
-            onClick={() => handleClickDown(card)}
+            onClick={() => revealCard(card)}
             card={card}
             variant="default"
             style={{ width: 90 }}
@@ -110,16 +106,19 @@ const _Strata: FC<Props> = ({
         }}
       >
         <motion.div
-          style={{ display: 'flex' }}
           initial={{ y: 0 }}
-          animate={{ y: mode === 'play:reveal' ? '-100%' : 0 }}
+          animate={{ y: revealing ? -200 : 0 }}
           transition={{ type: 'tween', ease: 'easeInOut' }}
         >
-          {ups.map(({ card }) => {
-            const props = curried(card, true)
+          <div style={{ display: 'flex' }}>
+            {ups.map(({ card }) => {
+              const props = curried(card, true)
 
-            return <FluidCard key={card.id} {...props} style={{ width: 65 }} />
-          })}
+              return (
+                <FluidCard key={card.id} {...props} style={{ width: 65 }} />
+              )
+            })}
+          </div>
         </motion.div>
       </div>
       {renderDowns()}
@@ -133,13 +132,11 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     state.players.find((p) => p.id === ownProps.ownerID)?.cards || []
   const dest = stackDestinationSelector(state)
   const selector = userModeSelector(ownProps.ownerID)
-  const revealing =
-    selector(state) === 'play:reveal' && state.queue[0] === ownProps.ownerID
+
   return {
     mode: selector(state),
     downs: myCards.filter((c) => c.tier === 0),
     ups: myCards.filter((c) => c.tier === 1),
-    revealing,
     canCardPlay: (c: CardModel) => canCardPlay(c, dest),
     isFocused: (c: CardModel) => !!state.focused && state.focused === c.id,
   }
@@ -167,6 +164,7 @@ const connector = connect(mapState, mapDispatch)
 interface OwnProps {
   ownerID: string
   uid: string
+  revealing: boolean
   curried: (c: CardModel, a: boolean) => FluidCardProps
   nudge?: 'up' | 'down'
 }

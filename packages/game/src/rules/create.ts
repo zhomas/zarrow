@@ -10,6 +10,7 @@ export const createGame = (): GameState => {
     pickupPile: [],
     players: [],
     turnLocks: [],
+    afterimage: [],
     local: {
       faceUpPickID: '',
       targetUID: '',

@@ -24,6 +24,7 @@ import { Sparkler } from './sparkler'
 import { EnemyHand } from './hand/enemy'
 
 import { PlayerHand } from './hand/player'
+import { PlayerTiers } from './tiers/player.tiers'
 import { Targeter } from './targeter'
 
 const _GameView: FC<Props> = ({
@@ -49,7 +50,13 @@ const _GameView: FC<Props> = ({
   return (
     <AnimateSharedLayout type="switch">
       <Targeter uid={uid}>
-        {({ screenComponent, setTarget, getCurrentHighlight, fire }) => (
+        {({
+          screenComponent,
+          setTarget,
+          getCurrentHighlight,
+          fire,
+          isRevealing,
+        }) => (
           <>
             <StyledGame>
               <div className="h1">
@@ -70,16 +77,23 @@ const _GameView: FC<Props> = ({
                   highlight={getCurrentHighlight(opponent.id)}
                   onHoverEnter={() => setTarget(opponent.id)}
                   onHoverExit={() => setTarget('')}
+                  isRevealing={false}
                   onClick={fire}
                 />
               </div>
               <div className="s1">
-                <Miniplayer
+                <PlayerTiers
+                  uid={uid}
+                  revealing={isRevealing}
+                  buildPropsFaceUp={buildForPlayerStrata}
+                />
+                {/* <Miniplayer
                   ownerID={uid}
                   curried={buildForPlayerStrata}
+                  isRevealing={isRevealing}
                   nudge="up"
                   uid={uid}
-                />
+                /> */}
               </div>
               <div className="table"></div>
               <div className="table-main">

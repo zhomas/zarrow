@@ -24,6 +24,7 @@ it('chooses from the active tier', (t) => {
     pickupPile: [],
     turnClocks: [],
     burnt: [],
+    afterimage: [],
     direction: 1,
     queue: ['a'],
     players: [
@@ -206,6 +207,42 @@ it('burns the stack when a 10 is played', async (t) => {
   t.is(st.stack.length, 0)
 })
 
+it('gives me another go when I burn', async (t) => {
+  const action = playCardThunk({
+    cards: [createCard('10', 'D')],
+    playerID: 'a',
+  })
+
+  const store = getStore({
+    queue: ['a'],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [{ card, tier: 2 }],
+      },
+      {
+        id: 'b',
+        faction: 0,
+        displayName: '',
+        cards: [{ card, tier: 2 }],
+      },
+      {
+        id: 'c',
+        faction: 0,
+        displayName: '',
+        cards: [{ card, tier: 2 }],
+      },
+    ],
+  })
+
+  await store.dispatch(action)
+
+  const st = store.getState()
+  t.is(activePlayerSelector(st).id, 'a')
+})
+
 it('burns when a fourth 8 is played', async (t) => {
   const st = {
     ...state,
@@ -282,6 +319,7 @@ it('properly increments the turn when I play an ace', async (t) => {
   const data: GameState = {
     turnClocks: [],
     stack: [],
+    afterimage: [],
     players: [
       {
         cards: [
@@ -317,6 +355,39 @@ it('properly increments the turn when I play an ace', async (t) => {
     playCardThunk({ cards: [createCard('A', 'H')], playerID: 'a' }),
   )
   t.is(store.getState().queue[0], 'b')
+})
+
+it('binds the turn when I ace someone', async (t) => {
+  const store = getStore({
+    players: [
+      {
+        cards: [
+          { tier: 2, card: { suit: 'C', id: 'KC', value: 'K' } },
+          { tier: 2, card: { suit: 'H', id: 'AH', value: 'A' } },
+        ],
+        displayName: 'bbnmnb',
+        faction: 0,
+        id: 'a',
+      },
+      {
+        cards: [{ tier: 2, card: { suit: 'D', id: '3D', value: '3' } }],
+        displayName: 'bmnbmnb',
+        faction: 1,
+        id: 'b',
+      },
+    ],
+    queue: ['a'],
+  })
+
+  store.dispatch(
+    playCardThunk({ cards: [createCard('A', 'H')], playerID: 'a' }),
+  )
+
+  await new Promise((r) => setTimeout(r, 1000))
+
+  const state = store.getState()
+  t.truthy(state.turnLocks.includes('user:target'))
+  t.falsy(state.turnLocks.includes('user:psychicreveal'))
 })
 
 it('allows me to pick up when I ace someone', async (t) => {
@@ -414,26 +485,6 @@ it('treats 8s as invisible', async (t) => {
   )
 
   t.is(stackDestinationSelector(getState()).id, '3S')
-
-  //   addToStack(state, card)
-  //   t.is(state.stack.length, 3)
-})
-
-it('clears the afterimage when I play a non-queen', async (t) => {
-  const { getState, dispatch } = getStore({
-    queue: ['a'],
-    stack: [createCard('8', 'D'), createCard('3', 'S')],
-    afterimage: [createCardByID('QD')],
-  })
-
-  t.is(stackDestinationSelector(getState()).id, 'QD')
-
-  await dispatch(
-    playCardThunk({ cards: [createCard('2', 'H')], playerID: 'a' }),
-  )
-
-  t.is(getState().afterimage.length, 0)
-  t.is(stackDestinationSelector(getState()).id, '2H')
 })
 
 it('reverses direction when a 7 is played', async (t) => {

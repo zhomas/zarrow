@@ -37,7 +37,12 @@ export const StyledGame = styled.main`
     grid-area: 4 / 3 / 5 / 4;
     display: flex;
     flex-direction: column-reverse;
+
+    .revealing & {
+      z-index: 10;
+    }
   }
+
   .s2 {
     grid-area: 2 / 3 / 3 / 4;
     z-index: 1;
@@ -57,6 +62,7 @@ export const StyledGame = styled.main`
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 0;
   }
   .br {
     grid-area: 4 / 4 / 5 / 5;
@@ -78,6 +84,10 @@ export const Screen = styled.div`
   pointer-events: none;
 
   .targeting & {
+    opacity: 1;
+  }
+
+  .revealing & {
     opacity: 1;
   }
 `

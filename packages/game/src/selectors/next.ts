@@ -1,13 +1,18 @@
 import { GameState } from '../game.slice'
+import { CardModel } from '../types'
 import { getWrappedIndex } from '../utils'
 
-export const getNextPlayer = (state: GameState) => {
+export const getNextPlayer = (state: GameState, played: CardModel[]) => {
   const dir = Math.sign(state.direction)
   const { players } = state
   const currentID = state.queue[0]
 
+  const hasPlayed = (val: CardModel['value']) => {
+    return played.some((c) => c.value === val)
+  }
+
   if (players.length < 2) return currentID
-  if (state.stack.length === 0) return currentID
+  if (hasPlayed('10')) return currentID
 
   const topOfStack = state.stack[0]
   let index = players.findIndex((p) => p.id === currentID) + 1 * dir

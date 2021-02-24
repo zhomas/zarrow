@@ -249,7 +249,7 @@ export const playCardThunk = createAppThunk(
       dispatch(unlockTurn({ channel: 'user:replenish' }))
     }
 
-    return getState().local.targetUID || getNextPlayer(getState())
+    return getState().local.targetUID || getNextPlayer(getState(), cards)
   },
 )
 

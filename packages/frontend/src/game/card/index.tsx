@@ -2,6 +2,7 @@ import React, { FC, useEffect } from 'react'
 import { AnimationProps, motion } from 'framer-motion'
 import type { FluidCardProps } from '../../typings'
 import { styled } from '@linaria/react'
+import { CARD_FLIGHT_TIME } from 'game'
 
 type Props = FluidCardProps & {
   keyPrefix?: string
@@ -101,6 +102,10 @@ export const FluidCard: FC<Props> = ({
         animate={{
           rotateY: faceDown ? 180 : 0,
           y: selected ? -20 : 0,
+          transition: {
+            rotateY: 0.1,
+            duration: CARD_FLIGHT_TIME / 1000,
+          },
         }}
       >
         <motion.div>

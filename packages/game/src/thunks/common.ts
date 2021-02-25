@@ -11,6 +11,7 @@ import {
   startBurn,
   completeBurn,
 } from '..'
+import { CARD_FLIGHT_TIME } from '../constants'
 import { TurnClock } from '../types'
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -51,7 +52,7 @@ export const playCardInternal = async (
   getState: () => GameState,
 ) => {
   dispatch(addToStack({ cards }))
-  await sleep(400)
+  await sleep(CARD_FLIGHT_TIME + 50)
 
   if (shouldBurn(getState())) {
     dispatch(startBurn())

@@ -3,6 +3,7 @@ import { GameState, hasLock } from 'game'
 import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
+import { time } from 'console'
 
 const wobbleRise: Variant = {
   x: 10,
@@ -56,12 +57,12 @@ const _Sparkler: FC<Props> = ({ show, children, burning, effect }) => {
   const [showEffect, setShowEffect] = useState(false)
 
   useEffect(() => {
-    if (!!effect) {
-      setShowEffect(true)
-      setTimeout(() => {
-        setShowEffect(false)
-      }, 2000)
-    }
+    setShowEffect(!!effect)
+    const timeout = setTimeout(() => {
+      setShowEffect(false)
+    }, 2000)
+
+    return () => clearTimeout(timeout)
   }, [effect])
 
   const renderSparkles = () => {

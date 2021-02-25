@@ -2,7 +2,7 @@ import { createCardByID } from '../deck'
 import { lockTurn, pickupStack } from '../game.slice'
 import { activeTierSelector, hasLock } from '../selectors'
 import { CardModel } from '../types'
-import { createAppThunk } from './common'
+import { createAppThunk, sleepUntil } from './common'
 
 export const pickupThunk = createAppThunk(
   'counter/pickup:stack',

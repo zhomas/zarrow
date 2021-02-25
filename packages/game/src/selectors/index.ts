@@ -1,5 +1,4 @@
-import { canCardPlay, GameState } from '..'
-import { createCard } from '../deck'
+import { canCardPlay, CardModel, GameState } from '..'
 import { stackDestinationSelector } from './destination'
 
 export * from './mode'
@@ -71,3 +70,26 @@ export const mustPickUpSelector = (state: GameState) => {
   const options = activeTierSelector(state)
   return !options.some((c) => canCardPlay(c.card, dest))
 }
+
+export const getCardEffect = (cards: CardModel[], state: GameState) => {
+  const [card] = cards
+  const player = activePlayerSelector(state)
+  if (card.value === 'A') return 'ace'
+  if (card.value === '5') return 'skip'
+  if (card.value === '8') return 'glide'
+  if (card.value === '2') return 'neutralise'
+
+  if (card.value === 'Q') {
+    if (player.cards.filter((c) => c.tier === 0).length > 0) {
+      return 'psychic'
+    }
+  }
+  if (card.value === 'K') return 'steal'
+  if (cards.some((c) => c.value === '7')) {
+    const count = cards.filter((c) => c.value === '7').length
+    if (count % 2 === 1) return 'ww7'
+    return 'dw7'
+  }
+}
+
+export type StackEffect = ReturnType<typeof getCardEffect>

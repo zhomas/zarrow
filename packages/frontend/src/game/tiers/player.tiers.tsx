@@ -8,8 +8,8 @@ import {
   userModeSelector,
   stackDestinationSelector,
   canCardPlay,
+  highlightedLocationSelector,
 } from 'game'
-import { createCardByID } from 'game/dist/deck'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCardProps } from '../../typings'
@@ -26,6 +26,7 @@ const _PlayerTiers: FC<Props> = ({
   revealCard,
   focusCard,
   focused,
+  throb,
 }) => {
   const getFaceDownClickHandler = (c: CardModel) => {
     switch (mode) {
@@ -51,22 +52,30 @@ const _PlayerTiers: FC<Props> = ({
   })
 
   return (
-    <Tiers ups={propsUp} downs={propsDown} revealing={revealing} nudge={'up'} />
+    <Tiers
+      ups={propsUp}
+      downs={propsDown}
+      revealing={revealing}
+      nudge={'up'}
+      throb={throb}
+    />
   )
 }
 
-const mapState = (state: GameState, { uid }: OwnProps) => {
+const mapState = (state: GameState, { uid, revealing }: OwnProps) => {
   const cards = state.players.find((p) => p.id === uid)?.cards || []
   const ups = cards.filter((c) => c.tier === 1).map((c) => c.card)
   const downs = cards.filter((c) => c.tier === 0).map((c) => c.card)
   const destination = stackDestinationSelector(state)
   const selector = userModeSelector(uid)
+  const highlight = highlightedLocationSelector(uid)(state)
 
   return {
     ups,
     downs,
     focused: state.focused,
     mode: selector(state),
+    throb: !revealing && highlight[1] === uid,
     canCardPlay: (c: CardModel) => canCardPlay(c, destination),
   }
 }

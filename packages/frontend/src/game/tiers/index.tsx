@@ -3,12 +3,14 @@ import type { FluidCardProps } from '../../typings'
 import { styled } from '@linaria/react'
 import { FluidCard } from '../card'
 import { motion } from 'framer-motion'
+import { Throbber } from '../throbber'
 
 interface Props {
   ups: FluidCardProps[]
   downs: FluidCardProps[]
   nudge: 'up' | 'down'
   revealing: boolean
+  throb: boolean
 }
 
 const Wrapper = styled.div`
@@ -33,7 +35,7 @@ const Downs = styled(motion.div)`
   justify-content: center;
 `
 
-export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing }) => {
+export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
   const getOffsetUps = () => {
     if (revealing) return -230
 
@@ -61,6 +63,7 @@ export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing }) => {
           <FluidCard key={props.card.id} {...props} />
         ))}
       </Downs>
+      {throb && <Throbber point="right" left={0} />}
     </Wrapper>
   )
 }

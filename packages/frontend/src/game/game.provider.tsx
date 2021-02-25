@@ -23,6 +23,7 @@ export const GameProvider: FC<ProviderProps> = ({
         const { local, ...state }: GameState = api.getState()
         const data: GameState = {
           ...state,
+          stackEffect: state.stackEffect || '',
           focused: state.focused || '',
         }
 

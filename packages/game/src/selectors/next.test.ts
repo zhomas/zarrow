@@ -234,6 +234,7 @@ it('proceeds to the next player after a psychic reveal', (t) => {
       focused: '',
     },
     [createCardByID('QS')],
+    false,
   )
 
   t.is(next, 'veCwfxLSOXRjyxxZD38OxQY9uEQ2')

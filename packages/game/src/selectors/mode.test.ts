@@ -1,11 +1,7 @@
 import it from 'ava'
-import {
-  getStore,
-  hasLock,
-  highlightedLocationSelector,
-  playCardThunk,
-} from '..'
+import { getStore, hasLock, highlightedLocationSelector } from '..'
 import { createCard } from '../deck'
+import { playCardThunk } from '../thunks/play'
 import { userModeSelector } from './mode'
 
 it('requires playing from the face ups when a card can play', (t) => {
@@ -356,7 +352,7 @@ it('highlights the replenish pile when necessary', async (t) => {
     playCardThunk({ cards: [createCard('3', 'S')], playerID: 'abc' }),
   )
 
-  await new Promise((r) => setTimeout(r, 500))
+  await new Promise((r) => setTimeout(r, 1500))
 
   const location = selector(store.getState())
 

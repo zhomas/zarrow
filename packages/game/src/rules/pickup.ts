@@ -1,7 +1,8 @@
 import { createCard, createCardByID } from '../deck'
 import { GameState } from '../game.slice'
 import { CardModel } from '../types'
-import { activePlayerSelector } from '../selectors'
+import { activePlayerSelector, getNextPlayer } from '../selectors'
+import { getWrappedIndex } from '../utils'
 
 export const pickup = (state: GameState, ...cards: CardModel[]) => {
   const player = activePlayerSelector(state)
@@ -25,4 +26,15 @@ export const pickup = (state: GameState, ...cards: CardModel[]) => {
   state.queue.shift()
   state.stack = []
   state.focused = ''
+
+  if (state.queue.length === 0) {
+    const dir = state.direction * -1
+    const playerIndex = state.players.findIndex((p) => p.id === player.id)
+    const wrappedIndex = getWrappedIndex(
+      playerIndex + dir,
+      state.players.length,
+    )
+    const p = state.players[wrappedIndex]
+    state.queue = [p.id]
+  }
 }

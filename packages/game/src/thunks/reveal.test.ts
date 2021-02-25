@@ -1,14 +1,16 @@
 import it from 'ava'
 import {
-  activePlayerSelector,
-  getStore,
   hasLock,
-  playCardThunk,
-  revealThunk,
-  stackDestinationSelector,
+  getStore,
   unlockTurn,
-} from '.'
-import { createCard, createCardByID } from './deck'
+  activePlayerSelector,
+  stackDestinationSelector,
+} from '..'
+import { createCard, createCardByID } from '../deck'
+
+import { playCardThunk } from './play'
+import { revealThunk } from './reveal'
+
 const isQueenLocked = hasLock('user:psychicreveal')
 
 it('blocks the turn when a queen is played', async (t) => {
@@ -372,4 +374,171 @@ it('chains when a queen is revealed', async (t) => {
   )
 
   t.is(isQueenLocked(store.getState()), true)
+})
+
+it('reveals when its my turn', async (t) => {
+  const store = getStore({
+    queue: ['a'],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'H'), tier: 0 },
+          { card: createCard('J', 'S'), tier: 0 },
+        ],
+      },
+      {
+        id: 'b',
+        faction: 1,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'H'), tier: 0 },
+          { card: createCard('J', 'S'), tier: 0 },
+        ],
+      },
+    ],
+    turnLocks: ['user:psychicreveal'],
+  })
+
+  await store.dispatch(
+    revealThunk({
+      cards: [createCard('J', 'S')],
+      playerID: 'a',
+    }),
+  )
+
+  const ups = store.getState().players[0].cards.filter((c) => c.tier === 1)
+    .length
+
+  t.is(ups, 1)
+})
+
+it('advances to the next player once I complete a reveal', async (t) => {
+  const store = getStore({
+    queue: ['a'],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'H'), tier: 0 },
+          { card: createCard('J', 'S'), tier: 0 },
+        ],
+      },
+      {
+        id: 'b',
+        faction: 1,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'H'), tier: 0 },
+          { card: createCard('J', 'S'), tier: 0 },
+        ],
+      },
+    ],
+  })
+
+  const play = playCardThunk({ cards: [createCard('Q', 'H')], playerID: 'a' })
+  const reveal = revealThunk({
+    cards: [createCard('J', 'S')],
+    playerID: 'a',
+  })
+
+  const x = store.dispatch(play)
+  await new Promise((r) => setTimeout(r, 1000))
+
+  await store.dispatch(reveal)
+
+  await x
+
+  t.is(activePlayerSelector(store.getState()).id, 'b')
+})
+
+it('doesnt reveal if no turn lock', async (t) => {
+  const store = getStore({
+    queue: ['a'],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'H'), tier: 0 },
+          { card: createCard('J', 'S'), tier: 0 },
+        ],
+      },
+      {
+        id: 'b',
+        faction: 1,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'H'), tier: 0 },
+          { card: createCard('J', 'S'), tier: 0 },
+        ],
+      },
+    ],
+    turnLocks: [],
+  })
+
+  console.log(store.getState())
+
+  await store.dispatch(
+    revealThunk({
+      cards: [createCard('J', 'S')],
+      playerID: 'a',
+    }),
+  )
+
+  console.log(store.getState())
+
+  const ups = store.getState().players[0].cards.filter((c) => c.tier === 1)
+    .length
+
+  t.is(ups, 0)
+})
+
+it('doesnt let me reveal if its not my turn', async (t) => {
+  const store = getStore({
+    queue: ['a'],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'H'), tier: 0 },
+          { card: createCard('J', 'S'), tier: 0 },
+        ],
+      },
+      {
+        id: 'b',
+        faction: 1,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'H'), tier: 0 },
+          { card: createCard('J', 'S'), tier: 0 },
+        ],
+      },
+    ],
+    turnLocks: ['user:psychicreveal'],
+  })
+
+  await store.dispatch(
+    revealThunk({
+      cards: [createCard('J', 'S')],
+      playerID: 'b',
+    }),
+  )
+
+  t.is(activePlayerSelector(store.getState()).id, 'a')
+  t.is(
+    store.getState().players[1].cards.every((c) => c.tier === 0),
+    true,
+  )
+  t.is(
+    store.getState().players[0].cards.every((c) => c.tier === 0),
+    true,
+  )
 })

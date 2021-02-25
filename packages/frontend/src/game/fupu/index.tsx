@@ -1,4 +1,10 @@
-import { CardModel, GameDispatch, GameState, unlockTurn } from 'game'
+import {
+  activePlayerSelector,
+  CardModel,
+  GameDispatch,
+  GameState,
+  unlockTurn,
+} from 'game'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
@@ -36,14 +42,18 @@ const _FUPU: FC<Props> = ({ show, list, handleClick }) => {
   )
 }
 
-const mapState = (state: GameState, ownProps: OwnProps) => {
+const mapState = (state: GameState, { uid }: OwnProps) => {
   const list =
     state.players
-      .find((p) => p.id === ownProps.uid)
+      .find((p) => p.id === uid)
       ?.cards.filter((c) => c.tier === 1) || []
 
+  const active = activePlayerSelector(state)
+
   return {
-    show: state.turnLocks?.some((c) => c === 'user:faceuptake'),
+    show:
+      active.id === uid &&
+      state.turnLocks?.some((c) => c === 'user:faceuptake'),
     list,
   }
 }

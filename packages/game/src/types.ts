@@ -33,3 +33,21 @@ export interface PlayerModel {
   faction: number
   cards: PlayerCard[]
 }
+
+export type TurnLock =
+  | 'animate'
+  | 'burn'
+  | 'user:replenish'
+  | 'user:target'
+  | 'user:faceuptake'
+  | 'user:psychicreveal'
+
+export type TurnClock =
+  | 'ww7'
+  | 'skip'
+  | 'glideonby'
+  | 'dw7'
+  | 'burn'
+  | 'reset'
+  | 'chainedqueen'
+  | 'queen'

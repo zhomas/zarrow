@@ -1,9 +1,6 @@
-import { AnimatePresence, motion, useAnimation, Variant } from 'framer-motion'
+import { AnimatePresence, motion, Variant } from 'framer-motion'
 import { GameState, hasLock } from 'game'
-import { nanoid } from 'nanoid'
-import React, { FC, useState } from 'react'
-import { useLayoutEffect } from 'react'
-import { useRef } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
 
@@ -55,34 +52,35 @@ const BurnBox = styled(motion.div)`
   align-items: center;
 `
 
-const _Sparkler: FC<Props> = ({
-  show,
-  children,
-  sparkles,
-  burning,
-  weirdWackySevensTime,
-}) => {
+const _Sparkler: FC<Props> = ({ show, children, burning, effect }) => {
+  const [showEffect, setShowEffect] = useState(false)
+
+  useEffect(() => {
+    if (!!effect) {
+      setShowEffect(true)
+      setTimeout(() => {
+        setShowEffect(false)
+      }, 2000)
+    }
+  }, [effect])
+
   const renderSparkles = () => {
-    return sparkles.map((sp) => {
-      switch (sp) {
-        case 'burn':
-          return <motion.h3 animate={wobbleRise}>Burn!</motion.h3>
-        case 'ww7':
-          return (
-            <motion.h3 animate={wobbleRise}>Weird whacky sevens time</motion.h3>
-          )
-        case 'skip':
-          return <motion.h3 animate={wobbleRise}>Skip a go</motion.h3>
-        case 'dw7':
-          return (
-            <motion.h3 animate={wobbleRise}>Double whacky sevens</motion.h3>
-          )
-        case 'glideonby':
-          return <motion.h3 animate={wobbleRise}>Glide on by</motion.h3>
-        default:
-          break
-      }
-    })
+    if (!showEffect) return null
+
+    switch (effect) {
+      case 'ww7':
+        return (
+          <motion.h3 animate={wobbleRise}>Weird whacky sevens time</motion.h3>
+        )
+      case 'glide':
+        return <motion.h3 animate={wobbleRise}>Glide on by</motion.h3>
+      case 'skip':
+        return <motion.h3 animate={wobbleRise}>Skip a go</motion.h3>
+      case 'dw7':
+        return <motion.h3 animate={wobbleRise}>Double whacky sevens</motion.h3>
+      default:
+        break
+    }
   }
 
   return (
@@ -116,6 +114,7 @@ const mapState = (state: GameState) => {
 
   return {
     sparkles,
+    effect: state.stackEffect,
     show: state.stack.length > 0,
     burning: isBurning(state),
     weirdWackySevensTime: state.turnClocks.some((c) => c === 'ww7'),

@@ -1,49 +1,16 @@
-import { playCardThunk, unlockTurn } from './game.slice'
+import it from 'ava'
+import { getStore } from '..'
+import { createCard } from '../deck'
 import {
-  activeTierSelector,
   activePlayerSelector,
   stackDestinationSelector,
   hasLock,
-} from './selectors'
-import it from 'ava'
-import { CardModel } from './types'
-import { createCard, createCardByID } from './deck'
-import { GameState, getStore } from '.'
+} from '../selectors'
+import { unlockTurn, GameState } from '../game.slice'
+import { playCardThunk } from './play'
 
 const isBurning = hasLock('burn')
 const isReplenishing = hasLock('user:replenish')
-
-it('chooses from the active tier', (t) => {
-  const card: CardModel = {
-    value: '3',
-    suit: 'D',
-    id: '',
-  }
-
-  const a = activeTierSelector({
-    pickupPile: [],
-    turnClocks: [],
-    burnt: [],
-    afterimage: [],
-    direction: 1,
-    queue: ['a'],
-    players: [
-      {
-        id: 'a',
-        faction: 0,
-        displayName: '',
-        cards: [
-          { card, tier: 0 },
-          { card, tier: 0 },
-          { card, tier: 1 },
-        ],
-      },
-    ],
-    stack: [],
-  })
-
-  t.is(a.length, 1)
-})
 
 const card = createCard('3', 'D')
 const state = {
@@ -281,6 +248,7 @@ it('burns when four of a kind are added to the stack', async (t) => {
   const store = getStore(st)
   await store.dispatch(action)
   t.is(store.getState().stack.length, 0)
+  t.is(activePlayerSelector(store.getState()).id, 'a')
 })
 
 it('ignores 8s for four of a kind calculations', async (t) => {
@@ -793,4 +761,147 @@ it('doesnt hang the turn if the player has more than 4 cards', async (t) => {
     playCardThunk({ cards: [createCard('3', 'D')], playerID: 'a' }),
   )
   t.false(isReplenishing(store.getState()))
+})
+
+it('fixes the bug on monday evening', async (t) => {
+  const store = getStore({
+    direction: 1,
+    queue: ['gcBhHD5SwNbOyOvYnZfUwyJ9g053', 'UJgGkwFnmrcvVJ6Mescu9SfCYTP2'],
+    players: [
+      {
+        displayName: 'Rawlie',
+        cards: [
+          { card: { id: '4C', suit: 'C', value: '4' }, tier: 2 },
+          { card: { suit: 'D', id: '4D', value: '4' }, tier: 2 },
+          { tier: 2, card: { suit: 'D', id: '3D', value: '3' } },
+          { tier: 2, card: { id: 'AH', suit: 'H', value: 'A' } },
+          { card: { id: 'AC', suit: 'C', value: 'A' }, tier: 2 },
+          { tier: 2, card: { id: '8D', value: '8', suit: 'D' } },
+          { card: { value: 'K', suit: 'C', id: 'KC' }, tier: 2 },
+        ],
+        faction: 0,
+        id: 'UJgGkwFnmrcvVJ6Mescu9SfCYTP2',
+      },
+      {
+        displayName: 'Tom',
+        cards: [
+          { tier: 2, card: { value: '2', suit: 'H', id: '2H' } },
+          { card: { suit: 'D', value: '7', id: '7D' }, tier: 2 },
+        ],
+        faction: 1,
+        id: 'gcBhHD5SwNbOyOvYnZfUwyJ9g053',
+      },
+    ],
+    stack: [
+      { value: '3', id: '3S', suit: 'S' },
+      { suit: 'S', id: 'JS', value: 'J' },
+      { id: 'JD', value: 'J', suit: 'D' },
+      { id: '6S', value: '6', suit: 'S' },
+      { value: '6', suit: 'H', id: '6H' },
+      { id: '5C', suit: 'C', value: '5' },
+      { suit: 'C', value: '9', id: '9C' },
+    ],
+    burnt: [
+      { value: '10', id: '10H', suit: 'H' },
+      { value: '5', id: '5H', suit: 'H' },
+      { suit: 'S', value: '7', id: '7S' },
+      { value: '9', id: '9H', suit: 'H' },
+      { value: '2', id: '2S', suit: 'S' },
+      { suit: 'C', id: '8C', value: '8' },
+      { id: '10S', value: '10', suit: 'S' },
+      { suit: 'D', id: 'QD', value: 'Q' },
+    ],
+    pickupPile: [],
+    turnLocks: [],
+    afterimage: [],
+    local: { targetUID: '', faceUpPickID: '' },
+    turnClocks: [],
+    focused: '',
+  })
+
+  const action = playCardThunk({
+    cards: [createCard('7', 'D')],
+    playerID: 'gcBhHD5SwNbOyOvYnZfUwyJ9g053',
+  })
+
+  await store.dispatch(action)
+
+  t.is(
+    store.getState().stack.some((c) => c.id === '7D'),
+    true,
+  )
+})
+
+it('does nothing if its not my turn', async (t) => {
+  const store = getStore({
+    direction: 1,
+    queue: ['UJgGkwFnmrcvVJ6Mescu9SfCYTP2', 'gcBhHD5SwNbOyOvYnZfUwyJ9g053'],
+    players: [
+      {
+        displayName: 'Rawlie',
+        cards: [
+          { card: { id: '4C', suit: 'C', value: '4' }, tier: 2 },
+          { card: { suit: 'D', id: '4D', value: '4' }, tier: 2 },
+          { tier: 2, card: { suit: 'D', id: '3D', value: '3' } },
+          { tier: 2, card: { id: 'AH', suit: 'H', value: 'A' } },
+          { card: { id: 'AC', suit: 'C', value: 'A' }, tier: 2 },
+          { tier: 2, card: { id: '8D', value: '8', suit: 'D' } },
+          { card: { value: 'K', suit: 'C', id: 'KC' }, tier: 2 },
+        ],
+        faction: 0,
+        id: 'UJgGkwFnmrcvVJ6Mescu9SfCYTP2',
+      },
+      {
+        displayName: 'Tom',
+        cards: [
+          { tier: 2, card: { value: '2', suit: 'H', id: '2H' } },
+          { card: { suit: 'D', value: '7', id: '7D' }, tier: 2 },
+        ],
+        faction: 1,
+        id: 'gcBhHD5SwNbOyOvYnZfUwyJ9g053',
+      },
+    ],
+    stack: [
+      { value: '3', id: '3S', suit: 'S' },
+      { suit: 'S', id: 'JS', value: 'J' },
+      { id: 'JD', value: 'J', suit: 'D' },
+      { id: '6S', value: '6', suit: 'S' },
+      { value: '6', suit: 'H', id: '6H' },
+      { id: '5C', suit: 'C', value: '5' },
+      { suit: 'C', value: '9', id: '9C' },
+    ],
+    burnt: [
+      { value: '10', id: '10H', suit: 'H' },
+      { value: '5', id: '5H', suit: 'H' },
+      { suit: 'S', value: '7', id: '7S' },
+      { value: '9', id: '9H', suit: 'H' },
+      { value: '2', id: '2S', suit: 'S' },
+      { suit: 'C', id: '8C', value: '8' },
+      { id: '10S', value: '10', suit: 'S' },
+      { suit: 'D', id: 'QD', value: 'Q' },
+    ],
+    pickupPile: [],
+    turnLocks: [],
+    afterimage: [],
+    local: { targetUID: '', faceUpPickID: '' },
+    turnClocks: [],
+    focused: '',
+  })
+
+  const action = playCardThunk({
+    cards: [createCard('7', 'D')],
+    playerID: 'gcBhHD5SwNbOyOvYnZfUwyJ9g053',
+  })
+
+  await store.dispatch(action)
+
+  t.is(
+    store.getState().stack.some((c) => c.id === '7D'),
+    false,
+  )
+
+  t.is(
+    activePlayerSelector(store.getState()).id,
+    'UJgGkwFnmrcvVJ6Mescu9SfCYTP2',
+  )
 })

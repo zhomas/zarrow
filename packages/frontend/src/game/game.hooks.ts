@@ -41,6 +41,8 @@ const getNullishCard = (v: FluidCardProps['variant']) => (
   }
 }
 
+const isQueening = hasLock('user:psychicreveal')
+
 export const getCardProps = ({
   id,
   destID,
@@ -123,7 +125,7 @@ export const useCardBuilder = (uid: string) => {
   const player = useSelector(pSelect(uid))
   const userMode = useSelector(userModeSelector(uid))
   const active = useSelector(activeUserSelector)
-
+  const queening = useSelector(isQueening)
   const handCards = player?.cards.filter((c) => c.tier === 2)
 
   const focusedOnPlayerStrata = focused[1] === uid
@@ -195,6 +197,7 @@ export const useCardBuilder = (uid: string) => {
 
   const getFaceUpBuilder = () => {
     if (anim) return getNullishCard('idle')
+    if (queening) return getNullishCard('idle')
 
     return handCards?.length === 0 && focusedOnPlayerStrata
       ? curried

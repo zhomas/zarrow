@@ -69,6 +69,8 @@ const _Sparkler: FC<Props> = ({ show, children, burning, effect }) => {
     if (!showEffect) return null
 
     switch (effect) {
+      case 'ace':
+        return <motion.h3 animate={wobbleRise}>ACE</motion.h3>
       case 'ww7':
         return (
           <motion.h3 animate={wobbleRise}>Weird whacky sevens time</motion.h3>

@@ -8,6 +8,7 @@ import {
   highlightedLocationSelector,
   playCardThunk,
   stackDestinationSelector,
+  unlockTurn,
   userModeSelector,
 } from 'game'
 import { createCardByID } from 'game/dist/deck'
@@ -217,5 +218,45 @@ export const useCardBuilder = (uid: string) => {
             dispatch(playCardThunk({ cards, playerID: uid }))
           }
         : undefined,
+  }
+}
+
+const locksSelector = (state: GameState) => state.turnLocks
+
+export const useTargeting = (uid: string) => {
+  const [target, setTarget] = useState('')
+  const mode = useSelector(userModeSelector(uid))
+  const dispatch = useDispatch()
+  const locks = useSelector(locksSelector)
+
+  const activeReveal = mode === 'play:reveal'
+  const activeTarget = mode === 'play:target'
+
+  const getPlayerHighlight = (id: string) => {
+    if (!activeTarget) return 'none'
+    if (id === uid) return 'none'
+    if (target === id) return 'ace:hover'
+
+    return 'ace:able'
+  }
+
+  useEffect(() => {
+    document.body.classList.toggle('targeting', activeTarget)
+  }, [activeTarget])
+
+  useEffect(() => {
+    document.body.classList.toggle('revealing', activeReveal)
+  }, [activeReveal])
+
+  return {
+    isTargeting: activeTarget,
+    isRevealing: activeReveal,
+    targetID: target,
+    getCurrentHighlight: getPlayerHighlight,
+    setTarget,
+    fire: () => {
+      const action = unlockTurn({ channel: 'user:target', data: target })
+      dispatch(action)
+    },
   }
 }

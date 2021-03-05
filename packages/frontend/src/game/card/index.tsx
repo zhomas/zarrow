@@ -69,6 +69,7 @@ export const FluidCard: FC<Props> = ({
   variant = 'default',
   keyPrefix = '',
   style,
+  stackIndex = 0,
 }) => {
   const getBGColor = () => {
     switch (variant) {
@@ -103,7 +104,8 @@ export const FluidCard: FC<Props> = ({
           rotateY: faceDown ? 180 : 0,
           y: selected ? -20 : 0,
           transition: {
-            rotateY: 0.1,
+            type: 'tween',
+            ease: 'easeOut',
             duration: CARD_FLIGHT_TIME / 1000,
           },
         }}

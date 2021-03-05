@@ -16,15 +16,18 @@ import { StyledGame } from './game.style'
 import { FluidCard } from './card'
 
 import { AnimateSharedLayout } from 'framer-motion'
-import { useCardBuilder as useLocalCardContext } from './game.hooks'
+import {
+  useCardBuilder as useLocalCardContext,
+  useTargeting,
+} from './game.hooks'
 import { Zone } from './zone'
-import { Miniplayer } from './miniplayer'
 import { FUPU } from './fupu'
 import { Sparkler } from './sparkler'
 import { EnemyHand } from './hand/enemy'
 
 import { PlayerHand } from './hand/player'
 import { PlayerTiers } from './tiers/player.tiers'
+import { NonPlayerTiers } from './tiers/nonplayer.tiers'
 import { Targeter } from './targeter'
 
 const _GameView: FC<Props> = ({
@@ -40,23 +43,39 @@ const _GameView: FC<Props> = ({
   const {
     buildHandCard,
     buildForPlayerStrata,
-    buildNPC,
     playSelectedCards,
   } = useLocalCardContext(uid)
 
-  const opponent = players.find((p) => p.id !== uid)
-  if (!opponent) throw new Error('Oh no')
+  const target = useTargeting(uid)
+
+  const renderOpponent = () => {
+    const opponent = players.find((p) => p.id !== uid)
+    if (!opponent) throw new Error('Oh no')
+    const targetMode = target.getCurrentHighlight(opponent.id)
+    const onMouseEnter = () => target.setTarget(opponent.id)
+    const onMouseLeave = () => target.setTarget('')
+    return (
+      <>
+        <div className="h2">
+          <EnemyHand ownerID={opponent.id} />
+        </div>
+        <div className="s2">
+          <NonPlayerTiers
+            ownerID={opponent.id}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            targetMode={targetMode}
+            onClick={target.fire}
+          />
+        </div>
+      </>
+    )
+  }
 
   return (
     <AnimateSharedLayout type="switch">
       <Targeter uid={uid}>
-        {({
-          screenComponent,
-          setTarget,
-          getCurrentHighlight,
-          fire,
-          isRevealing,
-        }) => (
+        {({ screenComponent }) => (
           <>
             <StyledGame>
               <div className="h1">
@@ -66,34 +85,14 @@ const _GameView: FC<Props> = ({
                   playSelected={playSelectedCards}
                 />
               </div>
-              <div className="h2">
-                <EnemyHand ownerID={opponent.id} />
-              </div>
-              <div className="s2">
-                <Miniplayer
-                  ownerID={opponent.id}
-                  curried={buildNPC}
-                  uid={uid}
-                  highlight={getCurrentHighlight(opponent.id)}
-                  onHoverEnter={() => setTarget(opponent.id)}
-                  onHoverExit={() => setTarget('')}
-                  isRevealing={false}
-                  onClick={fire}
-                />
-              </div>
+
+              {renderOpponent()}
               <div className="s1">
                 <PlayerTiers
                   uid={uid}
-                  revealing={isRevealing}
+                  revealing={target.isRevealing}
                   buildPropsFaceUp={buildForPlayerStrata}
                 />
-                {/* <Miniplayer
-                  ownerID={uid}
-                  curried={buildForPlayerStrata}
-                  isRevealing={isRevealing}
-                  nudge="up"
-                  uid={uid}
-                /> */}
               </div>
               <div className="table"></div>
               <div className="table-main">
@@ -101,8 +100,8 @@ const _GameView: FC<Props> = ({
                   <Zone
                     onPrompt={pickupStack}
                     promptActive={highlight === 'stack'}
-                    cards={stack.map((c) => (
-                      <FluidCard key={c.id} card={c} />
+                    cards={stack.map((c, i) => (
+                      <FluidCard key={c.id} card={c} stackIndex={i} />
                     ))}
                   />
                 </Sparkler>

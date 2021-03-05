@@ -84,6 +84,7 @@ const counterSlice = createSlice({
       state.turnLocks = action.payload.turnLocks
       state.turnClocks = action.payload.turnClocks
       state.afterimage = action.payload.afterimage
+      state.stackEffect = action.payload.stackEffect
     },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)

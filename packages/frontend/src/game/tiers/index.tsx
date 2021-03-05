@@ -18,21 +18,29 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   position: relative;
-  padding: 20px 0;
-  height: 220px;
+  padding: 20px;
 `
 
 const Ups = styled(motion.div)`
-  max-width: 260px;
   display: flex;
   position: absolute;
   bottom: 0;
   z-index: 1;
+
+  > *:last-child {
+    flex-basis: 126px;
+    flex-shrink: 0;
+  }
 `
 
 const Downs = styled(motion.div)`
   display: flex;
   justify-content: center;
+
+  > *:last-child {
+    flex-basis: 126px;
+    flex-shrink: 0;
+  }
 `
 
 export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
@@ -46,14 +54,18 @@ export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
     return 0
   }
 
+  const getUpsWidth = () => {
+    return (ups.length - 1) * 70 + 126
+  }
+
   const getDownsWidth = () => {
     if (revealing) return 500
-    return downs.length * 90
+    return (downs.length - 1) * 90 + 126
   }
 
   return (
     <Wrapper>
-      <Ups style={{ x: -20, y: getOffsetUps() }}>
+      <Ups style={{ y: getOffsetUps(), width: getUpsWidth() }}>
         {ups.map((props) => (
           <FluidCard key={props.card.id} {...props} />
         ))}

@@ -29,6 +29,7 @@ import { PlayerHand } from './hand/player'
 import { PlayerTiers } from './tiers/player.tiers'
 import { NonPlayerTiers } from './tiers/nonplayer.tiers'
 import { Targeter } from './targeter'
+import { Steal } from './steal'
 
 const _GameView: FC<Props> = ({
   stack,
@@ -117,6 +118,7 @@ const _GameView: FC<Props> = ({
               </div>
               {screenComponent}
               <FUPU uid={uid} />
+              <Steal uid={uid} />
             </StyledGame>
             <button onClick={deal}>Redeal</button>
           </>

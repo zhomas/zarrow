@@ -41,6 +41,9 @@ export type TurnLock =
   | 'user:target'
   | 'user:faceuptake'
   | 'user:psychicreveal'
+  | 'steal:target'
+  | 'steal:selectcards'
+  | 'steal:reciprocate'
 
 export type TurnClock =
   | 'ww7'

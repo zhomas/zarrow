@@ -5,6 +5,7 @@ export * from './mode'
 export * from './player'
 export * from './next'
 export * from './destination'
+export * from './steal'
 
 export const getPlayerSelector = (id: string) => {
   return (state: GameState) => {
@@ -71,6 +72,11 @@ export const mustPickUpSelector = (state: GameState) => {
   return !options.some((c) => canCardPlay(c.card, dest))
 }
 
+export const highestTierSelector = (uid: string) => (state: GameState) => {
+  const player = state.players.find((p) => p.id === uid)
+  return Math.max(...player.cards.map((c) => c.tier))
+}
+
 export const getCardEffect = (cards: CardModel[], state: GameState) => {
   const [card] = cards
   const player = activePlayerSelector(state)
@@ -84,6 +90,7 @@ export const getCardEffect = (cards: CardModel[], state: GameState) => {
       return 'psychic'
     }
   }
+
   if (card.value === 'K') return 'steal'
   if (cards.some((c) => c.value === '7')) {
     const count = cards.filter((c) => c.value === '7').length

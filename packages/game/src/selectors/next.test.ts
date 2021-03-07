@@ -6,6 +6,12 @@ it('proceeds to the next player after a psychic reveal', (t) => {
   const next = getNextPlayer(
     {
       afterimage: [],
+      activeSteal: {
+        count: -1,
+        reciprocated: [],
+        userSelected: [],
+        targetID: '',
+      },
       direction: -1,
       queue: ['NRUF3fQBIvTw8GkKMAoaMH9z6wC2'],
       players: [

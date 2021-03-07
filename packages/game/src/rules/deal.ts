@@ -46,4 +46,11 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
     targetUID: '',
     faceUpPickID: '',
   }
+
+  state.activeSteal = {
+    reciprocated: [],
+    targetID: '',
+    userSelected: [],
+    count: -1,
+  }
 }

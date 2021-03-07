@@ -6,6 +6,8 @@ import {
   highlightedLocationSelector,
   isHandSortedSelector,
   sortHand,
+  stealableCardsSelector,
+  stealableFilter,
 } from 'game'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
@@ -76,11 +78,12 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
   const myCards =
     state.players.find((p) => p.id === ownProps.ownerID)?.cards || []
   const getHighlight = highlightedLocationSelector(ownProps.ownerID)
+  const stealable = stealableFilter(state)
 
   return {
     sorted: isHandSortedSelector(ownProps.ownerID)(state),
-    list: myCards.filter((c) => c.tier === 2),
     variant: getHighlight(state),
+    list: myCards.filter((c) => c.tier === 2).filter((c) => !stealable(c.card)),
   }
 }
 

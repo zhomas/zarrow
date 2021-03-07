@@ -1,5 +1,4 @@
 import React, { FC, useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import { GameDispatch, GameState, unlockTurn, userModeSelector } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'

@@ -32,6 +32,12 @@ export interface GameState {
   turnLocks?: TurnLock[]
   turnClocks: TurnClock[]
   stackEffect?: StackEffect | ''
+  activeSteal: {
+    userSelected: string[]
+    reciprocated: string[]
+    targetID: string
+    count: number
+  }
 }
 
 export const initialState: GameState = {
@@ -49,6 +55,12 @@ export const initialState: GameState = {
   },
   turnClocks: [],
   stackEffect: undefined,
+  activeSteal: {
+    reciprocated: [],
+    targetID: '',
+    userSelected: [],
+    count: -1,
+  },
 }
 
 interface GameInitialiser {
@@ -69,6 +81,16 @@ interface Faction {
   faction: number
 }
 
+interface StealPayload {
+  count: number
+  targetID: string
+}
+
+interface StealSinglePayload {
+  userID: string
+  cardID: string
+}
+
 const counterSlice = createSlice({
   name: 'counter',
   initialState,
@@ -85,6 +107,7 @@ const counterSlice = createSlice({
       state.turnClocks = action.payload.turnClocks
       state.afterimage = action.payload.afterimage
       state.stackEffect = action.payload.stackEffect
+      state.activeSteal = action.payload.activeSteal
     },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)
@@ -163,6 +186,11 @@ const counterSlice = createSlice({
           }
 
           break
+        case 'steal':
+          state.turnLocks.push('steal:target')
+          state.burnt.push(card)
+          state.afterimage.push(card)
+          break
         default:
           break
       }
@@ -172,6 +200,35 @@ const counterSlice = createSlice({
       }
       state.stackEffect = effect
       state.turnLocks = state.turnLocks.filter((l) => l !== 'animate')
+    },
+    selectStealTarget(state, action: PayloadAction<StealPayload>) {
+      state.activeSteal = {
+        targetID: action.payload.targetID,
+        userSelected: [],
+        reciprocated: [],
+        count: action.payload.count,
+      }
+
+      state.turnLocks = state.turnLocks.filter((l) => l !== 'steal:target')
+      state.turnLocks.push('steal:selectcards')
+    },
+    stealSingleCard(state, action: PayloadAction<StealSinglePayload>) {
+      const { activeSteal, queue } = state
+      const { userSelected, reciprocated, targetID, count } = activeSteal
+      const { userID, cardID } = action.payload
+      if (userID === activePlayerSelector(state).id || userID === targetID) {
+        const dest = userID === queue[0] ? userSelected : reciprocated
+
+        dest.push(cardID)
+
+        if (userSelected.length >= count && reciprocated.length >= count) {
+          state.turnLocks = []
+        } else if (userSelected.length >= count) {
+          state.turnLocks = ['steal:reciprocate']
+        } else {
+          state.turnLocks = ['steal:selectcards']
+        }
+      }
     },
     lockTurn(
       state,
@@ -264,11 +321,13 @@ export const {
   addToStack,
   lockTurn,
   applyCardEffect,
+  stealSingleCard,
   addClock,
   resolveClock,
   pickupStack,
   startBurn,
   completeBurn,
+  selectStealTarget,
 } = counterSlice.actions
 
 export default counterSlice.reducer

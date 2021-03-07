@@ -26,6 +26,12 @@ it('requires playing from the face ups when a card can play', (t) => {
         ],
       },
     ],
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.is(mode, 'play:ups')
@@ -53,6 +59,12 @@ it('prompts a pickup when no face up card can play', (t) => {
         ],
       },
     ],
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.is(mode, 'pickup:stack')
@@ -80,6 +92,12 @@ it('requires playing from the face downs even when no card can play', (t) => {
         ],
       },
     ],
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.is(mode, 'play:downs')
@@ -108,6 +126,12 @@ it('requires pickup when the revealed facedown card cannot play on the stack', (
       },
     ],
     focused: '3S',
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.is(mode, 'pickup:stack')
@@ -136,6 +160,12 @@ it('requires no pickup with a falsy focus card', (t) => {
       },
     ],
     focused: '',
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.is(mode, 'play:downs')
@@ -164,6 +194,12 @@ it('enters psychic reveal mode when I play a queen', async (t) => {
       },
     ],
     focused: '',
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.is(mode, 'play:reveal')
@@ -208,6 +244,12 @@ it('highlights my hand if active', (t) => {
     turnLocks: [],
     local: { targetUID: '', faceUpPickID: '' },
     focused: '',
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.deepEqual(location, 'hand')
@@ -236,6 +278,12 @@ it('highlights my face ups if active', (t) => {
       },
     ],
     focused: '',
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.deepEqual(location, ['playerID', 'abc'])
@@ -273,6 +321,12 @@ it('highlights my opponents', (t) => {
       },
     ],
     focused: '',
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.deepEqual(location, ['playerID', 'def'])
@@ -298,6 +352,12 @@ it('highlights my face downs if active', (t) => {
       },
     ],
     focused: '',
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.deepEqual(location, ['playerID', 'abc'])
@@ -323,6 +383,12 @@ it('highlights the stack if I need to pick up', (t) => {
       },
     ],
     focused: '',
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.deepEqual(location, 'stack')
@@ -665,6 +731,12 @@ it('highlights my tiers while revealing', async (t) => {
     ],
     focused: '',
     afterimage: [],
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   })
 
   t.deepEqual(mode, ['playerID', 'abc'])

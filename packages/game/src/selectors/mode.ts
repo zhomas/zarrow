@@ -39,6 +39,9 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
   const isAcing = hasLock('user:target')
   const isReplenishing = hasLock('user:replenish')
   const isRevealing = hasLock('user:psychicreveal')
+  const isStealTarget = hasLock('steal:target')
+  const isStealPick = hasLock('steal:selectcards')
+  const isStealReciprocate = hasLock('steal:reciprocate')
 
   if (isBurning(state)) return 'idle:burn'
 
@@ -50,6 +53,9 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
       if (turnActive) {
         if (isAcing(state)) return 'play:target'
         if (isRevealing(state)) return 'play:reveal'
+        if (isStealTarget(state)) return 'play:target'
+        if (isStealPick(state)) return 'steal:pick'
+        if (isStealReciprocate(state)) return 'steal:receive'
 
         if (isAnimating(state)) {
           if (max === 2) return 'play:hand'
@@ -63,6 +69,11 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
         if (!canPlay) return 'pickup:stack'
         if (max === 1) return 'play:ups'
         return 'play:hand'
+      }
+
+      if (state.activeSteal && state.activeSteal.targetID === uid) {
+        if (isStealReciprocate(state)) return 'steal:pick'
+        return 'steal:receive'
       }
 
       if (myCards.length === 0) return 'idle:complete'

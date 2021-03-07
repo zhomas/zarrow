@@ -482,16 +482,12 @@ it('doesnt reveal if no turn lock', async (t) => {
     turnLocks: [],
   })
 
-  console.log(store.getState())
-
   await store.dispatch(
     revealThunk({
       cards: [createCard('J', 'S')],
       playerID: 'a',
     }),
   )
-
-  console.log(store.getState())
 
   const ups = store.getState().players[0].cards.filter((c) => c.tier === 1)
     .length

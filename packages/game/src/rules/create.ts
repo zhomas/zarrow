@@ -15,6 +15,12 @@ export const createGame = (): GameState => {
       faceUpPickID: '',
       targetUID: '',
     },
+    activeSteal: {
+      count: -1,
+      reciprocated: [],
+      userSelected: [],
+      targetID: '',
+    },
   }
 }
 

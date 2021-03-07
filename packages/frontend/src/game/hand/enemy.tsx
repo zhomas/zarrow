@@ -1,5 +1,5 @@
 import { styled } from '@linaria/react'
-import { GameState } from 'game'
+import { GameState, stealableFilter } from 'game'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCard } from '../card'
@@ -27,9 +27,10 @@ const _EnemyHand: FC<Props> = ({ list }) => {
 const mapState = (state: GameState, ownProps: OwnProps) => {
   const myCards =
     state.players.find((p) => p.id === ownProps.ownerID)?.cards || []
+  const stealable = stealableFilter(state)
 
   return {
-    list: myCards.filter((c) => c.tier === 2),
+    list: myCards.filter((c) => c.tier === 2).filter((c) => !stealable(c.card)),
   }
 }
 

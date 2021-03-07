@@ -18,6 +18,12 @@ const getState = (): GameState => ({
   burnt: [],
   afterimage: [],
   turnClocks: [],
+  activeSteal: {
+    count: -1,
+    reciprocated: [],
+    userSelected: [],
+    targetID: '',
+  },
   players: [
     {
       id: 'a',

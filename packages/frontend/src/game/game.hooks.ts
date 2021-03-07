@@ -10,6 +10,7 @@ import {
   stackDestinationSelector,
   unlockTurn,
   userModeSelector,
+  selectStealTarget,
 } from 'game'
 import { createCardByID } from 'game/dist/deck'
 import { FluidCardProps } from '../typings'
@@ -43,6 +44,7 @@ const getNullishCard = (v: FluidCardProps['variant']) => (
 }
 
 const isQueening = hasLock('user:psychicreveal')
+const isKinging = hasLock('steal:target')
 
 export const getCardProps = ({
   id,
@@ -127,6 +129,7 @@ export const useCardBuilder = (uid: string) => {
   const userMode = useSelector(userModeSelector(uid))
   const active = useSelector(activeUserSelector)
   const queening = useSelector(isQueening)
+  const kinging = useSelector(isKinging)
   const handCards = player?.cards.filter((c) => c.tier === 2)
 
   const focusedOnPlayerStrata = focused[1] === uid
@@ -160,7 +163,7 @@ export const useCardBuilder = (uid: string) => {
 
       dispatch(
         playCardThunk({
-          cards, //: [createCardByID('QH'), createCardByID('QD')],
+          cards: [createCardByID('KD')],
           playerID: uid,
         }),
       )
@@ -255,6 +258,12 @@ export const useTargeting = (uid: string) => {
     getCurrentHighlight: getPlayerHighlight,
     setTarget,
     fire: () => {
+      if (locks?.includes('steal:target')) {
+        const kingTarget = selectStealTarget({ targetID: target, count: 1 })
+        dispatch(kingTarget)
+        return
+      }
+
       const action = unlockTurn({ channel: 'user:target', data: target })
       dispatch(action)
     },

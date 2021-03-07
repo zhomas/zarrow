@@ -11,6 +11,12 @@ export const getDummyState = (): GameState => ({
   turnLocks: [],
   turnClocks: [],
   afterimage: [],
+  activeSteal: {
+    count: -1,
+    reciprocated: [],
+    userSelected: [],
+    targetID: '',
+  },
   players: [
     {
       id: 'a',

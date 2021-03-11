@@ -12,6 +12,7 @@ import { playCardThunk } from './thunks/play'
 import {
   activePlayerSelector,
   getCardEffect,
+  highestTierSelector,
   playerHasCardInTierSelector,
   StackEffect,
 } from './selectors'
@@ -33,10 +34,9 @@ export interface GameState {
   turnClocks: TurnClock[]
   stackEffect?: StackEffect | ''
   activeSteal: {
-    userSelected: string[]
-    reciprocated: string[]
-    targetID: string
-    count: number
+    participants: string[]
+    userSteals: number
+    reciprocatedSteals: number
   }
 }
 
@@ -56,10 +56,9 @@ export const initialState: GameState = {
   turnClocks: [],
   stackEffect: undefined,
   activeSteal: {
-    reciprocated: [],
-    targetID: '',
-    userSelected: [],
-    count: -1,
+    participants: [],
+    userSteals: 0,
+    reciprocatedSteals: 0,
   },
 }
 
@@ -203,10 +202,9 @@ const counterSlice = createSlice({
     },
     selectStealTarget(state, action: PayloadAction<StealPayload>) {
       state.activeSteal = {
-        targetID: action.payload.targetID,
-        userSelected: [],
-        reciprocated: [],
-        count: action.payload.count,
+        participants: [activePlayerSelector(state).id, action.payload.targetID],
+        userSteals: action.payload.count,
+        reciprocatedSteals: action.payload.count,
       }
 
       state.turnLocks = state.turnLocks.filter((l) => l !== 'steal:target')
@@ -214,20 +212,38 @@ const counterSlice = createSlice({
     },
     stealSingleCard(state, action: PayloadAction<StealSinglePayload>) {
       const { activeSteal, queue } = state
-      const { userSelected, reciprocated, targetID, count } = activeSteal
       const { userID, cardID } = action.payload
-      if (userID === activePlayerSelector(state).id || userID === targetID) {
-        const dest = userID === queue[0] ? userSelected : reciprocated
+      const activeID = activePlayerSelector(state).id
+      const reciprocal = userID !== activeID
 
-        dest.push(cardID)
+      for (const id of state.activeSteal.participants) {
+        const player = state.players.find((p) => p.id === id)
 
-        if (userSelected.length >= count && reciprocated.length >= count) {
-          state.turnLocks = []
-        } else if (userSelected.length >= count) {
-          state.turnLocks = ['steal:reciprocate']
+        if (id === userID) {
+          player.cards.push({
+            card: createCardByID(cardID),
+            tier: highestTierSelector(id)(state),
+            stolen: true,
+          })
         } else {
-          state.turnLocks = ['steal:selectcards']
+          player.cards = player.cards.filter((c) => c.card.id !== cardID)
         }
+      }
+
+      if (reciprocal) {
+        state.activeSteal.reciprocatedSteals--
+      } else {
+        state.activeSteal.userSteals--
+      }
+
+      if (state.activeSteal.userSteals > state.activeSteal.reciprocatedSteals) {
+        state.turnLocks = ['steal:selectcards']
+      } else if (
+        state.activeSteal.reciprocatedSteals > state.activeSteal.userSteals
+      ) {
+        state.turnLocks = ['steal:reciprocate']
+      } else {
+        state.turnLocks = []
       }
     },
     lockTurn(
@@ -305,6 +321,22 @@ const counterSlice = createSlice({
       state.turnClocks = []
       state.local.targetUID = ''
       state.local.faceUpPickID = ''
+      state.activeSteal = {
+        userSteals: 0,
+        reciprocatedSteals: 0,
+        participants: [],
+      }
+      state.players = state.players.map((pl) => {
+        return {
+          ...pl,
+          cards: pl.cards.map((c) => {
+            return {
+              ...c,
+              stolen: false,
+            }
+          }),
+        }
+      })
     })
   },
 })

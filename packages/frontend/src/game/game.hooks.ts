@@ -163,7 +163,7 @@ export const useCardBuilder = (uid: string) => {
 
       dispatch(
         playCardThunk({
-          cards: [createCardByID('KD')],
+          cards, //: [createCardByID('KD')],
           playerID: uid,
         }),
       )

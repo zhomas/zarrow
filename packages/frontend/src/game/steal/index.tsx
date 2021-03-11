@@ -7,9 +7,7 @@ import {
   CardModel,
   GameDispatch,
   highestTierSelector,
-  myStealableCardsSelector,
-  theirStealableCardsSelector,
-  activePlayerSelector,
+  otherStealParticipantSelector,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
@@ -39,71 +37,56 @@ const StealView: FC<Props> = ({
   selected,
   reciprocal,
   active,
-  cards,
   theirCards,
   stealCards,
+  yoinked,
+  message,
 }) => {
   if (!active) return null
 
   return (
     <Wrapper>
       <div>
-        <h5>Theirs:</h5>
         {theirCards.map((props) => (
           <FluidCard
             key={props.card.id}
             {...props}
-            selected={selected.includes(props.card.id)}
             onClick={() => stealCards(props.card)}
           />
         ))}
       </div>
-      <h1>{reciprocal ? 'Reciprocate!' : 'Steal!'}</h1>
-      <div>
-        {cards.map((props) => (
-          <FluidCard
-            key={props.card.id}
-            {...props}
-            selected={selected.includes(props.card.id)}
-          />
-        ))}
-      </div>
+
+      <h1>{message}</h1>
     </Wrapper>
   )
 }
 
 const mapState = (state: GameState, { uid }: OwnProps) => {
   const selectMode = userModeSelector(uid)
+  const other = otherStealParticipantSelector(uid)(state)
   const selectTier = highestTierSelector(uid)
   const stealable = stealableCardsSelector(state)
 
   const mode = selectMode(state)
-  const other =
-    uid === state.activeSteal.targetID
-      ? activePlayerSelector(state).id
-      : state.activeSteal.targetID
-  const cards: FluidCardProps[] = stealable(uid).map((card) => ({
-    card,
-    faceDown: selectTier(state) !== 1,
-  }))
 
-  const theirCards = stealable(other).map((card) => ({
-    card,
-    faceDown: selectTier(state) !== 1,
-  }))
+  const theirCards =
+    mode === 'steal:pick'
+      ? stealable(other).map((card) => ({
+          card,
+          faceDown: highestTierSelector(other)(state) !== 1,
+        }))
+      : []
 
   return {
-    cards,
     theirCards,
-    selected: [
-      ...state.activeSteal.userSelected,
-      ...state.activeSteal.reciprocated,
-    ],
+    selected: [],
     reciprocal: state.turnLocks
       ? state.turnLocks.includes('steal:reciprocate')
       : false,
     active: mode === 'steal:pick' || mode === 'steal:receive',
+    message: mode,
     faceDown: selectTier(state) !== 1,
+    yoinked: [],
   }
 }
 

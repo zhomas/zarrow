@@ -71,7 +71,7 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
         return 'play:hand'
       }
 
-      if (state.activeSteal && state.activeSteal.targetID === uid) {
+      if (state.activeSteal.participants.includes(uid)) {
         if (isStealReciprocate(state)) return 'steal:pick'
         return 'steal:receive'
       }

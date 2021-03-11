@@ -16,10 +16,9 @@ export const createGame = (): GameState => {
       targetUID: '',
     },
     activeSteal: {
-      count: -1,
-      reciprocated: [],
-      userSelected: [],
-      targetID: '',
+      userSteals: 0,
+      reciprocatedSteals: 0,
+      participants: [],
     },
   }
 }

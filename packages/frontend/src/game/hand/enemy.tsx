@@ -27,10 +27,9 @@ const _EnemyHand: FC<Props> = ({ list }) => {
 const mapState = (state: GameState, ownProps: OwnProps) => {
   const myCards =
     state.players.find((p) => p.id === ownProps.ownerID)?.cards || []
-  const stealable = stealableFilter(state)
 
   return {
-    list: myCards.filter((c) => c.tier === 2).filter((c) => !stealable(c.card)),
+    list: myCards.filter((c) => c.tier === 2),
   }
 }
 

@@ -7,10 +7,9 @@ it('proceeds to the next player after a psychic reveal', (t) => {
     {
       afterimage: [],
       activeSteal: {
-        count: -1,
-        reciprocated: [],
-        userSelected: [],
-        targetID: '',
+        userSteals: 0,
+        reciprocatedSteals: 0,
+        participants: [],
       },
       direction: -1,
       queue: ['NRUF3fQBIvTw8GkKMAoaMH9z6wC2'],

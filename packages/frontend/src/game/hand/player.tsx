@@ -5,10 +5,14 @@ import {
   GameState,
   highlightedLocationSelector,
   isHandSortedSelector,
+  otherStealParticipantSelector,
   sortHand,
   stealableCardsSelector,
   stealableFilter,
+  stolenCardsSelector,
+  userModeSelector,
 } from 'game'
+import { createCardByID } from 'game/dist/deck'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCardProps } from '../../typings'
@@ -74,16 +78,24 @@ const _PlayerHand: FC<Props> = ({
   )
 }
 
-const mapState = (state: GameState, ownProps: OwnProps) => {
-  const myCards =
-    state.players.find((p) => p.id === ownProps.ownerID)?.cards || []
-  const getHighlight = highlightedLocationSelector(ownProps.ownerID)
+const mapState = (state: GameState, { ownerID }: OwnProps) => {
+  const myCards = state.players.find((p) => p.id === ownerID)?.cards || []
+  const getHighlight = highlightedLocationSelector(ownerID)
+  const mode = userModeSelector(ownerID)(state)
+  const other = otherStealParticipantSelector(ownerID)(state)
+
   const stealable = stealableFilter(state)
 
   return {
-    sorted: isHandSortedSelector(ownProps.ownerID)(state),
+    sorted: isHandSortedSelector(ownerID)(state),
     variant: getHighlight(state),
-    list: myCards.filter((c) => c.tier === 2).filter((c) => !stealable(c.card)),
+    list: [
+      ...myCards.filter((c) => c.tier === 2),
+      ...stolenCardsSelector(ownerID)(state).map((c) => ({
+        card: c,
+        tier: 2,
+      })),
+    ],
   }
 }
 

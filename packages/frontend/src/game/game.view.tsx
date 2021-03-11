@@ -120,7 +120,8 @@ const _GameView: FC<Props> = ({
               <FUPU uid={uid} />
               <Steal uid={uid} />
             </StyledGame>
-            <button onClick={deal}>Redeal</button>
+            <button onClick={() => deal(52)}>Deal</button>
+            <button onClick={() => deal(24)}>Minideal</button>
           </>
         )}
       </Targeter>
@@ -146,8 +147,8 @@ const mapDispatch = (d: GameDispatch, ownProps: OwnProps) => {
       const action = playCardThunk({ cards, playerID: ownProps.uid })
       d(action)
     },
-    deal: () => {
-      const action = deal({ deck: createDeck(24) })
+    deal: (size: number) => {
+      const action = deal({ deck: createDeck(size) })
       d(action)
     },
     confirmReplenish: () => {

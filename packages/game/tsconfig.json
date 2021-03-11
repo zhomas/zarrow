@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
     "rootDir": "src",
+    "moduleResolution": "node",
     "outDir": "dist"
   }
 }

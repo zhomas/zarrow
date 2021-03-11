@@ -316,10 +316,9 @@ it('properly increments the turn when I play an ace', async (t) => {
     queue: ['a'],
     direction: -1,
     activeSteal: {
-      count: -1,
-      reciprocated: [],
-      targetID: '',
-      userSelected: [],
+      participants: [],
+      userSteals: 0,
+      reciprocatedSteals: 0,
     },
   }
 

@@ -25,6 +25,7 @@ export interface CardModel {
 export interface PlayerCard {
   card: CardModel
   tier: number
+  stolen?: boolean
 }
 
 export interface PlayerModel {

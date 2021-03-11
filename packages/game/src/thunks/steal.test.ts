@@ -5,7 +5,7 @@ import {
   userModeSelector,
   highlightedLocationSelector,
 } from '..'
-import { createCard } from '../deck'
+import { createCard, createCardByID } from '../deck'
 import { hasLock } from '../selectors'
 import { gameModeSelector } from '../selectors/status'
 import { playCardThunk } from './play'
@@ -67,16 +67,38 @@ it('adds cards to the active steal', async (t) => {
     ],
     turnLocks: ['steal:selectcards'],
     activeSteal: {
-      count: 1,
-      targetID: 'b',
-      userSelected: [],
-      reciprocated: [],
+      participants: ['a', 'b'],
+      userSteals: 1,
+      reciprocatedSteals: 1,
     },
   })
 
   store.dispatch(stealSingleCard({ cardID: '2H', userID: 'a' }))
-  t.is(isReciprocatingSteal(store.getState()), true)
-  t.deepEqual(store.getState().activeSteal.userSelected, ['2H'])
+
+  t.deepEqual(store.getState().players, [
+    {
+      id: 'a',
+      faction: 0,
+      displayName: '',
+      cards: [
+        { card: createCard('K', 'C'), tier: 2 },
+        { card: createCard('2', 'C'), tier: 0 },
+        { card: createCard('2', 'H'), tier: 2, stolen: true },
+      ],
+    },
+    {
+      id: 'b',
+      faction: 1,
+      displayName: '',
+      cards: [{ card: createCard('2', 'C'), tier: 0 }],
+    },
+  ])
+
+  t.deepEqual(store.getState().activeSteal, {
+    participants: ['a', 'b'],
+    userSteals: 0,
+    reciprocatedSteals: 1,
+  })
 })
 
 it('concludes the steal after reciprocation', async (t) => {
@@ -87,32 +109,41 @@ it('concludes the steal after reciprocation', async (t) => {
         id: 'a',
         faction: 0,
         displayName: '',
-        cards: [
-          { card: createCard('K', 'C'), tier: 2 },
-          { card: createCard('2', 'C'), tier: 0 },
-        ],
+        cards: [{ card: createCard('3', 'C'), tier: 2 }],
       },
       {
         id: 'b',
         faction: 1,
         displayName: '',
-        cards: [
-          { card: createCard('2', 'H'), tier: 2 },
-          { card: createCard('2', 'C'), tier: 0 },
-        ],
+        cards: [{ card: createCard('2', 'H'), tier: 2 }],
       },
     ],
     turnLocks: ['steal:reciprocate'],
     activeSteal: {
-      count: 1,
-      targetID: 'b',
-      userSelected: ['2H'],
-      reciprocated: [],
+      participants: ['a', 'b'],
+      userSteals: 0,
+      reciprocatedSteals: 1,
     },
   })
 
-  store.dispatch(stealSingleCard({ cardID: '2C', userID: 'b' }))
+  store.dispatch(stealSingleCard({ cardID: '3C', userID: 'b' }))
   t.is(isReciprocatingSteal(store.getState()), false)
   t.is(isStealing(store.getState()), false)
-  t.deepEqual(store.getState().activeSteal.userSelected, ['2H'])
+  t.deepEqual(store.getState().players, [
+    {
+      id: 'a',
+      faction: 0,
+      displayName: '',
+      cards: [],
+    },
+    {
+      id: 'b',
+      faction: 1,
+      displayName: '',
+      cards: [
+        { card: createCard('2', 'H'), tier: 2 },
+        { card: createCard('3', 'C'), tier: 2, stolen: true },
+      ],
+    },
+  ])
 })

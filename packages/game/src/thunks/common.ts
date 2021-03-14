@@ -10,6 +10,9 @@ import {
   resolveClock,
   startBurn,
   completeBurn,
+  shouldMiniburn,
+  startMiniburn,
+  completeMiniburn,
 } from '..'
 import { CARD_FLIGHT_TIME } from '../constants'
 import { TurnClock } from '../types'
@@ -62,6 +65,14 @@ export const playCardInternal = async (
   }
 
   dispatch(applyCardEffect(cards))
+
+  await sleepUntil(() => getState().turnLocks.length === 0)
+
+  if (shouldMiniburn(getState())) {
+    dispatch(startMiniburn())
+    await sleep(400)
+    dispatch(completeMiniburn())
+  }
 
   await sleepUntil(() => getState().turnLocks.length === 0)
   return { burn: false }

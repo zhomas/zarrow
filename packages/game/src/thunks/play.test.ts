@@ -1,6 +1,6 @@
 import it from 'ava'
 import { getStore } from '..'
-import { createCard } from '../deck'
+import { createCard, createCardByID } from '../deck'
 import {
   activePlayerSelector,
   stackDestinationSelector,
@@ -8,6 +8,7 @@ import {
 } from '../selectors'
 import { unlockTurn, GameState } from '../game.slice'
 import { playCardThunk } from './play'
+import { sleepUntil } from './common'
 
 const isBurning = hasLock('burn')
 const isReplenishing = hasLock('user:replenish')
@@ -391,6 +392,43 @@ it('allows me to pick up when I ace someone', async (t) => {
   await store.dispatch(
     playCardThunk({ cards: [createCard('A', 'H')], playerID: 'a' }),
   )
+
+  t.is(isReplenishing(store.getState()), true)
+})
+
+it('allows me to pick up when I burn', async (t) => {
+  const store = getStore({
+    players: [
+      {
+        cards: [
+          { tier: 2, card: { suit: 'C', id: 'KC', value: 'K' } },
+          { tier: 2, card: createCardByID('10S') },
+        ],
+        displayName: 'bbnmnb',
+        faction: 0,
+        id: 'a',
+      },
+      {
+        cards: [{ tier: 2, card: { suit: 'D', id: '3D', value: '3' } }],
+        displayName: 'bmnbmnb',
+        faction: 1,
+        id: 'b',
+      },
+    ],
+    pickupPile: [{ suit: 'H', id: '6H', value: '6' }],
+    queue: ['a'],
+    direction: -1,
+  })
+
+  store.dispatch(
+    playCardThunk({ cards: [createCardByID('10S')], playerID: 'a' }),
+  )
+
+  await new Promise((r) => setTimeout(r, 1500))
+  t.is(store.getState().turnLocks.includes('animate'), false)
+  t.is(store.getState().turnLocks.includes('burn'), true)
+
+  await sleepUntil(() => !store.getState().turnLocks.includes('burn'))
 
   t.is(isReplenishing(store.getState()), true)
 })

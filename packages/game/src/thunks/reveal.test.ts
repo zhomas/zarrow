@@ -279,7 +279,7 @@ it('burns after use', async (t) => {
         faction: 0,
         displayName: '',
         cards: [
-          { card: createCard('Q', 'C'), tier: 2 },
+          { card: createCard('Q', 'D'), tier: 2 },
           { card: createCard('3', 'C'), tier: 0 },
         ],
       },
@@ -288,7 +288,7 @@ it('burns after use', async (t) => {
 
   const x = store.dispatch(
     playCardThunk({
-      cards: [createCard('Q', 'C')],
+      cards: [createCard('Q', 'D')],
       playerID: 'a',
     }),
   )
@@ -301,11 +301,10 @@ it('burns after use', async (t) => {
 
   await x
 
-  t.falsy(store.getState().stack.some((c) => c.id === 'QC'))
-  t.truthy(store.getState().burnt.some((c) => c.id === 'QC'))
-  t.truthy(store.getState().afterimage.some((c) => c.id === 'QC'))
-
-  t.is(stackDestinationSelector(store.getState()).id, 'QC')
+  t.falsy(store.getState().stack.some((c) => c.id === 'QD'))
+  t.truthy(store.getState().burnt.some((c) => c.id === 'QD'))
+  t.log(store.getState().burnt)
+  t.is(stackDestinationSelector(store.getState()).id, 'QD')
 })
 
 it('performs a double block when two queens are played', async (t) => {

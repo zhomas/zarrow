@@ -39,6 +39,12 @@ export const playCardThunk = createAppThunk(
       dispatch(unlockTurn({ channel: 'user:replenish' }))
     }
 
+    if (cards.some((c) => c.id === 'QD')) {
+      console.log('QUEEEEEEEN')
+
+      console.log(getState())
+    }
+
     return getNextPlayer(getState(), cards, result.burn)
   },
 )

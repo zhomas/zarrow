@@ -175,26 +175,18 @@ const counterSlice = createSlice({
           const faceDowns = player.cards.filter((c) => c.tier === 0)
           const count = Math.min(cards.length, faceDowns.length)
           for (let i = 0; i < count; i++) {
-            const card = cards[i]
-            const stackIndex = state.stack.findIndex((c) => c.id === card.id)
-
             state.turnLocks.push('user:psychicreveal')
-            state.stack.splice(stackIndex, 1)
-            state.burnt.push(card)
-            state.afterimage.push(card)
           }
 
           break
         case 'steal':
           state.turnLocks.push('steal:target')
-          state.burnt.push(card)
-          state.afterimage.push(card)
           break
         default:
           break
       }
 
-      if (card.value !== 'Q') {
+      if (!['Q', 'K'].includes(card.value)) {
         state.afterimage = []
       }
       state.stackEffect = effect
@@ -258,11 +250,30 @@ const counterSlice = createSlice({
     startBurn(state) {
       state.turnClocks.push('burn')
       state.turnLocks.push('burn')
+      state.turnLocks = state.turnLocks.filter((l) => l !== 'animate')
     },
     completeBurn(state) {
       state.burnt = [...state.stack, ...state.burnt]
       state.stack = []
       state.turnLocks = state.turnLocks.filter((l) => l !== 'burn')
+    },
+    startMiniburn(state) {
+      state.turnLocks.push('burn')
+      state.turnLocks = state.turnLocks.filter((l) => l !== 'animate')
+    },
+    completeMiniburn(state) {
+      const remove = state.stack.filter((c) => ['Q', 'K'].includes(c.value))
+      state.turnLocks = state.turnLocks.filter((l) => l !== 'burn')
+
+      for (const card of remove) {
+        console.log('REMOVE: ', card.id)
+        state.burnt.push(card)
+        state.afterimage.push(card)
+        state.stack.splice(
+          state.stack.findIndex((c) => c.id === card.id),
+          1,
+        )
+      }
     },
     unlockTurn(
       state,
@@ -359,6 +370,8 @@ export const {
   pickupStack,
   startBurn,
   completeBurn,
+  startMiniburn,
+  completeMiniburn,
   selectStealTarget,
 } = counterSlice.actions
 

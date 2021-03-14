@@ -147,3 +147,45 @@ it('concludes the steal after reciprocation', async (t) => {
     },
   ])
 })
+
+it('burns after use', async (t) => {
+  const store = getStore({
+    queue: ['a'],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [
+          { card: createCard('3', 'C'), tier: 2 },
+          { card: createCard('K', 'D'), tier: 2 },
+        ],
+      },
+      {
+        id: 'b',
+        faction: 1,
+        displayName: '',
+        cards: [{ card: createCard('2', 'H'), tier: 2 }],
+      },
+    ],
+  })
+
+  const x = store.dispatch(
+    playCardThunk({
+      cards: [createCard('K', 'D')],
+      playerID: 'a',
+    }),
+  )
+
+  await new Promise((r) => setTimeout(r, 1000))
+
+  store.dispatch(stealSingleCard({ cardID: '2H', userID: 'a' }))
+  store.dispatch(stealSingleCard({ cardID: '3C', userID: 'b' }))
+
+  await x
+
+  t.falsy(store.getState().stack.some((c) => c.id === 'KD'))
+  t.truthy(store.getState().burnt.some((c) => c.id === 'KD'))
+  t.truthy(store.getState().afterimage.some((c) => c.id === 'KD'))
+  t.log(store.getState().burnt)
+})

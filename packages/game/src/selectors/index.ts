@@ -55,6 +55,12 @@ export const shouldBurn = (state: GameState) => {
   return eights >= 4
 }
 
+export const shouldMiniburn = (state: GameState) => {
+  const { stack } = state
+  if (!stack.length) return false
+  return ['Q', 'K'].includes(stack[0].value)
+}
+
 export const activePlayerSelector = (state: GameState) => {
   const id = state.queue[0]
   return state.players.find((p) => p.id === id)

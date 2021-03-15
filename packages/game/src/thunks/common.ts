@@ -6,8 +6,6 @@ import {
   shouldBurn,
   addToStack,
   applyCardEffect,
-  addClock,
-  resolveClock,
   startBurn,
   completeBurn,
   shouldMiniburn,
@@ -39,15 +37,6 @@ export const sleepUntil = async (fn: () => boolean) => {
     await sleep(100)
   }
 }
-
-export const applyClock = createAppThunk(
-  'game/clock',
-  async (clock: TurnClock, { dispatch }) => {
-    dispatch(addClock(clock))
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    dispatch(resolveClock(clock))
-  },
-)
 
 export const playCardInternal = async (
   cards: CardModel[],

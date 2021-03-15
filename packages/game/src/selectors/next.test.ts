@@ -235,7 +235,6 @@ it('proceeds to the next player after a psychic reveal', (t) => {
         targetUID: '',
         faceUpPickID: '',
       },
-      turnClocks: [],
       focused: '',
     },
     [createCardByID('QS')],

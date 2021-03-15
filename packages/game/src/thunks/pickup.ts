@@ -1,8 +1,8 @@
 import { createCardByID } from '../deck'
-import { lockTurn, pickupStack } from '../game.slice'
+import { pickupStack, startFupu } from '../game.slice'
 import { activeTierSelector, hasLock } from '../selectors'
 import { CardModel } from '../types'
-import { createAppThunk, sleepUntil } from './common'
+import { createAppThunk } from './common'
 
 export const pickupThunk = createAppThunk(
   'counter/pickup:stack',
@@ -13,7 +13,7 @@ export const pickupThunk = createAppThunk(
 
     if (activeCards.some((c) => c.tier === 1)) {
       // Face up pickup rule
-      dispatch(lockTurn({ channel: 'user:faceuptake', count: 1 }))
+      dispatch(startFupu())
       const locked = hasLock('user:faceuptake')
 
       while (locked(getState())) {

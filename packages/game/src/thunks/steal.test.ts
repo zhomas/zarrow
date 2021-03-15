@@ -1,13 +1,7 @@
 import it from 'ava'
-import {
-  stealSingleCard,
-  getStore,
-  userModeSelector,
-  highlightedLocationSelector,
-} from '..'
-import { createCard, createCardByID } from '../deck'
+import { stealSingleCard, getStore } from '..'
+import { createCard } from '../deck'
 import { hasLock } from '../selectors'
-import { gameModeSelector } from '../selectors/status'
 import { playCardThunk } from './play'
 
 const isStealTargeting = hasLock('steal:target')

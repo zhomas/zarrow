@@ -3,10 +3,14 @@ import {
   getNextPlayer,
   stackDestinationSelector,
 } from '../selectors'
-import { lockTurn, unlockTurn } from '../game.slice'
 import { CardModel } from '../types'
 import { createAppThunk, playCardInternal, sleepUntil } from './common'
-import { activePlayerSelector, canCardPlay } from '..'
+import {
+  activePlayerSelector,
+  canCardPlay,
+  confirmReplenish,
+  startReplenish,
+} from '..'
 
 interface PlayCardArgs {
   cards: CardModel[]
@@ -34,15 +38,9 @@ export const playCardThunk = createAppThunk(
     const pickupRequired = getState().pickupPile.length > 0 && tier.length < 4
 
     if (pickupRequired) {
-      dispatch(lockTurn({ channel: 'user:replenish' }))
+      dispatch(startReplenish())
       await sleepUntil(() => getState().turnLocks.length === 0)
-      dispatch(unlockTurn({ channel: 'user:replenish' }))
-    }
-
-    if (cards.some((c) => c.id === 'QD')) {
-      console.log('QUEEEEEEEN')
-
-      console.log(getState())
+      dispatch(confirmReplenish())
     }
 
     return getNextPlayer(getState(), cards, result.burn)

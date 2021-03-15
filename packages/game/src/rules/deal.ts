@@ -40,7 +40,6 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
   state.turnLocks = []
   state.burnt = []
   state.stack = []
-  state.turnClocks = []
   state.afterimage = []
   state.local = {
     targetUID: '',

@@ -1,7 +1,7 @@
-import { unlockTurn } from '../game.slice'
-import { applyClock, createAppThunk, playCardInternal } from './common'
+import { createAppThunk, playCardInternal } from './common'
 import type { CardModel } from '../types'
 import { activePlayerSelector } from '../selectors'
+import { completeReveal } from '..'
 
 interface PlayCardArgs {
   cards: CardModel[]
@@ -23,12 +23,11 @@ export const revealThunk = createAppThunk(
       throw new Error('Cannot reveal : no turn lock')
     }
 
-    dispatch(unlockTurn({ channel: 'user:psychicreveal', data: revealed.id }))
+    dispatch(completeReveal(revealed.id))
 
     await new Promise((r) => setTimeout(r, 500))
 
     if (revealed.value === 'Q') {
-      dispatch(applyClock('chainedqueen'))
       await playCardInternal(cards, dispatch, getState)
     }
   },

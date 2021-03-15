@@ -1,12 +1,12 @@
 import it from 'ava'
-import { getStore } from '..'
+import { confirmReplenish, getStore } from '..'
 import { createCard, createCardByID } from '../deck'
 import {
   activePlayerSelector,
   stackDestinationSelector,
   hasLock,
 } from '../selectors'
-import { unlockTurn, GameState } from '../game.slice'
+import { GameState, confirmAceTarget } from '../game.slice'
 import { playCardThunk } from './play'
 import { sleepUntil } from './common'
 
@@ -90,7 +90,7 @@ it('replenishes cards', async (t) => {
   t.is(activePlayerSelector(state).id, 'a')
   t.true(state.turnLocks.includes('user:replenish'))
 
-  store.dispatch(unlockTurn({ channel: 'user:replenish' }))
+  store.dispatch(confirmReplenish())
   t.false(state.turnLocks.includes('user:replenish'))
   t.is(store.getState().players[0].cards.length, 4)
 })
@@ -286,7 +286,6 @@ it('does not burn when 3 of a kind are added to the stack', (t) => {
 
 it('properly increments the turn when I play an ace', async (t) => {
   const data: GameState = {
-    turnClocks: [],
     stack: [],
     afterimage: [],
     players: [
@@ -324,7 +323,8 @@ it('properly increments the turn when I play an ace', async (t) => {
   }
 
   const store = getStore(data)
-  store.dispatch(unlockTurn({ channel: 'user:target', data: 'b' }))
+
+  store.dispatch(confirmAceTarget('b'))
   await store.dispatch(
     playCardThunk({ cards: [createCard('A', 'H')], playerID: 'a' }),
   )
@@ -388,7 +388,7 @@ it('allows me to pick up when I ace someone', async (t) => {
     direction: -1,
   })
 
-  store.dispatch(unlockTurn({ channel: 'user:target', data: 'b' }))
+  store.dispatch(confirmAceTarget('b'))
   await store.dispatch(
     playCardThunk({ cards: [createCard('A', 'H')], playerID: 'a' }),
   )
@@ -858,7 +858,6 @@ it('fixes the bug on monday evening', async (t) => {
     turnLocks: [],
     afterimage: [],
     local: { targetUID: '', faceUpPickID: '' },
-    turnClocks: [],
     focused: '',
   })
 
@@ -927,7 +926,6 @@ it('does nothing if its not my turn', async (t) => {
     turnLocks: [],
     afterimage: [],
     local: { targetUID: '', faceUpPickID: '' },
-    turnClocks: [],
     focused: '',
   })
 

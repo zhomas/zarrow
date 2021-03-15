@@ -17,7 +17,6 @@ const getState = (): GameState => ({
   turnLocks: [],
   burnt: [],
   afterimage: [],
-  turnClocks: [],
   activeSteal: {
     userSteals: 0,
     reciprocatedSteals: 0,

@@ -31,13 +31,17 @@ export interface GameState {
     targetUID: string
   }
   turnLocks?: TurnLock[]
-  turnClocks: TurnClock[]
   stackEffect?: StackEffect | ''
   activeSteal: {
     participants: string[]
     userSteals: number
     reciprocatedSteals: number
   }
+}
+
+const removeLock = (lock: TurnLock, state: GameState) => {
+  const idx = state.turnLocks.findIndex((t) => t === lock)
+  state.turnLocks.splice(idx, 1)
 }
 
 export const initialState: GameState = {
@@ -53,7 +57,6 @@ export const initialState: GameState = {
     faceUpPickID: '',
     targetUID: '',
   },
-  turnClocks: [],
   stackEffect: undefined,
   activeSteal: {
     participants: [],
@@ -103,7 +106,6 @@ const counterSlice = createSlice({
       state.direction = action.payload.direction
       state.focused = action.payload.focused
       state.turnLocks = action.payload.turnLocks
-      state.turnClocks = action.payload.turnClocks
       state.afterimage = action.payload.afterimage
       state.stackEffect = action.payload.stackEffect
       state.activeSteal = action.payload.activeSteal
@@ -150,28 +152,13 @@ const counterSlice = createSlice({
       const effect = getCardEffect(cards, state)
 
       switch (effect) {
-        case 'glide':
-          state.turnClocks.push('glideonby')
-          break
-        case 'neutralise':
-          state.turnClocks.push('reset')
-          break
-        case 'skip':
-          state.turnClocks.push('skip')
-          break
-        case 'dw7':
-          state.turnClocks.push('dw7')
-
-          break
         case 'ace':
           state.turnLocks.push('user:target')
           break
         case 'ww7':
-          state.turnClocks.push('ww7')
           state.direction *= -1
           break
         case 'psychic':
-          state.turnClocks.push('queen')
           const faceDowns = player.cards.filter((c) => c.tier === 0)
           const count = Math.min(cards.length, faceDowns.length)
           for (let i = 0; i < count; i++) {
@@ -238,17 +225,10 @@ const counterSlice = createSlice({
         state.turnLocks = []
       }
     },
-    lockTurn(
-      state,
-      action: PayloadAction<{ channel: TurnLock; count?: number }>,
-    ) {
-      const count = action.payload.count || 1
-      const arr = new Array(count).fill(action.payload.channel)
-
-      state.turnLocks = [...state.turnLocks, ...arr]
+    startFupu(state) {
+      state.turnLocks.push('user:faceuptake')
     },
     startBurn(state) {
-      state.turnClocks.push('burn')
       state.turnLocks.push('burn')
       state.turnLocks = state.turnLocks.filter((l) => l !== 'animate')
     },
@@ -275,40 +255,25 @@ const counterSlice = createSlice({
         )
       }
     },
-    unlockTurn(
-      state,
-      action: PayloadAction<{ channel: TurnLock; data?: string }>,
-    ) {
-      switch (action.payload.channel) {
-        case 'user:target':
-          state.local.targetUID = action.payload.data
-          break
-        case 'user:faceuptake':
-          state.local.faceUpPickID = action.payload.data
-          break
-        case 'user:psychicreveal':
-          const revealed = action.payload.data
-          const player = activePlayerSelector(state)
-          const ok = playerHasCardInTierSelector(player.id, revealed, 0)(state)
-          if (!ok) return
-
-          const others = player.cards.filter((c) => c.card.id !== revealed)
-          player.cards = [
-            ...others,
-            { card: createCardByID(revealed), tier: 1 },
-          ]
-
-          break
+    completeReveal(state, action: PayloadAction<string>) {
+      const revealed = action.payload
+      const player = activePlayerSelector(state)
+      const ok = playerHasCardInTierSelector(player.id, revealed, 0)(state)
+      if (ok) {
+        const others = player.cards.filter((c) => c.card.id !== revealed)
+        player.cards = [...others, { card: createCardByID(revealed), tier: 1 }]
+        removeLock('user:psychicreveal', state)
       }
-
-      const idx = state.turnLocks.findIndex((t) => t === action.payload.channel)
-      state.turnLocks.splice(idx, 1)
     },
-    addClock(state, action: PayloadAction<TurnClock>) {
-      state.turnClocks.push(action.payload)
+    startReplenish(state) {
+      state.turnLocks.push('user:replenish')
     },
-    resolveClock(state, action: PayloadAction<TurnClock>) {
-      state.turnClocks = state.turnClocks.filter((c) => c !== action.payload)
+    confirmReplenish(state) {
+      removeLock('user:replenish', state)
+    },
+    confirmAceTarget(state, action: PayloadAction<string>) {
+      removeLock('user:target', state)
+      state.local.targetUID = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -329,7 +294,6 @@ const counterSlice = createSlice({
 
       state.queue = [...new Set([next, ...state.queue])].filter((id) => !!id)
       state.turnLocks = []
-      state.turnClocks = []
       state.local.targetUID = ''
       state.local.faceUpPickID = ''
       state.activeSteal = {
@@ -354,7 +318,6 @@ const counterSlice = createSlice({
 
 export const {
   deal,
-  unlockTurn,
   joinGame,
   setFaction,
   replace,
@@ -362,17 +325,19 @@ export const {
   reverse,
   sortHand,
   addToStack,
-  lockTurn,
   applyCardEffect,
   stealSingleCard,
-  addClock,
-  resolveClock,
   pickupStack,
   startBurn,
   completeBurn,
   startMiniburn,
   completeMiniburn,
   selectStealTarget,
+  completeReveal,
+  startReplenish,
+  confirmReplenish,
+  confirmAceTarget,
+  startFupu,
 } = counterSlice.actions
 
 export default counterSlice.reducer

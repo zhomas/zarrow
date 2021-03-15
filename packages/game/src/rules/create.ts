@@ -4,7 +4,6 @@ export const createGame = (): GameState => {
   return {
     queue: [],
     stack: [],
-    turnClocks: [],
     burnt: [],
     direction: 1,
     pickupPile: [],

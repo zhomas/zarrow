@@ -2,9 +2,9 @@ import it from 'ava'
 import {
   hasLock,
   getStore,
-  unlockTurn,
   activePlayerSelector,
   stackDestinationSelector,
+  completeReveal,
 } from '..'
 import { createCard, createCardByID } from '../deck'
 
@@ -68,7 +68,7 @@ it('unblocks the turn when a reveal is made', async (t) => {
 
   t.is(isQueenLocked(store.getState()), true)
 
-  store.dispatch(unlockTurn({ channel: 'user:psychicreveal' }))
+  store.dispatch(completeReveal('2C'))
 
   await x
   t.is(isQueenLocked(store.getState()), false)
@@ -124,7 +124,6 @@ it('advances to the next player when revaling is complete', async (t) => {
     pickupPile: [],
     turnLocks: [],
     local: { targetUID: '', faceUpPickID: '' },
-    turnClocks: [],
     focused: '',
   })
 
@@ -170,7 +169,7 @@ it('does not resolve the block if the card is not in my downs', async (t) => {
 
   await new Promise((r) => setTimeout(r, 1000))
 
-  store.dispatch(unlockTurn({ channel: 'user:psychicreveal', data: 'JD' }))
+  store.dispatch(completeReveal('JD'))
   t.is(isQueenLocked(store.getState()), true)
 })
 
@@ -201,7 +200,7 @@ it('moves the revealed card to a higher tier', async (t) => {
 
   t.is(isQueenLocked(store.getState()), true)
 
-  store.dispatch(unlockTurn({ channel: 'user:psychicreveal', data: '3C' }))
+  store.dispatch(completeReveal('3C'))
 
   await x
 
@@ -297,7 +296,7 @@ it('burns after use', async (t) => {
 
   t.is(isQueenLocked(store.getState()), true)
 
-  store.dispatch(unlockTurn({ channel: 'user:psychicreveal', data: '3C' }))
+  store.dispatch(completeReveal('3C'))
 
   await x
 
@@ -335,11 +334,11 @@ it('performs a double block when two queens are played', async (t) => {
 
   await new Promise((r) => setTimeout(r, 1000))
 
-  store.dispatch(unlockTurn({ channel: 'user:psychicreveal', data: '2C' }))
+  store.dispatch(completeReveal('2C'))
 
   t.is(isQueenLocked(store.getState()), true)
 
-  store.dispatch(unlockTurn({ channel: 'user:psychicreveal', data: '2H' }))
+  store.dispatch(completeReveal('2H'))
 
   t.is(isQueenLocked(store.getState()), false)
 })

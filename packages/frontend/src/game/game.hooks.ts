@@ -8,9 +8,9 @@ import {
   highlightedLocationSelector,
   playCardThunk,
   stackDestinationSelector,
-  unlockTurn,
   userModeSelector,
   selectStealTarget,
+  selectAceTarget,
 } from 'game'
 import { createCardByID } from 'game/dist/deck'
 import { FluidCardProps } from '../typings'
@@ -226,12 +226,14 @@ export const useCardBuilder = (uid: string) => {
 
 const locksSelector = (state: GameState) => state.turnLocks
 
+const isStealTargeting = (state: GameState) => state.activeSteal.targeting
+
 export const useTargeting = (uid: string) => {
   const [target, setTarget] = useState('')
   const mode = useSelector(userModeSelector(uid))
   const dispatch = useDispatch()
   const locks = useSelector(locksSelector)
-
+  const targeting = useSelector(isStealTargeting)
   const activeReveal = mode === 'play:reveal'
   const activeTarget = mode === 'play:target'
 
@@ -258,13 +260,13 @@ export const useTargeting = (uid: string) => {
     getCurrentHighlight: getPlayerHighlight,
     setTarget,
     fire: () => {
-      if (locks?.includes('steal:target')) {
+      if (targeting) {
         const kingTarget = selectStealTarget({ targetID: target, count: 1 })
         dispatch(kingTarget)
         return
       }
 
-      const action = unlockTurn({ channel: 'user:target', data: target })
+      const action = selectAceTarget(target)
       dispatch(action)
     },
   }

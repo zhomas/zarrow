@@ -45,6 +45,8 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
     targetUID: '',
     faceUpPickID: '',
   }
+  state.animating = false
+  state.burning = false
   state.activeSteal = {
     participants: [],
     userSteals: 0,

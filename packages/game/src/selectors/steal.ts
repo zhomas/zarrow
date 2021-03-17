@@ -3,6 +3,23 @@ import { createCardByID } from '../deck'
 import { GameState } from '../game.slice'
 import { CardModel } from '../types'
 
+export const stealPhaseSelector = (state: GameState) => {
+  if (state.activeSteal.targeting) return 'target'
+
+  if (
+    state.activeSteal.userSteals > 0 ||
+    state.activeSteal.reciprocatedSteals > 0
+  ) {
+    if (state.activeSteal.userSteals >= state.activeSteal.reciprocatedSteals) {
+      return 'pick:cards'
+    }
+
+    return 'reciprocate'
+  }
+
+  return 'none'
+}
+
 export const myStealableCardsSelector = (uid: string) => (state: GameState) => {
   const tier = highestTierSelector(uid)(state)
   return state.players

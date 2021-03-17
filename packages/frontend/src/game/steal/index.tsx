@@ -8,6 +8,7 @@ import {
   GameDispatch,
   highestTierSelector,
   otherStealParticipantSelector,
+  stealPhaseSelector,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
@@ -80,9 +81,7 @@ const mapState = (state: GameState, { uid }: OwnProps) => {
   return {
     theirCards,
     selected: [],
-    reciprocal: state.turnLocks
-      ? state.turnLocks.includes('steal:reciprocate')
-      : false,
+    reciprocal: stealPhaseSelector(state) === 'reciprocate',
     active: mode === 'steal:pick' || mode === 'steal:receive',
     message: mode,
     faceDown: selectTier(state) !== 1,

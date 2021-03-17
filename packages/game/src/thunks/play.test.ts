@@ -10,7 +10,7 @@ import { GameState, confirmAceTarget } from '../game.slice'
 import { playCardThunk } from './play'
 import { sleepUntil } from './common'
 
-const isBurning = hasLock('burn')
+const isBurning = (st: GameState) => !!st.burning
 const isReplenishing = hasLock('user:replenish')
 
 const card = createCard('3', 'D')
@@ -425,10 +425,10 @@ it('allows me to pick up when I burn', async (t) => {
   )
 
   await new Promise((r) => setTimeout(r, 1500))
-  t.is(store.getState().turnLocks.includes('animate'), false)
-  t.is(store.getState().turnLocks.includes('burn'), true)
+  t.is(store.getState().animating, false)
+  t.is(isBurning(store.getState()), true)
 
-  await sleepUntil(() => !store.getState().turnLocks.includes('burn'))
+  await sleepUntil(() => !isBurning(store.getState()))
 
   t.is(isReplenishing(store.getState()), true)
 })

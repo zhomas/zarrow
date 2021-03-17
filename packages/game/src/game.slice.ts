@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { dealCards } from './rules/deal'
 import { pickup } from './rules/pickup'
 
-import { CardModel, PlayerModel, TurnClock, TurnLock } from './types'
+import { CardModel, PlayerModel, TurnLock } from './types'
 import { joinGame as join, changeFaction as faction } from './rules/create'
 
 import { createCardByID } from './deck'
@@ -19,6 +19,8 @@ import {
 
 export interface GameState {
   direction: number
+  burning?: boolean
+  animating?: boolean
   queue: string[]
   players: PlayerModel[]
   stack: CardModel[]
@@ -33,6 +35,7 @@ export interface GameState {
   turnLocks?: TurnLock[]
   stackEffect?: StackEffect | ''
   activeSteal: {
+    targeting?: boolean
     participants: string[]
     userSteals: number
     reciprocatedSteals: number
@@ -46,6 +49,8 @@ const removeLock = (lock: TurnLock, state: GameState) => {
 
 export const initialState: GameState = {
   direction: 1,
+  burning: false,
+  animating: false,
   queue: [],
   players: [],
   stack: [],
@@ -59,6 +64,7 @@ export const initialState: GameState = {
   },
   stackEffect: undefined,
   activeSteal: {
+    targeting: false,
     participants: [],
     userSteals: 0,
     reciprocatedSteals: 0,
@@ -109,6 +115,8 @@ const counterSlice = createSlice({
       state.afterimage = action.payload.afterimage
       state.stackEffect = action.payload.stackEffect
       state.activeSteal = action.payload.activeSteal
+      state.burning = !!action.payload.burning
+      state.animating = !!action.payload.animating
     },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)
@@ -130,7 +138,7 @@ const counterSlice = createSlice({
         state.stack.unshift(card)
       }
 
-      state.turnLocks = [...state.turnLocks, 'animate']
+      state.animating = true
     },
     pickupStack(state, action: PayloadAction<CardModel[]>) {
       pickup(state, ...action.payload)
@@ -167,7 +175,12 @@ const counterSlice = createSlice({
 
           break
         case 'steal':
-          state.turnLocks.push('steal:target')
+          state.activeSteal = {
+            targeting: true,
+            participants: [],
+            reciprocatedSteals: 0,
+            userSteals: 0,
+          }
           break
         default:
           break
@@ -177,20 +190,21 @@ const counterSlice = createSlice({
         state.afterimage = []
       }
       state.stackEffect = effect
-      state.turnLocks = state.turnLocks.filter((l) => l !== 'animate')
+      state.animating = false
     },
     selectStealTarget(state, action: PayloadAction<StealPayload>) {
       state.activeSteal = {
+        targeting: false,
         participants: [activePlayerSelector(state).id, action.payload.targetID],
         userSteals: action.payload.count,
         reciprocatedSteals: action.payload.count,
       }
-
-      state.turnLocks = state.turnLocks.filter((l) => l !== 'steal:target')
-      state.turnLocks.push('steal:selectcards')
+    },
+    selectAceTarget(state, action: PayloadAction<string>) {
+      removeLock('user:target', state)
+      state.local.targetUID = action.payload
     },
     stealSingleCard(state, action: PayloadAction<StealSinglePayload>) {
-      const { activeSteal, queue } = state
       const { userID, cardID } = action.payload
       const activeID = activePlayerSelector(state).id
       const reciprocal = userID !== activeID
@@ -215,38 +229,38 @@ const counterSlice = createSlice({
         state.activeSteal.userSteals--
       }
 
-      if (state.activeSteal.userSteals > state.activeSteal.reciprocatedSteals) {
-        state.turnLocks = ['steal:selectcards']
-      } else if (
-        state.activeSteal.reciprocatedSteals > state.activeSteal.userSteals
+      if (
+        state.activeSteal.reciprocatedSteals + state.activeSteal.userSteals ===
+        0
       ) {
-        state.turnLocks = ['steal:reciprocate']
-      } else {
-        state.turnLocks = []
+        state.activeSteal = {
+          participants: [],
+          reciprocatedSteals: 0,
+          userSteals: 0,
+          targeting: false,
+        }
       }
     },
     startFupu(state) {
       state.turnLocks.push('user:faceuptake')
     },
     startBurn(state) {
-      state.turnLocks.push('burn')
-      state.turnLocks = state.turnLocks.filter((l) => l !== 'animate')
+      state.burning = true
+      state.animating = false
     },
     completeBurn(state) {
       state.burnt = [...state.stack, ...state.burnt]
       state.stack = []
-      state.turnLocks = state.turnLocks.filter((l) => l !== 'burn')
+      state.burning = false
     },
     startMiniburn(state) {
-      state.turnLocks.push('burn')
-      state.turnLocks = state.turnLocks.filter((l) => l !== 'animate')
+      state.animating = false
+      state.burning = true
     },
     completeMiniburn(state) {
       const remove = state.stack.filter((c) => ['Q', 'K'].includes(c.value))
-      state.turnLocks = state.turnLocks.filter((l) => l !== 'burn')
-
+      state.burning = false
       for (const card of remove) {
-        console.log('REMOVE: ', card.id)
         state.burnt.push(card)
         state.afterimage.push(card)
         state.stack.splice(
@@ -275,6 +289,10 @@ const counterSlice = createSlice({
       removeLock('user:target', state)
       state.local.targetUID = action.payload
     },
+    confirmFupu(state, action: PayloadAction<CardModel>) {
+      removeLock('user:faceuptake', state)
+      state.local.faceUpPickID = action.payload.id
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(playCardThunk.pending, (state) => {
@@ -297,6 +315,7 @@ const counterSlice = createSlice({
       state.local.targetUID = ''
       state.local.faceUpPickID = ''
       state.activeSteal = {
+        targeting: false,
         userSteals: 0,
         reciprocatedSteals: 0,
         participants: [],
@@ -338,6 +357,8 @@ export const {
   confirmReplenish,
   confirmAceTarget,
   startFupu,
+  confirmFupu,
+  selectAceTarget,
 } = counterSlice.actions
 
 export default counterSlice.reducer

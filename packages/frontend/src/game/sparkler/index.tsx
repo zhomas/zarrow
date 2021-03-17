@@ -113,14 +113,10 @@ const _Sparkler: FC<Props> = ({ show, children, burning, effect }) => {
 const isBurning = hasLock('burn')
 
 const mapState = (state: GameState) => {
-  const sparkles = [...state.turnClocks]
-
   return {
-    sparkles,
     effect: state.stackEffect,
     show: state.stack.length > 0,
     burning: isBurning(state),
-    weirdWackySevensTime: state.turnClocks.some((c) => c === 'ww7'),
   }
 }
 

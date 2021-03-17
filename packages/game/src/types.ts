@@ -36,22 +36,8 @@ export interface PlayerModel {
 }
 
 export type TurnLock =
-  | 'animate'
-  | 'burn'
   | 'user:replenish'
   | 'user:target'
   | 'user:faceuptake'
   | 'user:psychicreveal'
   | 'steal:target'
-  | 'steal:selectcards'
-  | 'steal:reciprocate'
-
-export type TurnClock =
-  | 'ww7'
-  | 'skip'
-  | 'glideonby'
-  | 'dw7'
-  | 'burn'
-  | 'reset'
-  | 'chainedqueen'
-  | 'queen'

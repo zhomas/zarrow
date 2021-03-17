@@ -3,7 +3,7 @@ import {
   CardModel,
   GameDispatch,
   GameState,
-  unlockTurn,
+  confirmFupu,
 } from 'game'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
@@ -61,7 +61,7 @@ const mapState = (state: GameState, { uid }: OwnProps) => {
 const mapDispatch = (dispatch: GameDispatch) => {
   return {
     handleClick: (c: CardModel) => {
-      const action = unlockTurn({ channel: 'user:faceuptake', data: c.id })
+      const action = confirmFupu(c)
       dispatch(action)
     },
   }

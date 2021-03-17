@@ -1,5 +1,10 @@
 import React, { FC, useEffect, useState } from 'react'
-import { GameDispatch, GameState, unlockTurn, userModeSelector } from 'game'
+import {
+  GameDispatch,
+  GameState,
+  userModeSelector,
+  selectAceTarget,
+} from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
 import { Screen } from '../game.style'
@@ -108,7 +113,7 @@ const mapState = (state: GameState, props: OwnProps) => {
   return {
     activeReveal: mode === 'play:reveal',
     activeTarget: mode === 'play:target',
-    chaining: state.turnClocks.includes('chainedqueen'),
+    chaining: false,
     psychicReveals: state.turnLocks?.filter((l) => l === 'user:psychicreveal')
       .length,
   }
@@ -117,7 +122,7 @@ const mapState = (state: GameState, props: OwnProps) => {
 const mapDispatch = (dispatch: GameDispatch) => {
   return {
     bombsAway: (targID: string) => {
-      const action = unlockTurn({ channel: 'user:target', data: targID })
+      const action = selectAceTarget(targID)
       dispatch(action)
     },
   }

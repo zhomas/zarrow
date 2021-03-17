@@ -11,9 +11,9 @@ import {
   shouldMiniburn,
   startMiniburn,
   completeMiniburn,
+  stealPhaseSelector,
 } from '..'
 import { CARD_FLIGHT_TIME } from '../constants'
-import { TurnClock } from '../types'
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -46,6 +46,16 @@ export const playCardInternal = async (
   dispatch(addToStack({ cards }))
   await sleep(CARD_FLIGHT_TIME + 50)
 
+  const ready = () => {
+    const st = getState()
+    return (
+      !st.animating &&
+      !st.burning &&
+      st.turnLocks.length === 0 &&
+      stealPhaseSelector(st) === 'none'
+    )
+  }
+
   if (shouldBurn(getState())) {
     dispatch(startBurn())
     await sleep(1500)
@@ -55,7 +65,7 @@ export const playCardInternal = async (
 
   dispatch(applyCardEffect(cards))
 
-  await sleepUntil(() => getState().turnLocks.length === 0)
+  await sleepUntil(ready)
 
   if (shouldMiniburn(getState())) {
     dispatch(startMiniburn())
@@ -63,6 +73,6 @@ export const playCardInternal = async (
     dispatch(completeMiniburn())
   }
 
-  await sleepUntil(() => getState().turnLocks.length === 0)
+  await sleepUntil(ready)
   return { burn: false }
 }

@@ -3,13 +3,13 @@ import {
   CardModel,
   createDeck,
   deal,
-  unlockTurn,
   GameDispatch,
   GameState,
   playCardThunk,
   pickupThunk,
   highlightedLocationSelector,
   userModeSelector,
+  confirmReplenish,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import { StyledGame } from './game.style'
@@ -152,11 +152,7 @@ const mapDispatch = (d: GameDispatch, ownProps: OwnProps) => {
       d(action)
     },
     confirmReplenish: () => {
-      const action = unlockTurn({ channel: 'user:replenish' })
-      d(action)
-    },
-    confirmPickupFaceUp: (c: CardModel) => {
-      const action = unlockTurn({ channel: 'user:faceuptake', data: c.id })
+      const action = confirmReplenish()
       d(action)
     },
     pickupStack: () => {

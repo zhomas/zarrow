@@ -1,4 +1,10 @@
-import { GameState, stackDestinationSelector, canCardPlay, hasLock } from '..'
+import {
+  GameState,
+  stackDestinationSelector,
+  canCardPlay,
+  hasLock,
+  stealPhaseSelector,
+} from '..'
 import { createCardByID } from '../deck'
 import { gameModeSelector, winnersSelector } from './status'
 
@@ -34,14 +40,14 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
 
   const gameMode = gameModeSelector(state)
 
-  const isBurning = hasLock('burn')
-  const isAnimating = hasLock('animate')
+  const isBurning = (st: GameState) => !!st.burning
+  const isAnimating = (st: GameState) => !!st.animating
   const isAcing = hasLock('user:target')
   const isReplenishing = hasLock('user:replenish')
   const isRevealing = hasLock('user:psychicreveal')
-  const isStealTarget = hasLock('steal:target')
-  const isStealPick = hasLock('steal:selectcards')
-  const isStealReciprocate = hasLock('steal:reciprocate')
+  const isStealTarget = stealPhaseSelector(state) === 'target'
+  const isStealPick = stealPhaseSelector(state) === 'pick:cards'
+  const isStealReciprocate = stealPhaseSelector(state) === 'reciprocate'
 
   if (isBurning(state)) return 'idle:burn'
 
@@ -53,9 +59,9 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
       if (turnActive) {
         if (isAcing(state)) return 'play:target'
         if (isRevealing(state)) return 'play:reveal'
-        if (isStealTarget(state)) return 'play:target'
-        if (isStealPick(state)) return 'steal:pick'
-        if (isStealReciprocate(state)) return 'steal:receive'
+        if (isStealTarget) return 'play:target'
+        if (isStealPick) return 'steal:pick'
+        if (isStealReciprocate) return 'steal:receive'
 
         if (isAnimating(state)) {
           if (max === 2) return 'play:hand'
@@ -72,7 +78,7 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
       }
 
       if (state.activeSteal.participants.includes(uid)) {
-        if (isStealReciprocate(state)) return 'steal:pick'
+        if (isStealReciprocate) return 'steal:pick'
         return 'steal:receive'
       }
 

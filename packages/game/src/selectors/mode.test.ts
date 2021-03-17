@@ -377,7 +377,7 @@ it('highlights the replenish pile when necessary', async (t) => {
   const store = getStore({
     burnt: [],
     direction: 1,
-    pickupPile: [createCard('3', 'S')],
+    pickupPile: [createCard('9', 'S')],
     queue: ['abc'],
     turnLocks: [],
     stack: [createCard('2', 'S')],
@@ -401,6 +401,7 @@ it('highlights the replenish pile when necessary', async (t) => {
   const location = selector(store.getState())
 
   t.deepEqual(location, 'replenish')
+  t.log(store.getState())
 })
 
 it('highlights my oppenent while he is choosing from his hand', (t) => {
@@ -656,7 +657,7 @@ it('does not highlight while burning', async (t) => {
   )
 
   await new Promise((r) => setTimeout(r, 500))
-  t.is(hasLock('burn')(getState()), true)
+  t.is(getState().burning, true)
   t.is(selector(getState()), 'none')
 })
 

@@ -62,6 +62,7 @@ const _GameView: FC<Props> = ({
         </div>
         <div className="s2">
           <NonPlayerTiers
+            userID={uid}
             ownerID={opponent.id}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}

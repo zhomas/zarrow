@@ -2,6 +2,7 @@ import { configureStore, Middleware } from '@reduxjs/toolkit'
 import gameReducer, { GameState, initialState } from './game.slice'
 export * from './game.slice'
 export * from './selectors/status'
+export * from './selectors/mode'
 
 export { createDeck } from './deck'
 export { createGame } from './rules/create'

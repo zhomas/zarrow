@@ -7,18 +7,27 @@ import { styled } from '@linaria/react'
 
 const Wrapper = styled.div`
   position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 `
 
 const Screen = styled.div`
   position: absolute;
   background: rgba(255, 0, 0, 0.3);
   top: 0;
-  left: 0;
-  right: 0;
+  left: -20px;
+  right: -20px;
   bottom: 0;
   z-index: 1;
   opacity: 0;
   pointer-events: none;
+`
+
+const NameWrapper = styled.span`
+  padding: 10px;
+  text-align: center;
+  display: block;
 `
 
 const _NonPlayerTiers: FC<Props> = ({
@@ -29,6 +38,9 @@ const _NonPlayerTiers: FC<Props> = ({
   onMouseLeave,
   onClick,
   targetMode,
+  name,
+  ownerID,
+  highlight,
 }) => (
   <Wrapper
     onMouseEnter={onMouseEnter}
@@ -44,14 +56,15 @@ const _NonPlayerTiers: FC<Props> = ({
     />
     <Screen
       style={{
-        opacity: targetMode === 'ace:hover' ? 1 : 0,
+        opacity: targetMode === 'ace:hover' ? 1 : 0.5,
       }}
     />
+    <NameWrapper>{name}</NameWrapper>
   </Wrapper>
 )
 
-const mapState = (state: GameState, { ownerID }: OwnProps) => {
-  const highlight = highlightedLocationSelector(ownerID)(state)
+const mapState = (state: GameState, { ownerID, userID }: OwnProps) => {
+  const highlight = highlightedLocationSelector(userID)(state)
   const cards = state.players.find((p) => p.id === ownerID)?.cards || []
   const ups: FluidCardProps[] = cards
     .filter((c) => c.tier === 1)
@@ -64,16 +77,21 @@ const mapState = (state: GameState, { ownerID }: OwnProps) => {
       faceDown: c.card.id !== state.focused,
     }))
 
+  console.log(highlight)
+
   return {
     ups,
     downs,
     focused: state.focused,
+    highlight,
+    name: state.players.find((p) => p.id === ownerID)?.displayName,
     throb: highlight[1] === ownerID,
   }
 }
 
 interface OwnProps {
   ownerID: string
+  userID: string
   onMouseEnter: () => void
   onMouseLeave: () => void
   onClick: () => void

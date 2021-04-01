@@ -99,8 +99,6 @@ const _Sparkler: FC<Props> = ({ show, children, burning, effect }) => {
     if (!showEffect) return null
 
     switch (effect) {
-      case 'ace':
-        return <motion.h3 animate={wobbleRise}>ACE</motion.h3>
       case 'ww7':
         return (
           <motion.h3 animate={wobbleRise}>Weird whacky sevens time</motion.h3>
@@ -111,6 +109,13 @@ const _Sparkler: FC<Props> = ({ show, children, burning, effect }) => {
         return <motion.h3 animate={wobbleRise}>Skip a go</motion.h3>
       case 'dw7':
         return <motion.h3 animate={wobbleRise}>Double whacky sevens</motion.h3>
+      case 'psychic':
+        return <motion.h3 animate={wobbleRise}>Psychic reveal</motion.h3>
+      case 'neutralise':
+        return <motion.h3 animate={wobbleRise}>Reset</motion.h3>
+      case 'steal':
+        return <motion.h3 animate={wobbleRise}>Swap</motion.h3>
+
       default:
         break
     }

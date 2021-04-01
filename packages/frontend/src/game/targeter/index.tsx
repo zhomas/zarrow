@@ -8,14 +8,16 @@ import {
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
 import { Screen } from '../game.style'
+import { motion } from 'framer-motion'
 
-const BottomThing = styled.div`
+const BottomThing = styled(motion.div)`
   &&& {
     position: fixed;
     left: 0px;
     right: 0px;
     bottom: 0px;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
     z-index: 2;
     text-align: center;
     pointer-events: none;
@@ -77,12 +79,12 @@ const _Targeter: FC<Props> = ({
         fire: () => bombsAway(targ),
       })}
 
-      {activeTarget && (
-        <>
-          {' '}
-          <BottomThing>Pick a target</BottomThing>
-        </>
-      )}
+      <BottomThing
+        animate={{ y: activeTarget ? '0' : '100%' }}
+        transition={{ ease: 'easeOut' }}
+      >
+        Pick a target
+      </BottomThing>
 
       {activeReveal && (
         <>

@@ -88,7 +88,7 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
   }
 }
 
-type HighlightLocation =
+export type HighlightLocation =
   | 'none'
   | 'replenish'
   | 'stack'

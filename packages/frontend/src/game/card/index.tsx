@@ -121,30 +121,6 @@ export const FluidCard: FC<Props> = ({
               {card.value}
               {card.suit}
             </span>
-            <div>
-              {selectable && (
-                <>
-                  <Checkbox
-                    key={(!!selected).toString()}
-                    type="checkbox"
-                    checked={!!selected}
-                    onMouseOver={(e) => {
-                      e.stopPropagation()
-                      e.preventDefault()
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      //console.log('click!')
-                    }}
-                    onChange={(e) => {
-                      console.log('change')
-                      onSelect && onSelect(e)
-                    }}
-                  />
-                </>
-              )}
-            </div>
           </CardFace>
           <CardBack />
         </motion.div>

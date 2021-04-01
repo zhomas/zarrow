@@ -55,3 +55,63 @@ export const pickUpOnEmpty: GameState = {
   activeSteal: { participants: [], userSteals: 0, reciprocatedSteals: 0 },
   focused: '',
 }
+
+export const nearEnd: GameState = {
+  direction: 1,
+  burning: false,
+  animating: false,
+  queue: ['Jj2c3OMxphY26S1k3qQwB0LCiQ43', 'NRUF3fQBIvTw8GkKMAoaMH9z6wC2'],
+  players: [
+    {
+      displayName: 'Tombola',
+      cards: [
+        { card: { value: '4', id: '4D', suit: 'D' }, stolen: false, tier: 0 },
+        { stolen: false, card: { value: '8', id: '8D', suit: 'D' }, tier: 0 },
+        { stolen: false, card: { suit: 'D', id: 'JD', value: 'J' }, tier: 0 },
+        { tier: 0, card: { suit: 'D', id: 'QD', value: 'Q' }, stolen: false },
+        { stolen: false, card: { value: '9', id: '9H', suit: 'H' }, tier: 1 },
+        { tier: 1, stolen: false, card: { suit: 'C', value: 'K', id: 'KC' } },
+        { stolen: false, card: { value: '5', suit: 'H', id: '5H' }, tier: 1 },
+        { card: { suit: 'D', id: '7D', value: '7' }, tier: 1, stolen: false },
+        { stolen: false, card: { suit: 'C', id: '9C', value: '9' }, tier: 2 },
+        { tier: 2, stolen: false, card: { id: 'AC', value: 'A', suit: 'C' } },
+        { tier: 2, card: { suit: 'S', id: 'JS', value: 'J' }, stolen: false },
+        { tier: 2, stolen: false, card: { suit: 'S', id: '6S', value: '6' } },
+        { stolen: false, tier: 2, card: { suit: 'C', value: '4', id: '4C' } },
+      ],
+      faction: 0,
+      id: 'Jj2c3OMxphY26S1k3qQwB0LCiQ43',
+    },
+    {
+      faction: 1,
+      displayName: 'F',
+      id: 'NRUF3fQBIvTw8GkKMAoaMH9z6wC2',
+      cards: [
+        { card: { value: '5', id: '5C', suit: 'C' }, stolen: false, tier: 0 },
+        { card: { id: '7S', suit: 'S', value: '7' }, tier: 0, stolen: false },
+      ],
+    },
+  ],
+  stack: [{ suit: 'S', value: '3', id: '3S' }],
+  burnt: [
+    { suit: 'H', id: '10H', value: '10' },
+    { suit: 'D', id: '3D', value: '3' },
+    { suit: 'S', value: '2', id: '2S' },
+    { id: '8C', suit: 'C', value: '8' },
+    { suit: 'H', value: 'A', id: 'AH' },
+    { suit: 'H', id: '2H', value: '2' },
+    { suit: 'H', value: '6', id: '6H' },
+    { value: '10', suit: 'S', id: '10S' },
+  ],
+  pickupPile: [],
+  turnLocks: [],
+  afterimage: [],
+  local: { targetUID: '', faceUpPickID: '' },
+  activeSteal: {
+    targeting: false,
+    userSteals: 0,
+    reciprocatedSteals: 0,
+    participants: [],
+  },
+  focused: '',
+}

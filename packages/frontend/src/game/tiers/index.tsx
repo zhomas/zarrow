@@ -19,6 +19,7 @@ const Wrapper = styled.div`
   align-items: center;
   position: relative;
   padding: 20px;
+  flex: 1;
 `
 
 const Ups = styled(motion.div)`
@@ -26,6 +27,7 @@ const Ups = styled(motion.div)`
   position: absolute;
   bottom: 0;
   z-index: 1;
+  max-width: 100%;
 
   > *:last-child {
     flex-basis: 126px;
@@ -36,7 +38,7 @@ const Ups = styled(motion.div)`
 const Downs = styled(motion.div)`
   display: flex;
   justify-content: center;
-
+  max-width: 100%;
   > *:last-child {
     flex-basis: 126px;
     flex-shrink: 0;
@@ -75,7 +77,7 @@ export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
           <FluidCard key={props.card.id} {...props} />
         ))}
       </Downs>
-      {throb && <Throbber point="right" left={0} />}
+      {throb && <Throbber point="right" left={-100} />}
     </Wrapper>
   )
 }

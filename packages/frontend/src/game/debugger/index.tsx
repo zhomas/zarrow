@@ -1,10 +1,10 @@
 import React from 'react'
 import { GameDispatch, GameState, replace, userModeSelector } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
-import { pickUpOnEmpty } from './states/index'
+import * as st from './states/index'
 
 const states = {
-  pickUpOnEmpty,
+  ...st,
 }
 
 const _Debugger = (props: Props) => {

@@ -1,28 +1,26 @@
 import { AnimatePresence, motion, Variant } from 'framer-motion'
 import { GameState, hasLock } from 'game'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useLayoutEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
 import { time } from 'console'
 
 const wobbleRise: Variant = {
-  x: 10,
+  x: 8,
   y: -100,
   opacity: [1, 0],
   transition: {
     y: {
-      duration: 1,
+      duration: 3,
       ease: 'easeOut',
     },
     x: {
       repeat: Infinity,
-      type: 'tween',
-      ease: 'easeInOut',
       duration: 0.3,
       repeatType: 'mirror',
     },
     opacity: {
-      duration: 1,
+      duration: 2,
     },
   },
 }
@@ -38,7 +36,25 @@ const burn: Variant = {
 const StackWrapper = styled(motion.div)`
   width: 146px;
   height: 196px;
-  background: #000;
+`
+
+const SparkleWrapper = styled(motion.div)`
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 200px;
+  bottom: 0;
+  pointer-events: none;
+  color: #fff;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+  transform: translateX(-50%);
+
+  h3 {
+    font-size: 28px;
+    font-weight: 900;
+    text-align: center;
+  }
 `
 
 const BurnBox = styled(motion.div)`
@@ -56,6 +72,15 @@ const BurnBox = styled(motion.div)`
 const _Sparkler: FC<Props> = ({ show, children, burning, effect }) => {
   const [showEffect, setShowEffect] = useState(false)
 
+  const getRandom = () => {
+    const max = 40
+    const min = -40
+    return Math.floor(Math.random() * (max - min + 1)) + min
+  }
+
+  const [x, setX] = useState(getRandom())
+  const [y, setY] = useState(getRandom())
+
   useEffect(() => {
     setShowEffect(!!effect)
     const timeout = setTimeout(() => {
@@ -64,6 +89,11 @@ const _Sparkler: FC<Props> = ({ show, children, burning, effect }) => {
 
     return () => clearTimeout(timeout)
   }, [effect])
+
+  useLayoutEffect(() => {
+    setX(getRandom())
+    setY(getRandom())
+  }, [showEffect, effect])
 
   const renderSparkles = () => {
     if (!showEffect) return null
@@ -89,34 +119,21 @@ const _Sparkler: FC<Props> = ({ show, children, burning, effect }) => {
   return (
     <div style={{ position: 'relative' }}>
       <StackWrapper>
-        <AnimatePresence>
-          {show && <motion.div exit={{ opacity: 0 }}>{children}</motion.div>}
-        </AnimatePresence>
+        {children}
         {burning && <BurnBox animate={burn}>FLAMES</BurnBox>}
       </StackWrapper>
-      <motion.div
-        style={{
-          position: 'absolute',
-          backgroundColor: 'red',
-          left: '100%',
-          top: 0,
-          width: 50,
-          height: 50,
-        }}
-      >
-        {renderSparkles()}
-      </motion.div>
+      <SparkleWrapper>
+        <motion.div style={{ x: x, y }}> {renderSparkles()}</motion.div>
+      </SparkleWrapper>
     </div>
   )
 }
-
-const isBurning = hasLock('burn')
 
 const mapState = (state: GameState) => {
   return {
     effect: state.stackEffect,
     show: state.stack.length > 0,
-    burning: isBurning(state),
+    burning: !!state.burning,
   }
 }
 

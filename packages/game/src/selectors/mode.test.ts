@@ -1,6 +1,6 @@
 import it from 'ava'
 import { getStore, hasLock, highlightedLocationSelector } from '..'
-import { createCard } from '../deck'
+import { createCard, createCardByID } from '../deck'
 import { playCardThunk } from '../thunks/play'
 import { userModeSelector } from './mode'
 
@@ -659,6 +659,32 @@ it('does not highlight while burning', async (t) => {
   await new Promise((r) => setTimeout(r, 500))
   t.is(getState().burning, true)
   t.is(selector(getState()), 'none')
+})
+
+it('highlights the pickup pile when picking up an empty stack', (t) => {
+  const highlightSelector = highlightedLocationSelector('abc')
+  const modeSelector = userModeSelector('abc')
+  const { getState } = getStore({
+    queue: ['abc'],
+    players: [
+      {
+        id: 'abc',
+        faction: 0,
+        displayName: 'Tom',
+        cards: [
+          { card: createCard('4', 'S'), tier: 2 },
+          { card: createCard('6', 'S'), tier: 2 },
+        ],
+      },
+    ],
+    afterimage: [createCardByID('QS')],
+  })
+
+  const result = highlightSelector(getState())
+  const mode = modeSelector(getState())
+
+  t.truthy(mode === 'pickup:stack')
+  t.truthy(result === 'stack')
 })
 
 it('does not highlight while acing', async (t) => {

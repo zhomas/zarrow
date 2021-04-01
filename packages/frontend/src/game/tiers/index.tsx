@@ -55,12 +55,12 @@ export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
   }
 
   const getUpsWidth = () => {
-    return (ups.length - 1) * 70 + 126
+    return (ups.length - 1) * 50 + 126
   }
 
   const getDownsWidth = () => {
     if (revealing) return 500
-    return (downs.length - 1) * 90 + 126
+    return (downs.length - 1) * 80 + 126
   }
 
   return (

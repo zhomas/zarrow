@@ -175,6 +175,37 @@ it('burns the stack when a 10 is played', async (t) => {
   t.is(st.stack.length, 0)
 })
 
+it('clears the afterimage when I burn', async (t) => {
+  const action = playCardThunk({
+    cards: [createCard('10', 'D')],
+    playerID: 'a',
+  })
+
+  const store = getStore({
+    queue: ['a'],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [{ card: createCard('10', 'D'), tier: 2 }],
+      },
+      {
+        id: 'b',
+        faction: 0,
+        displayName: '',
+        cards: [{ card, tier: 2 }],
+      },
+    ],
+    afterimage: [createCardByID('QS')],
+  })
+
+  await store.dispatch(action)
+
+  const st = store.getState()
+  t.deepEqual(st.afterimage, [])
+})
+
 it('gives me another go when I burn', async (t) => {
   const action = playCardThunk({
     cards: [createCard('10', 'D')],

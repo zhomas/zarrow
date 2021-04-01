@@ -251,6 +251,7 @@ const counterSlice = createSlice({
     completeBurn(state) {
       state.burnt = [...state.stack, ...state.burnt]
       state.stack = []
+      state.afterimage = []
       state.burning = false
     },
     startMiniburn(state) {

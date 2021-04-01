@@ -1,3 +1,5 @@
+import { css } from '@linaria/core'
+import { styled } from '@linaria/react'
 import { motion } from 'framer-motion'
 import { createDeck } from 'game'
 import React, { FC } from 'react'
@@ -11,12 +13,20 @@ interface ZoneProps {
   cards: JSX.Element[]
 }
 
-const variants = {
-  active: {
-    opacity: 1,
-    transition: { duration: 2 },
-  },
-}
+const deckBox = css`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid #0000007d;
+  border-radius: 12px;
+  z-index: -1;
+`
+
+const DeckBox = styled.div`
+  background: #fff1d821;
+`
 
 export const Zone: FC<ZoneProps> = ({
   promptActive,
@@ -40,28 +50,25 @@ export const Zone: FC<ZoneProps> = ({
           cursor: promptActive ? 'grab' : 'default',
         }}
       >
+        <DeckBox className={deckBox} />
         {promptActive && (
           <motion.div
+            className={deckBox}
             animate={{
-              opacity: [0, 1, 1, 0],
-              backgroundColor: '#FFE135',
+              backgroundColor: [
+                'rgba(255, 225, 53, 1)',
+                'rgba(255, 225, 53, 0)',
+              ],
             }}
             transition={{
-              repeatType: 'loop',
+              repeatType: 'mirror',
               repeat: promptActive ? Infinity : 1,
-            }}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              border: '1px solid #0000007d',
-              borderRadius: 12,
-              zIndex: -1,
+              duration: 0.25,
+              ease: 'easeInOut',
             }}
           />
         )}
+
         <div
           style={{
             position: 'relative',
@@ -71,7 +78,7 @@ export const Zone: FC<ZoneProps> = ({
             top: cards.length * -1.5,
           }}
         >
-          <motion.div onLayoutAnimationComplete={() => console.log('woohoo!')}>
+          <motion.div>
             {cards.map((c, i) => (
               <div
                 key={ids[i]}

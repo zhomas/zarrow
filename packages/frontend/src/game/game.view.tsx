@@ -14,7 +14,7 @@ import {
 import { connect, ConnectedProps } from 'react-redux'
 import { StyledGame } from './game.style'
 import { FluidCard } from './card'
-
+import { Debugger } from './debugger'
 import { AnimateSharedLayout } from 'framer-motion'
 import {
   useCardBuilder as useLocalCardContext,
@@ -122,6 +122,7 @@ const _GameView: FC<Props> = ({
             </StyledGame>
             <button onClick={() => deal(52)}>Deal</button>
             <button onClick={() => deal(24)}>Minideal</button>
+            <Debugger uid={uid} />
           </>
         )}
       </Targeter>

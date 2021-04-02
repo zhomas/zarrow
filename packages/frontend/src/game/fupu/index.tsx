@@ -1,3 +1,4 @@
+import { styled } from '@linaria/react'
 import {
   activePlayerSelector,
   CardModel,
@@ -10,11 +11,23 @@ import { connect, ConnectedProps } from 'react-redux'
 
 import { FluidCard } from '../card'
 
+const FupuWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+`
+
+const CardsWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`
+
 const _FUPU: FC<Props> = ({ show, cards, handleClick }) => {
   if (!show) return null
 
   return (
-    <div
+    <FupuWrapper
       style={{
         position: 'fixed',
         top: 0,
@@ -24,16 +37,16 @@ const _FUPU: FC<Props> = ({ show, cards, handleClick }) => {
         background: 'rgba(0, 0, 0, 0.5)',
         zIndex: 10,
         color: 'white',
-        padding: '10vh',
+        padding: '25vh',
       }}
     >
       <h1>Pick a card to pickup:</h1>
-      <div>
+      <CardsWrapper>
         {cards.map((c) => (
           <FluidCard key={c.id} card={c} onClick={() => handleClick(c)} />
         ))}
-      </div>
-    </div>
+      </CardsWrapper>
+    </FupuWrapper>
   )
 }
 

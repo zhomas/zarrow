@@ -90,11 +90,11 @@ export const FluidCard: FC<Props> = ({
     <WrapperWrapper style={{ ...style }}>
       <Wrapper
         onClick={onClick}
-        onMouseOverCapture={onMouseEnter}
-        onMouseOutCapture={onMouseExit}
         onMouseMove={onMouseEnter}
-        layoutId={card.id}
+        onMouseOutCapture={onMouseExit}
         onContextMenuCapture={onSelect}
+        onMouseOverCapture={onMouseEnter}
+        layoutId={card.id}
         initial={{
           rotateY: faceDown ? 180 : 0,
         }}

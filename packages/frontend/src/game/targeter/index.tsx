@@ -81,6 +81,7 @@ const _Targeter: FC<Props> = ({
 
       <BottomThing
         animate={{ y: activeTarget ? '0' : '100%' }}
+        initial={{ y: '100%' }}
         transition={{ ease: 'easeOut' }}
       >
         Pick a target

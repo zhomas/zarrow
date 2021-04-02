@@ -1,28 +1,29 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { GameDispatch, GameState, replace, userModeSelector } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
-import * as st from './states/index'
+import * as states from './states/index'
 
-const states = {
-  ...st,
-}
+type StateKey = keyof typeof states
 
 const _Debugger = (props: Props) => {
-  return (
-    <select
-      onChange={(e) => {
-        console.log(e.target.value)
+  const [selected, select] = useState<StateKey>('pickUpOnEmpty')
 
-        if (e.target.value in states) {
-          props.simulateGame(e.target.value as any)
-        }
-      }}
-    >
-      <option></option>
-      {Object.keys(states).map((st) => {
-        return <option>{st}</option>
-      })}
-    </select>
+  return (
+    <>
+      <select
+        onChange={(e) => {
+          const v = e.target.value
+          if (v in states) {
+            select(v as StateKey)
+          }
+        }}
+      >
+        {Object.keys(states).map((st) => {
+          return <option>{st}</option>
+        })}
+      </select>
+      <button onClick={() => props.simulateGame(selected)}>Emit</button>
+    </>
   )
 }
 
@@ -39,7 +40,7 @@ const mapState = (state: GameState, o: OwnProps) => {
 
 const mapDispatch = (dispatch: GameDispatch) => {
   return {
-    simulateGame: (key: keyof typeof states) => {
+    simulateGame: (key: StateKey) => {
       const action = replace(states[key])
       dispatch(action)
     },

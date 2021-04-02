@@ -105,4 +105,12 @@ export const getCardEffect = (cards: CardModel[], state: GameState) => {
   }
 }
 
+export const activeFupuSelector = (state: GameState) => {
+  if (state.turnLocks?.some((c) => c === 'user:faceuptake')) {
+    return activePlayerSelector(state).id
+  }
+
+  return false
+}
+
 export type StackEffect = ReturnType<typeof getCardEffect>

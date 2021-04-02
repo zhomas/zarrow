@@ -5,7 +5,6 @@ import { styled } from '@linaria/react'
 import { CARD_FLIGHT_TIME } from 'game'
 
 type Props = FluidCardProps & {
-  keyPrefix?: string
   stackIndex?: number
   stackLength?: number
   style?: React.CSSProperties
@@ -67,7 +66,6 @@ export const FluidCard: FC<Props> = ({
   selected,
   selectable = false,
   variant = 'default',
-  keyPrefix = '',
   style,
   stackIndex = 0,
 }) => {
@@ -91,11 +89,11 @@ export const FluidCard: FC<Props> = ({
   return (
     <WrapperWrapper style={{ ...style }}>
       <Wrapper
-        layoutId={`${keyPrefix}${card.id}`}
         onClick={onClick}
         onMouseOverCapture={onMouseEnter}
         onMouseOutCapture={onMouseExit}
         onMouseMove={onMouseEnter}
+        layoutId={card.id}
         onContextMenuCapture={onSelect}
         initial={{
           rotateY: faceDown ? 180 : 0,

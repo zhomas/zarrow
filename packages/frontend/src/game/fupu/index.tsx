@@ -10,7 +10,7 @@ import { connect, ConnectedProps } from 'react-redux'
 
 import { FluidCard } from '../card'
 
-const _FUPU: FC<Props> = ({ show, list, handleClick }) => {
+const _FUPU: FC<Props> = ({ show, cards, handleClick }) => {
   if (!show) return null
 
   return (
@@ -29,32 +29,19 @@ const _FUPU: FC<Props> = ({ show, list, handleClick }) => {
     >
       <h1>Pick a card to pickup:</h1>
       <div>
-        {list.map((c) => (
-          <FluidCard
-            key={c.card.id}
-            keyPrefix={'fup'}
-            card={c.card}
-            onClick={() => handleClick(c.card)}
-          />
+        {cards.map((c) => (
+          <FluidCard key={c.id} card={c} onClick={() => handleClick(c)} />
         ))}
       </div>
     </div>
   )
 }
 
-const mapState = (state: GameState, { uid }: OwnProps) => {
-  const list =
-    state.players
-      .find((p) => p.id === uid)
-      ?.cards.filter((c) => c.tier === 1) || []
-
+const mapState = (state: GameState, { uid, cards }: OwnProps) => {
   const active = activePlayerSelector(state)
 
   return {
-    show:
-      active.id === uid &&
-      state.turnLocks?.some((c) => c === 'user:faceuptake'),
-    list,
+    show: cards.length > 0,
   }
 }
 
@@ -71,6 +58,7 @@ const connector = connect(mapState, mapDispatch)
 
 interface OwnProps {
   uid: string
+  cards: CardModel[]
 }
 
 type ReduxProps = ConnectedProps<typeof connector>

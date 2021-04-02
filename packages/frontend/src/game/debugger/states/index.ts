@@ -115,3 +115,66 @@ export const nearEnd: GameState = {
   },
   focused: '',
 }
+
+export const fupuPending: GameState = {
+  direction: -1,
+  burning: false,
+  animating: false,
+  queue: ['NRUF3fQBIvTw8GkKMAoaMH9z6wC2', 'Jj2c3OMxphY26S1k3qQwB0LCiQ43'],
+  players: [
+    {
+      displayName: 'Tombola',
+      faction: 0,
+      id: 'Jj2c3OMxphY26S1k3qQwB0LCiQ43',
+      cards: [
+        { card: { id: '2S', value: '2', suit: 'S' }, stolen: false, tier: 0 },
+        { card: { suit: 'H', value: '6', id: '6H' }, stolen: false, tier: 0 },
+        { stolen: false, card: { id: '9H', suit: 'H', value: '9' }, tier: 1 },
+      ],
+    },
+    {
+      displayName: 'F',
+      cards: [
+        { card: { value: '7', id: '7S', suit: 'S' }, tier: 2, stolen: false },
+        { stolen: false, tier: 0, card: { value: '9', suit: 'C', id: '9C' } },
+        { tier: 0, stolen: false, card: { id: '10H', value: '10', suit: 'H' } },
+        { card: { suit: 'C', id: '5C', value: '5' }, stolen: false, tier: 0 },
+        { stolen: false, tier: 1, card: { value: 'J', suit: 'S', id: 'JS' } },
+        { card: { suit: 'D', value: '4', id: '4D' }, stolen: false, tier: 1 },
+        { stolen: false, card: { id: '8D', value: '8', suit: 'D' }, tier: 2 },
+        { card: { value: 'A', id: 'AC', suit: 'C' }, tier: 2, stolen: false },
+        { tier: 2, stolen: false, card: { value: '2', suit: 'H', id: '2H' } },
+        { tier: 2, card: { value: 'A', id: 'AH', suit: 'H' }, stolen: false },
+        { card: { value: '3', suit: 'S', id: '3S' }, tier: 2, stolen: false },
+        { card: { value: '8', id: '8C', suit: 'C' }, stolen: false, tier: 2 },
+        { stolen: false, card: { value: '10', suit: 'S', id: '10S' }, tier: 2 },
+      ],
+      faction: 1,
+      id: 'NRUF3fQBIvTw8GkKMAoaMH9z6wC2',
+    },
+  ],
+  stack: [
+    { id: '6S', suit: 'S', value: '6' },
+    { value: '7', id: '7D', suit: 'D' },
+    { suit: 'H', id: '5H', value: '5' },
+    { suit: 'D', id: '3D', value: '3' },
+    { suit: 'D', id: 'JD', value: 'J' },
+    { id: '4C', suit: 'C', value: '4' },
+  ],
+  burnt: [
+    { id: 'QD', value: 'Q', suit: 'D' },
+    { suit: 'C', id: 'KC', value: 'K' },
+  ],
+  pickupPile: [],
+  turnLocks: [],
+  afterimage: [{ suit: 'C', id: 'KC', value: 'K' }],
+  local: { targetUID: '', faceUpPickID: '' },
+  stackEffect: 'steal',
+  activeSteal: {
+    reciprocatedSteals: 0,
+    participants: [],
+    targeting: false,
+    userSteals: 0,
+  },
+  focused: '',
+}

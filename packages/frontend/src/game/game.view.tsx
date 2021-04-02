@@ -118,7 +118,6 @@ const _GameView: FC<Props> = ({
                 />
               </div>
               {screenComponent}
-              <FUPU uid={uid} />
               <Steal uid={uid} />
             </StyledGame>
             <button onClick={() => deal(52)}>Deal</button>
@@ -130,6 +129,8 @@ const _GameView: FC<Props> = ({
     </AnimateSharedLayout>
   )
 }
+
+// Four eights to burn!
 
 const mapState = (state: GameState, ownProps: OwnProps) => {
   const getHighlight = highlightedLocationSelector(ownProps.uid)

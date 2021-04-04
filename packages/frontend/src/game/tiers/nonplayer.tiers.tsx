@@ -39,8 +39,6 @@ const _NonPlayerTiers: FC<Props> = ({
   onClick,
   targetMode,
   name,
-  ownerID,
-  highlight,
 }) => (
   <Wrapper
     onMouseEnter={onMouseEnter}

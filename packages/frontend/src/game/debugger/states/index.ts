@@ -53,7 +53,12 @@ export const pickUpOnEmpty: GameState = {
   afterimage: [{ suit: 'S', value: 'Q', id: 'QS' }],
   local: { targetUID: '', faceUpPickID: '' },
   stackEffect: '',
-  activeSteal: { participants: [], userSteals: 0, reciprocatedSteals: 0 },
+  activeSteal: {
+    participants: [],
+    userSteals: 0,
+    reciprocatedSteals: 0,
+    pendingChains: [],
+  },
   focused: '',
 }
 
@@ -112,6 +117,7 @@ export const nearEnd: GameState = {
     targeting: false,
     userSteals: 0,
     reciprocatedSteals: 0,
+    pendingChains: [],
     participants: [],
   },
   focused: '',
@@ -173,6 +179,7 @@ export const fupuPending: GameState = {
   stackEffect: 'steal',
   activeSteal: {
     reciprocatedSteals: 0,
+    pendingChains: [],
     participants: [],
     targeting: false,
     userSteals: 0,
@@ -242,7 +249,12 @@ export const chained: GameState = {
   ],
   local: { targetUID: '', faceUpPickID: '' },
   stackEffect: 'psychic',
-  activeSteal: { participants: [], userSteals: 0, reciprocatedSteals: 0 },
+  activeSteal: {
+    participants: [],
+    userSteals: 0,
+    reciprocatedSteals: 0,
+    pendingChains: [],
+  },
   focused: '',
 }
 
@@ -255,7 +267,7 @@ export const chainedKing: GameState = {
       displayName: 'kjshsjk',
       cards: [
         { card: { suit: 'C', value: 'K', id: 'KC' }, tier: 0 },
-        { card: { suit: 'H', value: '6', id: '6H' }, tier: 0 },
+        { card: { suit: 'H', value: 'Q', id: 'QH' }, tier: 0 },
         { card: { suit: 'H', value: '10', id: '10H' }, tier: 1 },
         { card: { suit: 'D', value: '10', id: '10D' }, tier: 1 },
         { card: { suit: 'C', value: '2', id: '2C' }, tier: 1 },
@@ -269,16 +281,16 @@ export const chainedKing: GameState = {
       displayName: 'hhbkh',
       faction: 1,
       cards: [
+        { card: { suit: 'H', value: 'K', id: 'KH' }, tier: 2 },
+        { card: { suit: 'C', value: 'Q', id: 'QC' }, tier: 2 },
         { card: { suit: 'H', value: '4', id: '4H' }, tier: 0 },
         { card: { suit: 'S', value: 'A', id: 'AS' }, tier: 0 },
         { card: { suit: 'C', value: '6', id: '6C' }, tier: 0 },
         { card: { suit: 'S', value: '8', id: '8S' }, tier: 1 },
         { card: { suit: 'D', value: 'J', id: 'JD' }, tier: 1 },
         { card: { suit: 'D', value: 'A', id: 'AD' }, tier: 1 },
-        { card: { suit: 'C', value: '9', id: '9C' }, tier: 2 },
         { card: { suit: 'C', value: '5', id: '5C' }, tier: 2 },
         { card: { suit: 'D', value: '6', id: '6D' }, tier: 2 },
-        { card: { suit: 'C', value: '3', id: '3C' }, tier: 2 },
       ],
     },
   ],
@@ -340,6 +352,11 @@ export const quaddies: GameState = {
   ],
   local: { targetUID: '', faceUpPickID: '' },
   stackEffect: 'psychic',
-  activeSteal: { participants: [], userSteals: 0, reciprocatedSteals: 0 },
+  activeSteal: {
+    participants: [],
+    userSteals: 0,
+    reciprocatedSteals: 0,
+    pendingChains: [],
+  },
   focused: '',
 }

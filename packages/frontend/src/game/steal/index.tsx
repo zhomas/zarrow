@@ -9,6 +9,7 @@ import {
   highestTierSelector,
   otherStealParticipantSelector,
   stealPhaseSelector,
+  stealCardThunk,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
@@ -90,7 +91,7 @@ const mapState = (state: GameState, { uid }: OwnProps) => {
 const mapDispatch = (dispatch: GameDispatch, { uid }: OwnProps) => {
   return {
     stealCards: (card: CardModel) => {
-      const action = stealSingleCard({ userID: uid, cardID: card.id })
+      const action = stealCardThunk({ playerID: uid, cardID: card.id })
       dispatch(action)
     },
   }

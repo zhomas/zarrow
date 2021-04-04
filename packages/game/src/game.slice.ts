@@ -43,6 +43,7 @@ export interface GameState {
     participants: string[]
     userSteals: number
     reciprocatedSteals: number
+    pendingChains: string[]
   }
 }
 
@@ -72,6 +73,7 @@ export const initialState: GameState = {
     participants: [],
     userSteals: 0,
     reciprocatedSteals: 0,
+    pendingChains: [],
   },
 }
 
@@ -174,6 +176,7 @@ const counterSlice = createSlice({
             participants: [],
             reciprocatedSteals: 0,
             userSteals: 0,
+            pendingChains: [],
           }
           break
         default:
@@ -270,6 +273,7 @@ const counterSlice = createSlice({
         userSteals: 0,
         reciprocatedSteals: 0,
         participants: [],
+        pendingChains: [],
       }
       state.players = state.players.map((pl) => {
         return {

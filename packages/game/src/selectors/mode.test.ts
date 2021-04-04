@@ -29,6 +29,7 @@ it('requires playing from the face ups when a card can play', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+      pendingChains: [],
     },
   })
 
@@ -60,6 +61,7 @@ it('prompts a pickup when no face up card can play', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+      pendingChains: [],
     },
   })
 
@@ -91,6 +93,8 @@ it('requires playing from the face downs even when no card can play', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+
+      pendingChains: [],
     },
   })
 
@@ -123,6 +127,8 @@ it('requires pickup when the revealed facedown card cannot play on the stack', (
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+
+      pendingChains: [],
     },
   })
 
@@ -155,6 +161,8 @@ it('requires no pickup with a falsy focus card', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+
+      pendingChains: [],
     },
   })
 
@@ -187,6 +195,8 @@ it('enters psychic reveal mode when I play a queen', async (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+
+      pendingChains: [],
     },
   })
 
@@ -235,6 +245,8 @@ it('highlights my hand if active', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+
+      pendingChains: [],
     },
   })
 
@@ -267,6 +279,8 @@ it('highlights my face ups if active', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+
+      pendingChains: [],
     },
   })
 
@@ -308,6 +322,7 @@ it('highlights my opponents', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+      pendingChains: [],
     },
   })
 
@@ -337,6 +352,7 @@ it('highlights my face downs if active', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+      pendingChains: [],
     },
   })
 
@@ -366,6 +382,7 @@ it('highlights the stack if I need to pick up', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+      pendingChains: [],
     },
   })
 
@@ -739,6 +756,7 @@ it('highlights my tiers while revealing', async (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
+      pendingChains: [],
     },
   })
 

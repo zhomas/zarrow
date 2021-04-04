@@ -14,6 +14,7 @@ export const getDummyState = (): GameState => ({
     userSteals: 0,
     reciprocatedSteals: 0,
     participants: [],
+    pendingChains: [],
   },
   players: [
     {

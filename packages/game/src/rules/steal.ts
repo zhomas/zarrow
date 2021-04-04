@@ -17,15 +17,26 @@ export function stealSingleCard(
   action: PayloadAction<StealSinglePayload>,
 ) {
   const { userID, cardID } = action.payload
+  const stolen = createCardByID(cardID)
   const activeID = activePlayerSelector(state).id
   const reciprocal = userID !== activeID
+  const stealOwner = !reciprocal
 
+  if (stealOwner) {
+    if (stolen.value === 'K') {
+      state.activeSteal.pendingChains.push(cardID)
+    }
+
+    if (stolen.value === 'Q') {
+      state.activeSteal.pendingChains.push(cardID)
+    }
+  }
   for (const id of state.activeSteal.participants) {
     const player = state.players.find((p) => p.id === id)
 
     if (id === userID) {
       player.cards.push({
-        card: createCardByID(cardID),
+        card: stolen,
         tier: highestTierSelector(id)(state),
         stolen: true,
       })
@@ -39,18 +50,6 @@ export function stealSingleCard(
   } else {
     state.activeSteal.userSteals--
   }
-
-  if (
-    state.activeSteal.reciprocatedSteals + state.activeSteal.userSteals ===
-    0
-  ) {
-    state.activeSteal = {
-      participants: [],
-      reciprocatedSteals: 0,
-      userSteals: 0,
-      targeting: false,
-    }
-  }
 }
 
 export function selectStealTarget(
@@ -62,5 +61,6 @@ export function selectStealTarget(
     participants: [activePlayerSelector(state).id, action.payload.targetID],
     userSteals: action.payload.count,
     reciprocatedSteals: action.payload.count,
+    pendingChains: [],
   }
 }

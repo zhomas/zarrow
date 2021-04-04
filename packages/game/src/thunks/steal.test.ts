@@ -3,6 +3,7 @@ import { stealSingleCard, getStore, stealPhaseSelector, GameState } from '..'
 import { createCard } from '../deck'
 import { hasLock } from '../selectors'
 import { playCardThunk } from './play'
+import { stealCardThunk } from './steal'
 
 const isStealTargeting = (s: GameState) => stealPhaseSelector(s) === 'target'
 const isReciprocatingSteal = (state: GameState) =>
@@ -63,6 +64,7 @@ it('adds cards to the active steal', async (t) => {
     turnLocks: [],
     activeSteal: {
       participants: ['a', 'b'],
+      pendingChains: [],
       userSteals: 1,
       reciprocatedSteals: 1,
     },
@@ -93,6 +95,7 @@ it('adds cards to the active steal', async (t) => {
     participants: ['a', 'b'],
     userSteals: 0,
     reciprocatedSteals: 1,
+    pendingChains: [],
   })
 })
 
@@ -118,6 +121,7 @@ it('concludes the steal after reciprocation', async (t) => {
       participants: ['a', 'b'],
       userSteals: 0,
       reciprocatedSteals: 1,
+      pendingChains: [],
     },
   })
 
@@ -183,4 +187,47 @@ it('burns after use', async (t) => {
   t.truthy(store.getState().burnt.some((c) => c.id === 'KD'))
   t.truthy(store.getState().afterimage.some((c) => c.id === 'KD'))
   t.log(store.getState().burnt)
+})
+
+it('chains another king', async (t) => {
+  const store = getStore({
+    queue: ['a'],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [
+          { card: createCard('3', 'C'), tier: 2 },
+          { card: createCard('K', 'D'), tier: 2 },
+        ],
+      },
+      {
+        id: 'b',
+        faction: 1,
+        displayName: '',
+
+        cards: [
+          { card: createCard('2', 'H'), tier: 2 },
+          { card: createCard('K', 'H'), tier: 2 },
+        ],
+      },
+    ],
+  })
+
+  const x = store.dispatch(
+    playCardThunk({
+      cards: [createCard('K', 'D')],
+      playerID: 'a',
+    }),
+  )
+
+  await new Promise((r) => setTimeout(r, 1000))
+
+  store.dispatch(stealCardThunk({ cardID: 'KH', playerID: 'a' }))
+  store.dispatch(stealCardThunk({ cardID: '3C', playerID: 'b' }))
+
+  await x
+
+  t.is(store.getState().activeSteal.userSteals, 1)
 })

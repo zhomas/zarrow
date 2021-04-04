@@ -371,6 +371,7 @@ it('properly increments the turn when I play an ace', async (t) => {
       participants: [],
       userSteals: 0,
       reciprocatedSteals: 0,
+      pendingChains: [],
     },
   }
 

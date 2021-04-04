@@ -10,6 +10,7 @@ it('proceeds to the next player after a psychic reveal', (t) => {
         userSteals: 0,
         reciprocatedSteals: 0,
         participants: [],
+        pendingChains: [],
       },
       direction: -1,
       queue: ['NRUF3fQBIvTw8GkKMAoaMH9z6wC2'],

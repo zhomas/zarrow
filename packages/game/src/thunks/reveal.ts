@@ -1,7 +1,15 @@
-import { createAppThunk, playCardInternal } from './common'
+import { createAppThunk, playCardInternal, sleep, sleepUntil } from './common'
 import type { CardModel } from '../types'
 import { activePlayerSelector } from '../selectors'
-import { completeReveal } from '..'
+import {
+  addToStack,
+  completeBurn,
+  completeReveal,
+  shouldBurn,
+  shouldMiniburn,
+  startBurn,
+} from '..'
+import { CARD_FLIGHT_TIME } from '../constants'
 
 interface PlayCardArgs {
   cards: CardModel[]
@@ -24,11 +32,19 @@ export const revealThunk = createAppThunk(
     }
 
     dispatch(completeReveal(revealed.id))
-
-    await new Promise((r) => setTimeout(r, 500))
+    await sleep(CARD_FLIGHT_TIME + 50)
 
     if (revealed.value === 'Q') {
-      await playCardInternal(cards, dispatch, getState)
+      if (shouldBurn(getState(), revealed)) {
+        dispatch(addToStack({ cards: [revealed] }))
+        await sleep(CARD_FLIGHT_TIME + 50)
+        //console.log(getState())
+        dispatch(startBurn())
+        await sleep(1500)
+        dispatch(completeBurn())
+      } else {
+        await playCardInternal([revealed], dispatch, getState)
+      }
     }
   },
 )

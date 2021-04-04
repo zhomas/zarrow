@@ -19,15 +19,16 @@ export const hasLock = (lock: TurnLock) => (s: GameState) => {
   return s.turnLocks.includes(lock)
 }
 
-export const shouldBurn = (state: GameState) => {
-  const { stack } = state
-  if (!stack.length) return false
+export const shouldBurn = (state: GameState, ...extras: CardModel[]) => {
+  const { stack, afterimage } = state
+  const pool = [...extras, ...afterimage, ...stack]
+  if (!pool.length) return false
   if (stack.find((c) => c.value === '10')) return true
 
   let siblings = 0
-  let val = stack[0].value
+  let val = pool[0].value
 
-  for (const card of stack) {
+  for (const card of pool) {
     if (card.value === '8') continue
 
     if (card.value === val) {
@@ -38,6 +39,9 @@ export const shouldBurn = (state: GameState) => {
     }
 
     if (siblings >= 4) {
+      if (card.value === 'Q') {
+        console.log([card, siblings])
+      }
       return true
     }
   }

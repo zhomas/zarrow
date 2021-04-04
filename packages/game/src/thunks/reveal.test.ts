@@ -306,6 +306,79 @@ it('burns after use', async (t) => {
   t.is(stackDestinationSelector(store.getState()).id, 'QD')
 })
 
+it('executes a full burn when a fourth queen is played', async (t) => {
+  const store = getStore({
+    stack: [createCardByID('3D')],
+    queue: ['a'],
+    afterimage: [
+      createCard('Q', 'C'),
+      createCard('Q', 'H'),
+      createCard('Q', 'S'),
+    ],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'D'), tier: 2 },
+          { card: createCard('3', 'C'), tier: 0 },
+        ],
+      },
+    ],
+  })
+
+  await store.dispatch(
+    playCardThunk({
+      cards: [createCard('Q', 'D')],
+      playerID: 'a',
+    }),
+  )
+
+  //await new Promise((r) => setTimeout(r, 1000))
+
+  t.log(store.getState())
+  t.is(store.getState().stack.length, 0)
+})
+
+it('burns correctly when a fourth queen is revealed', async (t) => {
+  const store = getStore({
+    stack: [createCardByID('3D')],
+    queue: ['a'],
+    afterimage: [createCard('Q', 'C'), createCard('Q', 'H')],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'S'), tier: 2 },
+          { card: createCard('Q', 'D'), tier: 0 },
+        ],
+      },
+    ],
+  })
+
+  const x = store.dispatch(
+    playCardThunk({
+      cards: [createCard('Q', 'S')],
+      playerID: 'a',
+    }),
+  )
+
+  await new Promise((r) => setTimeout(r, 2000))
+  t.is(isQueenLocked(store.getState()), true)
+
+  await store.dispatch(
+    revealThunk({ cards: [createCardByID('QD')], playerID: 'a' }),
+  )
+
+  await x
+
+  t.log(store.getState())
+  t.is(store.getState().stack.length, 0)
+})
+
 it('performs a double block when two queens are played', async (t) => {
   const isQueenLocked = hasLock('user:psychicreveal')
   const store = getStore({

@@ -15,7 +15,7 @@ import {
 } from '..'
 import { CARD_FLIGHT_TIME } from '../constants'
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 type ThunkApiConfig = {
   dispatch: GameDispatch
@@ -56,6 +56,12 @@ export const playCardInternal = async (
     )
   }
 
+  if (shouldMiniburn(getState())) {
+    dispatch(startMiniburn())
+    await sleep(400)
+    dispatch(completeMiniburn())
+  }
+
   if (shouldBurn(getState())) {
     dispatch(startBurn())
     await sleep(1500)
@@ -67,12 +73,5 @@ export const playCardInternal = async (
 
   await sleepUntil(ready)
 
-  if (shouldMiniburn(getState())) {
-    dispatch(startMiniburn())
-    await sleep(400)
-    dispatch(completeMiniburn())
-  }
-
-  await sleepUntil(ready)
   return { burn: false }
 }

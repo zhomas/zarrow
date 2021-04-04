@@ -283,6 +283,27 @@ it('burns when four of a kind are added to the stack', async (t) => {
   t.is(activePlayerSelector(store.getState()).id, 'a')
 })
 
+it('burns when four eights are added to the stack', async (t) => {
+  const st = {
+    ...state,
+    stack: [],
+  }
+
+  const action = playCardThunk({
+    cards: [
+      createCard('8', 'D'),
+      createCard('8', 'C'),
+      createCard('8', 'H'),
+      createCard('8', 'S'),
+    ],
+    playerID: 'a',
+  })
+  const store = getStore(st)
+  await store.dispatch(action)
+  t.is(store.getState().stack.length, 0)
+  t.is(activePlayerSelector(store.getState()).id, 'a')
+})
+
 it('ignores 8s for four of a kind calculations', async (t) => {
   const st = {
     ...state,

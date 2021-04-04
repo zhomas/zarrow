@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { GameDispatch, GameState, replace, userModeSelector } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import * as states from './states/index'
+import { SIGALRM } from 'node:constants'
 
 type StateKey = keyof typeof states
 
@@ -22,7 +23,9 @@ const _Debugger = (props: Props) => {
           return <option>{st}</option>
         })}
       </select>
-      <button onClick={() => props.simulateGame(selected)}>Emit</button>
+      <button onClick={() => props.simulateGame(selected, props.state)}>
+        Emit
+      </button>
     </>
   )
 }
@@ -35,13 +38,28 @@ const mapState = (state: GameState, o: OwnProps) => {
   console.log(state)
   console.groupEnd()
 
-  return {}
+  return { state }
 }
 
 const mapDispatch = (dispatch: GameDispatch) => {
   return {
-    simulateGame: (key: StateKey) => {
-      const action = replace(states[key])
+    simulateGame: (key: StateKey, state: GameState) => {
+      const sim = states[key]
+      const q = sim.queue.map((id) => {
+        const idx = sim.players.findIndex((pl) => pl.id === id)
+        return state.players[idx].id
+      })
+      const st: GameState = {
+        ...sim,
+        queue: q,
+        players: state.players.map((pl, i) => {
+          return {
+            ...pl,
+            cards: [...sim.players[i].cards],
+          }
+        }),
+      }
+      const action = replace(st)
       dispatch(action)
     },
   }

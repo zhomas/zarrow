@@ -75,8 +75,6 @@ const mapState = (state: GameState, { ownerID, userID }: OwnProps) => {
       faceDown: c.card.id !== state.focused,
     }))
 
-  console.log(highlight)
-
   return {
     ups,
     downs,

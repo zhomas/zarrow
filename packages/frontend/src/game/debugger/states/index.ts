@@ -219,7 +219,7 @@ export const chained: GameState = {
       ],
     },
   ],
-  stack: [],
+  stack: [createCardByID('3S')],
   burnt: [
     { suit: 'H', value: 'Q', id: 'QH' },
     { suit: 'D', value: 'Q', id: 'QD' },
@@ -233,22 +233,6 @@ export const chained: GameState = {
     { suit: 'S', value: '2', id: '2S' },
     { suit: 'H', value: 'J', id: 'JH' },
     { suit: 'C', value: 'J', id: 'JC' },
-    { suit: 'D', value: '7', id: '7D' },
-    { suit: 'H', value: '2', id: '2H' },
-    { suit: 'D', value: '8', id: '8D' },
-    { suit: 'D', value: '5', id: '5D' },
-    { suit: 'C', value: 'A', id: 'AC' },
-    { suit: 'C', value: '4', id: '4C' },
-    { suit: 'D', value: '2', id: '2D' },
-    { suit: 'S', value: '9', id: '9S' },
-    { suit: 'C', value: '10', id: '10C' },
-    { suit: 'S', value: '5', id: '5S' },
-    { suit: 'S', value: '4', id: '4S' },
-    { suit: 'S', value: '3', id: '3S' },
-    { suit: 'C', value: '7', id: '7C' },
-    { suit: 'H', value: '3', id: '3H' },
-    { suit: 'S', value: '10', id: '10S' },
-    { suit: 'S', value: '7', id: '7S' },
   ],
   turnLocks: ['user:replenish', 'user:psychicreveal'],
   afterimage: [
@@ -260,6 +244,44 @@ export const chained: GameState = {
   stackEffect: 'psychic',
   activeSteal: { participants: [], userSteals: 0, reciprocatedSteals: 0 },
   focused: '',
+}
+
+export const chainedKing: GameState = {
+  ...chained,
+  players: [
+    {
+      id: 'NRUF3fQBIvTw8GkKMAoaMH9z6wC2',
+      faction: 0,
+      displayName: 'kjshsjk',
+      cards: [
+        { card: { suit: 'C', value: 'K', id: 'KC' }, tier: 0 },
+        { card: { suit: 'H', value: '6', id: '6H' }, tier: 0 },
+        { card: { suit: 'H', value: '10', id: '10H' }, tier: 1 },
+        { card: { suit: 'D', value: '10', id: '10D' }, tier: 1 },
+        { card: { suit: 'C', value: '2', id: '2C' }, tier: 1 },
+        { card: { suit: 'D', value: '9', id: '9D' }, tier: 1 },
+        { card: { suit: 'H', value: '5', id: '5H' }, tier: 2 },
+        { card: { suit: 'H', value: '9', id: '9H' }, tier: 2 },
+      ],
+    },
+    {
+      id: 'Jj2c3OMxphY26S1k3qQwB0LCiQ43',
+      displayName: 'hhbkh',
+      faction: 1,
+      cards: [
+        { card: { suit: 'H', value: '4', id: '4H' }, tier: 0 },
+        { card: { suit: 'S', value: 'A', id: 'AS' }, tier: 0 },
+        { card: { suit: 'C', value: '6', id: '6C' }, tier: 0 },
+        { card: { suit: 'S', value: '8', id: '8S' }, tier: 1 },
+        { card: { suit: 'D', value: 'J', id: 'JD' }, tier: 1 },
+        { card: { suit: 'D', value: 'A', id: 'AD' }, tier: 1 },
+        { card: { suit: 'C', value: '9', id: '9C' }, tier: 2 },
+        { card: { suit: 'C', value: '5', id: '5C' }, tier: 2 },
+        { card: { suit: 'D', value: '6', id: '6D' }, tier: 2 },
+        { card: { suit: 'C', value: '3', id: '3C' }, tier: 2 },
+      ],
+    },
+  ],
 }
 
 export const quaddies: GameState = {

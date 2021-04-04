@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC } from 'react'
 import {
   GameState,
   userModeSelector,
@@ -13,8 +13,6 @@ import {
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
 import { FluidCard } from '../card'
-import { createCardByID } from 'game/dist/deck'
-import { FluidCardProps } from '../../typings'
 
 const Wrapper = styled.div`
   display: flex;

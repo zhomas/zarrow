@@ -34,6 +34,7 @@ export const onTurnSelector = (uid: string) => {
 
 export const cardsInHandSelector = (uid: string) => (s: PartialState) => {
   const player = playerSelector(uid)(s)
+
   return player.cards.filter((c) => c.tier === 2).map((c) => c.card)
 }
 

@@ -379,6 +379,45 @@ it('burns correctly when a fourth queen is revealed', async (t) => {
   t.is(store.getState().stack.length, 0)
 })
 
+it('performs a cross chain when i reveal a king', async (t) => {
+  const store = getStore({
+    stack: [createCardByID('3D')],
+    queue: ['a'],
+    afterimage: [createCard('Q', 'C'), createCard('Q', 'H')],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [
+          { card: createCard('Q', 'S'), tier: 2 },
+          { card: createCard('K', 'D'), tier: 0 },
+        ],
+      },
+    ],
+  })
+
+  const x = store.dispatch(
+    playCardThunk({
+      cards: [createCard('Q', 'S')],
+      playerID: 'a',
+    }),
+  )
+
+  await new Promise((r) => setTimeout(r, 2000))
+  t.is(isQueenLocked(store.getState()), true)
+
+  await store.dispatch(
+    revealThunk({ cards: [createCardByID('KD')], playerID: 'a' }),
+  )
+
+  await x
+
+  t.log(store.getState())
+  t.is(store.getState().stack.length, 1)
+  t.is(store.getState().activeSteal.participants.length, 2)
+})
+
 it('performs a double block when two queens are played', async (t) => {
   const isQueenLocked = hasLock('user:psychicreveal')
   const store = getStore({

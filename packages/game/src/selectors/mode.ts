@@ -79,7 +79,10 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
         return 'play:hand'
       }
 
-      if (state.activeSteal.participants.includes(uid)) {
+      if (
+        stealPhaseSelector(state) !== 'none' &&
+        state.activeSteal.participants.includes(uid)
+      ) {
         if (isStealReciprocate) return 'steal:pick'
         return 'steal:receive'
       }

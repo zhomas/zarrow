@@ -37,12 +37,11 @@ const _PlayerTiers: FC<Props> = ({
       case 'play:downs':
         const ok = canCardPlay(c)
         const fn = ok ? playCard : focusCard
-        fn(c)
-        break
+        return () => fn(c)
       case 'play:reveal':
-        revealCard(c)
-        break
+        return () => revealCard(c)
       default:
+        return undefined
     }
   }
 
@@ -51,7 +50,7 @@ const _PlayerTiers: FC<Props> = ({
     return {
       card: c,
       faceDown: c.id !== focused,
-      onClick: () => getFaceDownClickHandler(c),
+      onClick: getFaceDownClickHandler(c),
     }
   })
 

@@ -42,7 +42,6 @@ const CardFace = styled.div`
 const Wrapper = styled(motion.div)`
   width: 126px;
   height: 176px;
-  cursor: default;
   position: relative;
   transform-style: preserve-3d;
 `
@@ -107,6 +106,9 @@ export const FluidCard: FC<Props> = ({
             ease: 'easeOut',
             duration: CARD_FLIGHT_TIME / 1000,
           },
+        }}
+        style={{
+          cursor: onClick ? 'pointer' : 'default',
         }}
       >
         <motion.div>

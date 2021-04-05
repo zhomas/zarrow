@@ -52,31 +52,6 @@ const _GameView: FC<Props> = ({
 
   const target = useTargeting(uid)
 
-  const renderOpponent = () => {
-    const opponent = players.find((p) => p.id !== uid)
-    if (!opponent) throw new Error('Oh no')
-    const targetMode = target.getCurrentHighlight(opponent.id)
-    const onMouseEnter = () => target.setTarget(opponent.id)
-    const onMouseLeave = () => target.setTarget('')
-    return (
-      <>
-        <div className="h2">
-          <EnemyHand ownerID={opponent.id} />
-        </div>
-        <div className="s2">
-          <NonPlayerTiers
-            userID={uid}
-            ownerID={opponent.id}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
-            targetMode={targetMode}
-            onClick={target.fire}
-          />
-        </div>
-      </>
-    )
-  }
-
   const getChainedCard = () => {
     const [chained] = chains
     if (chained) {
@@ -101,6 +76,32 @@ const _GameView: FC<Props> = ({
       ups: cards.filter((c) => c.tier === 1).map((c) => c.card),
       downs: cards.filter((c) => c.tier === 0).map((c) => c.card),
     }
+  }
+
+  const renderOpponent = () => {
+    const opponent = players.find((p) => p.id !== uid)
+    if (!opponent) throw new Error('Oh no')
+    const cards = getCards(opponent.id)
+    const targetMode = target.getCurrentHighlight(opponent.id)
+    const onMouseEnter = () => target.setTarget(opponent.id)
+    const onMouseLeave = () => target.setTarget('')
+    return (
+      <>
+        <div className="h2">
+          <EnemyHand ownerID={opponent.id} cards={cards.hand} />
+        </div>
+        <div className="s2">
+          <NonPlayerTiers
+            userID={uid}
+            ownerID={opponent.id}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            targetMode={targetMode}
+            onClick={target.fire}
+          />
+        </div>
+      </>
+    )
   }
 
   const player = getCards(uid)

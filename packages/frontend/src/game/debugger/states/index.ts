@@ -57,7 +57,6 @@ export const pickUpOnEmpty: GameState = {
     participants: [],
     userSteals: 0,
     reciprocatedSteals: 0,
-    pendingChains: [],
   },
   focused: '',
 }
@@ -117,7 +116,6 @@ export const nearEnd: GameState = {
     targeting: false,
     userSteals: 0,
     reciprocatedSteals: 0,
-    pendingChains: [],
     participants: [],
   },
   focused: '',
@@ -179,7 +177,6 @@ export const fupuPending: GameState = {
   stackEffect: 'steal',
   activeSteal: {
     reciprocatedSteals: 0,
-    pendingChains: [],
     participants: [],
     targeting: false,
     userSteals: 0,
@@ -253,13 +250,13 @@ export const chained: GameState = {
     participants: [],
     userSteals: 0,
     reciprocatedSteals: 0,
-    pendingChains: [],
   },
   focused: '',
 }
 
 export const chainedKing: GameState = {
   ...chained,
+  pendingChains: [],
   players: [
     {
       id: 'NRUF3fQBIvTw8GkKMAoaMH9z6wC2',
@@ -356,7 +353,6 @@ export const quaddies: GameState = {
     participants: [],
     userSteals: 0,
     reciprocatedSteals: 0,
-    pendingChains: [],
   },
   focused: '',
 }

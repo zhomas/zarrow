@@ -51,6 +51,6 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
     participants: [],
     userSteals: 0,
     reciprocatedSteals: 0,
-    pendingChains: [],
   }
+  state.pendingChains = []
 }

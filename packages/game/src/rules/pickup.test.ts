@@ -21,8 +21,8 @@ const getState = (): GameState => ({
     userSteals: 0,
     reciprocatedSteals: 0,
     participants: [],
-    pendingChains: [],
   },
+  pendingChains: [],
   players: [
     {
       id: 'a',

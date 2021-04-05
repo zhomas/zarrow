@@ -43,7 +43,7 @@ export const revealThunk = createAppThunk(
         await sleep(1500)
         dispatch(completeBurn())
       } else {
-        await playCardInternal([revealed], dispatch, getState)
+        //await playCardInternal([revealed], dispatch, getState)
       }
     }
   },

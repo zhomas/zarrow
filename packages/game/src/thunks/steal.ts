@@ -1,16 +1,6 @@
-import { createAppThunk, playCardInternal, sleep, sleepUntil } from './common'
-import type { CardModel } from '../types'
+import { createAppThunk, confirmChain, sleep } from './common'
 import { activePlayerSelector } from '../selectors'
-import {
-  addToStack,
-  completeBurn,
-  completeReveal,
-  shouldBurn,
-  shouldMiniburn,
-  startBurn,
-  startMiniburn,
-  stealSingleCard,
-} from '..'
+import { stealSingleCard } from '..'
 import { CARD_FLIGHT_TIME } from '../constants'
 import { createCardByID } from '../deck'
 
@@ -38,20 +28,9 @@ export const stealCardThunk = createAppThunk(
     const activeID = activePlayerSelector(state).id
     const stealOwner = playerID === activeID
 
-    const { pendingChains, userSteals, reciprocatedSteals } = activeSteal
+    const { userSteals, reciprocatedSteals } = activeSteal
+
     const pendingSteals = reciprocatedSteals + userSteals
-
-    if (pendingSteals === 0 && pendingChains.length > 0) {
-      const cards = pendingChains.map((cID) => createCardByID(cID))
-
-      dispatch(addToStack({ cards }))
-      await sleep(CARD_FLIGHT_TIME + 50)
-      await dispatch(startMiniburn())
-
-      for (const card of cards) {
-        await playCardInternal([card], dispatch, getState)
-      }
-    }
 
     // if (stealOwner) {
     // } else {

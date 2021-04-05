@@ -21,7 +21,7 @@ import {
   useTargeting,
 } from './game.hooks'
 import { Zone } from './zone'
-import { FUPU } from './fupu'
+import { ChainIt } from './chain-it'
 import { Sparkler } from './sparkler'
 import { EnemyHand } from './hand/enemy'
 
@@ -119,6 +119,7 @@ const _GameView: FC<Props> = ({
               </div>
               {screenComponent}
               <Steal uid={uid} />
+              <ChainIt uid={uid} />
             </StyledGame>
             <button onClick={() => deal(52)}>Deal</button>
             <button onClick={() => deal(24)}>Minideal</button>

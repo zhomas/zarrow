@@ -20,6 +20,7 @@ import {
   playerHasCardInTierSelector,
   StackEffect,
 } from './selectors'
+import { confirmChain } from './thunks/common'
 
 export interface GameState {
   direction: number
@@ -43,7 +44,11 @@ export interface GameState {
     participants: string[]
     userSteals: number
     reciprocatedSteals: number
-    pendingChains: string[]
+  }
+  pendingChains?: string[]
+  chainIt?: {
+    show: boolean
+    value: boolean
   }
 }
 
@@ -73,8 +78,8 @@ export const initialState: GameState = {
     participants: [],
     userSteals: 0,
     reciprocatedSteals: 0,
-    pendingChains: [],
   },
+  pendingChains: [],
 }
 
 interface GameInitialiser {
@@ -113,6 +118,8 @@ const counterSlice = createSlice({
       state.activeSteal = action.payload.activeSteal
       state.burning = !!action.payload.burning
       state.animating = !!action.payload.animating
+      state.chainIt = action.payload.chainIt
+      state.pendingChains = action.payload.pendingChains || []
     },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)
@@ -176,7 +183,6 @@ const counterSlice = createSlice({
             participants: [],
             reciprocatedSteals: 0,
             userSteals: 0,
-            pendingChains: [],
           }
           break
         default:
@@ -228,10 +234,15 @@ const counterSlice = createSlice({
       const revealed = action.payload
       const player = activePlayerSelector(state)
       const ok = playerHasCardInTierSelector(player.id, revealed, 0)(state)
+      const card = createCardByID(revealed)
       if (ok) {
         const others = player.cards.filter((c) => c.card.id !== revealed)
-        player.cards = [...others, { card: createCardByID(revealed), tier: 1 }]
+        player.cards = [...others, { card, tier: 1 }]
         removeLock('user:psychicreveal', state)
+
+        if (card.value === 'Q' || card.value === 'K') {
+          state.pendingChains.push(card.id)
+        }
       }
     },
     startReplenish(state) {
@@ -258,6 +269,15 @@ const counterSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(confirmChain.pending, (state, action) => {
+      console.log('chain started')
+      const chained = action.meta.arg
+      state.pendingChains = state.pendingChains.filter((id) => id !== chained)
+    })
+
+    builder.addCase(confirmChain.fulfilled, (state, action) => {
+      console.log('chain complete')
+    })
     builder.addCase(playCardThunk.pending, (state) => {
       state.focused = ''
     })
@@ -273,7 +293,6 @@ const counterSlice = createSlice({
         userSteals: 0,
         reciprocatedSteals: 0,
         participants: [],
-        pendingChains: [],
       }
       state.players = state.players.map((pl) => {
         return {

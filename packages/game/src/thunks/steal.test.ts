@@ -64,7 +64,6 @@ it('adds cards to the active steal', async (t) => {
     turnLocks: [],
     activeSteal: {
       participants: ['a', 'b'],
-      pendingChains: [],
       userSteals: 1,
       reciprocatedSteals: 1,
     },
@@ -95,7 +94,6 @@ it('adds cards to the active steal', async (t) => {
     participants: ['a', 'b'],
     userSteals: 0,
     reciprocatedSteals: 1,
-    pendingChains: [],
   })
 })
 
@@ -121,7 +119,6 @@ it('concludes the steal after reciprocation', async (t) => {
       participants: ['a', 'b'],
       userSteals: 0,
       reciprocatedSteals: 1,
-      pendingChains: [],
     },
   })
 

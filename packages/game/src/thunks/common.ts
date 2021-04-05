@@ -14,6 +14,7 @@ import {
   stealPhaseSelector,
 } from '..'
 import { CARD_FLIGHT_TIME } from '../constants'
+import { createCardByID } from '../deck'
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -38,6 +39,22 @@ export const sleepUntil = async (fn: () => boolean) => {
   }
 }
 
+export const confirmChain = createAppThunk(
+  'game/confirmChain',
+  async (cardID: string, { dispatch, getState }) => {
+    const { pendingChains } = getState()
+
+    const card = createCardByID(cardID)
+
+    dispatch(addToStack({ cards: [card] }))
+    await sleep(CARD_FLIGHT_TIME + 50)
+    await dispatch(startMiniburn())
+    await playCardInternal([card], dispatch, getState)
+
+    return card
+  },
+)
+
 export const playCardInternal = async (
   cards: CardModel[],
   dispatch: GameDispatch,
@@ -52,6 +69,7 @@ export const playCardInternal = async (
       !st.animating &&
       !st.burning &&
       st.turnLocks.length === 0 &&
+      st.pendingChains.length === 0 &&
       stealPhaseSelector(st) === 'none'
     )
   }
@@ -72,6 +90,17 @@ export const playCardInternal = async (
   dispatch(applyCardEffect(cards))
 
   await sleepUntil(ready)
+
+  // const { pendingChains } = getState()
+
+  // if (pendingChains.length > 0) {
+  //   const cards = pendingChains.map((cID) => createCardByID(cID))
+
+  //   for (const card of cards) {
+  //     console.log('showing pending chain', card)
+  //     await dispatch(showChainConfirm(card))
+  //   }
+  // }
 
   return { burn: false }
 }

@@ -1,5 +1,5 @@
 import it from 'ava'
-import { getStore, hasLock, highlightedLocationSelector } from '..'
+import { getStore, highlightedLocationSelector } from '..'
 import { createCard, createCardByID } from '../deck'
 import { playCardThunk } from '../thunks/play'
 import { userModeSelector } from './mode'
@@ -29,8 +29,8 @@ it('requires playing from the face ups when a card can play', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.is(mode, 'play:ups')
@@ -61,8 +61,8 @@ it('prompts a pickup when no face up card can play', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.is(mode, 'pickup:stack')
@@ -93,9 +93,8 @@ it('requires playing from the face downs even when no card can play', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.is(mode, 'play:downs')
@@ -127,9 +126,8 @@ it('requires pickup when the revealed facedown card cannot play on the stack', (
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.is(mode, 'pickup:stack')
@@ -161,9 +159,8 @@ it('requires no pickup with a falsy focus card', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.is(mode, 'play:downs')
@@ -195,9 +192,8 @@ it('enters psychic reveal mode when I play a queen', async (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.is(mode, 'play:reveal')
@@ -245,9 +241,8 @@ it('highlights my hand if active', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.deepEqual(location, 'hand')
@@ -279,9 +274,8 @@ it('highlights my face ups if active', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.deepEqual(location, ['playerID', 'abc'])
@@ -322,8 +316,8 @@ it('highlights my opponents', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.deepEqual(location, ['playerID', 'def'])
@@ -352,8 +346,8 @@ it('highlights my face downs if active', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.deepEqual(location, ['playerID', 'abc'])
@@ -382,8 +376,8 @@ it('highlights the stack if I need to pick up', (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.deepEqual(location, 'stack')
@@ -756,8 +750,8 @@ it('highlights my tiers while revealing', async (t) => {
       userSteals: 0,
       reciprocatedSteals: 0,
       participants: [],
-      pendingChains: [],
     },
+    pendingChains: [],
   })
 
   t.deepEqual(mode, ['playerID', 'abc'])

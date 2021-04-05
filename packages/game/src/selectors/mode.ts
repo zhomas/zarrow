@@ -43,6 +43,7 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
   const isBurning = (st: GameState) => !!st.burning
   const isAnimating = (st: GameState) => !!st.animating
   const isAcing = hasLock('user:target')
+  const isChaining = (st: GameState) => st.pendingChains?.length > 0
   const isReplenishing = hasLock('user:replenish')
   const isRevealing = hasLock('user:psychicreveal')
   const isStealTarget = stealPhaseSelector(state) === 'target'
@@ -71,6 +72,7 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
 
         if (failedFaceDownFlip(uid, state)) return 'pickup:stack'
         if (max === 0) return 'play:downs'
+        if (isChaining(state)) return 'prompt:chain'
         if (isReplenishing(state)) return 'pickup:replenish'
         if (!canPlay) return 'pickup:stack'
         if (max === 1) return 'play:ups'

@@ -25,6 +25,10 @@ export const GameProvider: FC<ProviderProps> = ({
           ...state,
           stackEffect: state.stackEffect || '',
           focused: state.focused || '',
+          chainIt: state.chainIt || {
+            show: false,
+            value: false,
+          },
         }
 
         firebase.firestore().collection('games').doc(gid).set(data)

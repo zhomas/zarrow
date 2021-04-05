@@ -16,10 +16,10 @@ export const createGame = (): GameState => {
     },
     activeSteal: {
       userSteals: 0,
-      pendingChains: [],
       reciprocatedSteals: 0,
       participants: [],
     },
+    pendingChains: [],
   }
 }
 

@@ -24,11 +24,11 @@ export function stealSingleCard(
 
   if (stealOwner) {
     if (stolen.value === 'K') {
-      state.activeSteal.pendingChains.push(cardID)
+      state.pendingChains.push(cardID)
     }
 
     if (stolen.value === 'Q') {
-      state.activeSteal.pendingChains.push(cardID)
+      state.pendingChains.push(cardID)
     }
   }
   for (const id of state.activeSteal.participants) {
@@ -61,6 +61,5 @@ export function selectStealTarget(
     participants: [activePlayerSelector(state).id, action.payload.targetID],
     userSteals: action.payload.count,
     reciprocatedSteals: action.payload.count,
-    pendingChains: [],
   }
 }

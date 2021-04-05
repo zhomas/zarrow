@@ -239,11 +239,7 @@ export const chained: GameState = {
     { suit: 'C', value: 'J', id: 'JC' },
   ],
   turnLocks: ['user:replenish', 'user:psychicreveal'],
-  afterimage: [
-    { suit: 'H', value: 'Q', id: 'QH' },
-    { suit: 'D', value: 'Q', id: 'QD' },
-    { suit: 'S', value: 'Q', id: 'QS' },
-  ],
+  afterimage: [],
   local: { targetUID: '', faceUpPickID: '' },
   stackEffect: 'psychic',
   activeSteal: {

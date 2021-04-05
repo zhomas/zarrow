@@ -34,17 +34,17 @@ export const revealThunk = createAppThunk(
     dispatch(completeReveal(revealed.id))
     await sleep(CARD_FLIGHT_TIME + 50)
 
-    if (['Q', 'K'].includes(revealed.value)) {
-      if (shouldBurn(getState(), revealed)) {
-        dispatch(addToStack({ cards: [revealed] }))
-        await sleep(CARD_FLIGHT_TIME + 50)
-        //console.log(getState())
-        dispatch(startBurn())
-        await sleep(1500)
-        dispatch(completeBurn())
-      } else {
-        //await playCardInternal([revealed], dispatch, getState)
-      }
-    }
+    // if (['Q', 'K'].includes(revealed.value)) {
+    //   if (shouldBurn(getState(), revealed)) {
+    //     dispatch(addToStack({ cards: [revealed] }))
+    //     await sleep(CARD_FLIGHT_TIME + 50)
+    //     //console.log(getState())
+    //     dispatch(startBurn())
+    //     await sleep(1500)
+    //     dispatch(completeBurn())
+    //   } else {
+    //     //await playCardInternal([revealed], dispatch, getState)
+    //   }
+    // }
   },
 )

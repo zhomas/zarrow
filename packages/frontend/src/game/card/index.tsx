@@ -50,6 +50,7 @@ const WrapperWrapper = styled.div`
   flex: 1 1 40px;
   min-width: 25px;
   max-width: fit-content;
+  max-height: 176px;
 `
 
 const Checkbox = styled.input`

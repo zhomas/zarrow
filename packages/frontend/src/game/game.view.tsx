@@ -30,6 +30,7 @@ import { PlayerTiers } from './tiers/player.tiers'
 import { NonPlayerTiers } from './tiers/nonplayer.tiers'
 import { Targeter } from './targeter'
 import { Steal } from './steal'
+import { createCardByID } from 'game/dist/deck'
 
 const _GameView: FC<Props> = ({
   stack,
@@ -40,6 +41,8 @@ const _GameView: FC<Props> = ({
   confirmReplenish,
   pickupStack,
   highlight,
+  chains,
+  chainIt,
 }) => {
   const {
     buildHandCard,
@@ -74,6 +77,34 @@ const _GameView: FC<Props> = ({
     )
   }
 
+  const getChainedCard = () => {
+    const [chained] = chains
+    if (chained) {
+      return createCardByID(chained)
+    }
+
+    return undefined
+  }
+
+  const getCards = (id: string) => {
+    const player = players.find((p) => p.id === id)
+    if (!player) throw new Error('impossible')
+    const chained = getChainedCard()
+    let { cards } = player
+
+    if (chainIt && chained) {
+      cards = cards.filter((c) => c.card.id !== chained.id)
+    }
+
+    return {
+      hand: cards.filter((c) => c.tier === 2).map((c) => c.card),
+      ups: cards.filter((c) => c.tier === 1).map((c) => c.card),
+      downs: cards.filter((c) => c.tier === 0).map((c) => c.card),
+    }
+  }
+
+  const player = getCards(uid)
+
   return (
     <AnimateSharedLayout type="switch">
       <Targeter uid={uid}>
@@ -82,6 +113,7 @@ const _GameView: FC<Props> = ({
             <StyledGame>
               <div className="h1">
                 <PlayerHand
+                  cards={player.hand}
                   ownerID={uid}
                   curried={buildHandCard}
                   playSelected={playSelectedCards}
@@ -91,6 +123,8 @@ const _GameView: FC<Props> = ({
               {renderOpponent()}
               <div className="s1">
                 <PlayerTiers
+                  ups={player.ups}
+                  downs={player.downs}
                   uid={uid}
                   revealing={target.isRevealing}
                   buildPropsFaceUp={buildForPlayerStrata}
@@ -119,7 +153,7 @@ const _GameView: FC<Props> = ({
               </div>
               {screenComponent}
               <Steal uid={uid} />
-              <ChainIt uid={uid} />
+              <ChainIt card={getChainedCard()} uid={uid} />
             </StyledGame>
             <button onClick={() => deal(52)}>Deal</button>
             <button onClick={() => deal(24)}>Minideal</button>
@@ -142,6 +176,8 @@ const mapState = (state: GameState, ownProps: OwnProps) => {
     replenishPile: state.pickupPile,
     highlight: getHighlight(state),
     mode: selectMode(state),
+    chains: state.pendingChains || [],
+    chainIt: state.chainIt?.show,
   } as const
 }
 

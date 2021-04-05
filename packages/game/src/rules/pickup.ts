@@ -26,6 +26,7 @@ export const pickup = (state: GameState, ...cards: CardModel[]) => {
   state.queue.shift()
   state.stack = []
   state.focused = ''
+  state.afterimage = []
 
   if (state.queue.length === 0) {
     const dir = state.direction * -1

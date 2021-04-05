@@ -71,10 +71,10 @@ const _PlayerTiers: FC<Props> = ({
   )
 }
 
-const mapState = (state: GameState, { uid, revealing }: OwnProps) => {
-  const cards = state.players.find((p) => p.id === uid)?.cards || []
-  const ups = cards.filter((c) => c.tier === 1).map((c) => c.card)
-  const downs = cards.filter((c) => c.tier === 0).map((c) => c.card)
+const mapState = (
+  state: GameState,
+  { uid, revealing, ups, downs }: OwnProps,
+) => {
   const destination = stackDestinationSelector(state)
   const selector = userModeSelector(uid)
   const highlight = highlightedLocationSelector(uid)(state)
@@ -113,6 +113,8 @@ const mapDispatch = (dispatch: GameDispatch, { uid }: OwnProps) => {
 interface OwnProps {
   uid: string
   revealing: boolean
+  ups: CardModel[]
+  downs: CardModel[]
   buildPropsFaceUp: (c: CardModel) => FluidCardProps
 }
 

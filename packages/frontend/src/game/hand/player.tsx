@@ -6,7 +6,6 @@ import {
   highlightedLocationSelector,
   isHandSortedSelector,
   sortHand,
-  stolenCardsSelector,
 } from 'game'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
@@ -56,8 +55,8 @@ const _PlayerHand: FC<Props> = ({
     <Wrapper>
       <CardsWrapper>
         {list.map((c) => {
-          const props = curried(c.card, variant === 'hand')
-          return <FluidCard key={c.card.id} {...props} />
+          const props = curried(c, variant === 'hand')
+          return <FluidCard key={c.id} {...props} />
         })}
         {variant === 'hand' && <Throbber point="right" left={-75} top={30} />}
       </CardsWrapper>
@@ -73,20 +72,13 @@ const _PlayerHand: FC<Props> = ({
   )
 }
 
-const mapState = (state: GameState, { ownerID }: OwnProps) => {
-  const myCards = state.players.find((p) => p.id === ownerID)?.cards || []
+const mapState = (state: GameState, { ownerID, cards }: OwnProps) => {
   const getHighlight = highlightedLocationSelector(ownerID)
 
   return {
     sorted: isHandSortedSelector(ownerID)(state),
     variant: getHighlight(state),
-    list: [
-      ...myCards.filter((c) => c.tier === 2),
-      ...stolenCardsSelector(ownerID)(state).map((c) => ({
-        card: c,
-        tier: 2,
-      })),
-    ],
+    list: cards,
   }
 }
 
@@ -101,6 +93,7 @@ const mapDispatch = (dispatch: GameDispatch, ownProps: OwnProps) => {
 interface OwnProps {
   ownerID: string
   curried: (c: CardModel, a: boolean) => FluidCardProps
+  cards: CardModel[]
   playSelected?: () => void
   children?: JSX.Element[]
 }

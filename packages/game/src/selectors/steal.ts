@@ -4,16 +4,15 @@ import { GameState } from '../game.slice'
 import { CardModel } from '../types'
 
 export const stealPhaseSelector = (state: GameState) => {
-  if (state.activeSteal.targeting) return 'target'
+  const { targeting, userSteals, reciprocatedSteals } = state.activeSteal
 
-  if (
-    state.activeSteal.userSteals > 0 ||
-    state.activeSteal.reciprocatedSteals > 0
-  ) {
-    if (state.activeSteal.userSteals >= state.activeSteal.reciprocatedSteals) {
-      return 'pick:cards'
-    }
+  if (targeting) return 'target'
 
+  if (userSteals > 0 && userSteals >= reciprocatedSteals) {
+    return 'pick:cards'
+  }
+
+  if (reciprocatedSteals > 0) {
     return 'reciprocate'
   }
 
@@ -53,8 +52,4 @@ export const stealableFilter = (state: GameState) => {
   const stealable = allStealableCardsSelector(state)
 
   return (c: CardModel) => stealable.some((st) => st.id === c.id)
-}
-
-export const stolenCardsSelector = (uid: string) => (state: GameState) => {
-  return []
 }

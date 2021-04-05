@@ -34,6 +34,7 @@ export const revealThunk = createAppThunk(
     dispatch(completeReveal(revealed.id))
     await sleep(CARD_FLIGHT_TIME + 50)
 
+    return revealed
     // if (['Q', 'K'].includes(revealed.value)) {
     //   if (shouldBurn(getState(), revealed)) {
     //     dispatch(addToStack({ cards: [revealed] }))

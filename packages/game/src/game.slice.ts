@@ -21,6 +21,7 @@ import {
   StackEffect,
 } from './selectors'
 import { confirmChain } from './thunks/common'
+import { revealThunk } from './thunks'
 
 export interface GameState {
   direction: number
@@ -239,10 +240,6 @@ const counterSlice = createSlice({
         const others = player.cards.filter((c) => c.card.id !== revealed)
         player.cards = [...others, { card, tier: 1 }]
         removeLock('user:psychicreveal', state)
-
-        if (card.value === 'Q' || card.value === 'K') {
-          state.pendingChains.push(card.id)
-        }
       }
     },
     startReplenish(state) {
@@ -267,6 +264,10 @@ const counterSlice = createSlice({
       removeLock('user:faceuptake', state)
       state.local.faceUpPickID = action.payload.id
     },
+    cancelChain(state, action: PayloadAction<string>) {
+      const cardID = action.payload
+      state.pendingChains = state.pendingChains.filter((id) => id !== cardID)
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(confirmChain.pending, (state, action) => {
@@ -274,7 +275,12 @@ const counterSlice = createSlice({
       const chained = action.meta.arg
       state.pendingChains = state.pendingChains.filter((id) => id !== chained)
     })
-
+    builder.addCase(revealThunk.fulfilled, (state, action) => {
+      const card = action.payload
+      if (card.value === 'Q' || card.value === 'K') {
+        state.pendingChains.push(card.id)
+      }
+    })
     builder.addCase(confirmChain.fulfilled, (state, action) => {
       console.log('chain complete')
     })
@@ -330,6 +336,7 @@ export const {
   startReplenish,
   confirmReplenish,
   confirmAceTarget,
+  cancelChain,
   startFupu,
   confirmFupu,
   selectAceTarget,

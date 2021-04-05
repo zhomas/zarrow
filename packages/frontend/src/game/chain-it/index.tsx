@@ -4,9 +4,11 @@ import {
   GameDispatch,
   GameState,
   confirmChain,
+  cancelChain,
   userModeSelector,
+  CardModel,
 } from 'game'
-import React, { FC } from 'react'
+import React, { FC, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
 import { FluidCard } from '../card'
@@ -14,15 +16,26 @@ import { FluidCard } from '../card'
 const FupuWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
   min-height: 100vh;
 `
 
-const _ChainIt: FC<Props> = ({ show, cardID, chainCard }) => {
+const _ChainIt: FC<Props> = ({ show, card, chainCard, cancelChain }) => {
+  useEffect(() => {
+    const c = show
+    const timeout = setTimeout(() => {
+      if (show) {
+        cancelChain(card ? card.id : '')
+      }
+    }, 1000000)
+
+    return () => clearTimeout(timeout)
+  }, [show, card, cancelChain])
+
   if (!show) return null
 
-  const handleClick = () => chainCard(cardID)
+  const handleClick = () => chainCard(card ? card.id : '')
 
   return (
     <FupuWrapper
@@ -34,21 +47,19 @@ const _ChainIt: FC<Props> = ({ show, cardID, chainCard }) => {
         background: 'rgba(0, 0, 0, 0.5)',
         zIndex: 10,
         color: 'white',
-        padding: '25vh',
+        padding: '5vh',
       }}
     >
       <h1>Chain it?</h1>
-      <button onClick={handleClick}>Chain it</button>
+      {card && <FluidCard card={card} onClick={handleClick}></FluidCard>}
     </FupuWrapper>
   )
 }
 
-const mapState = (state: GameState, { uid }: OwnProps) => {
-  const active = activePlayerSelector(state)
+const mapState = (state: GameState, { uid, card }: OwnProps) => {
   const modeSelector = userModeSelector(uid)
   return {
-    show: modeSelector(state) === 'prompt:chain',
-    cardID: state.pendingChains ? state.pendingChains[0] : '',
+    show: card && modeSelector(state) === 'prompt:chain',
   }
 }
 
@@ -58,6 +69,10 @@ const mapDispatch = (dispatch: GameDispatch) => {
       const action = confirmChain(cardID)
       dispatch(action)
     },
+    cancelChain: (cardID: string) => {
+      const action = cancelChain(cardID)
+      dispatch(action)
+    },
   }
 }
 
@@ -65,6 +80,7 @@ const connector = connect(mapState, mapDispatch)
 
 interface OwnProps {
   uid: string
+  card?: CardModel
 }
 
 type ReduxProps = ConnectedProps<typeof connector>

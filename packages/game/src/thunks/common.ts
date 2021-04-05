@@ -42,13 +42,7 @@ export const sleepUntil = async (fn: () => boolean) => {
 export const confirmChain = createAppThunk(
   'game/confirmChain',
   async (cardID: string, { dispatch, getState }) => {
-    const { pendingChains } = getState()
-
     const card = createCardByID(cardID)
-
-    // dispatch(addToStack({ cards: [card] }))
-    // await sleep(CARD_FLIGHT_TIME + 50)
-    // await dispatch(startMiniburn())
     await playCardInternal([card], dispatch, getState)
 
     return card

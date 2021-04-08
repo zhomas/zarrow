@@ -56,6 +56,9 @@ export const userModeSelector = (uid: string) => (state: GameState) => {
     case 'complete':
       const winners = winnersSelector(state)
       return winners.includes(uid) ? 'idle:victory' : 'idle:defeat'
+    case 'pregame':
+      const ready = state.pregame[uid]
+      return ready ? 'pregame:ready' : 'pregame'
     default:
       if (turnActive) {
         if (isAcing(state)) return 'play:target'
@@ -106,6 +109,10 @@ export const highlightedLocationSelector = (uid: string) => {
   return (state: GameState): HighlightLocation => {
     const mode = selectMode(state)
     const active = state.queue[0]
+
+    if (mode === 'pregame') {
+      return 'hand'
+    }
 
     if (active === uid) {
       if (mode === 'play:reveal') return ['playerID', uid]

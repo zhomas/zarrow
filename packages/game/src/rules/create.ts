@@ -1,6 +1,6 @@
 import { GameState } from '../game.slice'
 
-export const createGame = (): GameState => {
+export const createGame = (): Required<GameState> => {
   return {
     queue: [],
     stack: [],
@@ -20,6 +20,16 @@ export const createGame = (): GameState => {
       participants: [],
     },
     pendingChains: [],
+    dealID: '',
+    burning: false,
+    animating: false,
+    stackEffect: '',
+    chainIt: {
+      show: false,
+      value: false,
+    },
+    focused: '',
+    pregame: {},
   }
 }
 

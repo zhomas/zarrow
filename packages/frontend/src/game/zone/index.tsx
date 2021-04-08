@@ -5,7 +5,7 @@ import { createDeck } from 'game'
 import React, { FC } from 'react'
 import { Throbber } from '../throbber'
 
-const ids = createDeck().map((c) => c.id)
+const ids = createDeck().cards.map((c) => c.id)
 
 interface ZoneProps {
   onPrompt?: () => void

@@ -14,22 +14,25 @@ import {
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
 import { FluidCard } from '../card'
+import { PlayerCard } from 'game/dist/types'
 
 const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100vw;
-  height: 100vh;
-  position: static;
-  z-index: 0;
-  justify-content: center;
-  align-items: center;
-  zoom: 1.1;
-  background: #000000c2;
-  color: #fff;
-
-  > div {
+  &&& {
     display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    position: static;
+    z-index: 10;
+    justify-content: center;
+    align-items: center;
+    zoom: 1.1;
+    background: #000000c2;
+    color: #fff;
+
+    > div {
+      display: flex;
+    }
   }
 `
 
@@ -47,11 +50,12 @@ const StealView: FC<Props> = ({
   return (
     <Wrapper>
       <div>
-        {theirCards.map((props) => (
+        {theirCards.map((pc) => (
           <FluidCard
-            key={props.card.id}
-            {...props}
-            onClick={() => stealCards(props.card)}
+            key={pc.card.id}
+            card={pc.card}
+            faceDown={pc.tier !== 1}
+            onClick={() => stealCards(pc.card)}
           />
         ))}
       </div>
@@ -61,24 +65,14 @@ const StealView: FC<Props> = ({
   )
 }
 
-const mapState = (state: GameState, { uid }: OwnProps) => {
+const mapState = (state: GameState, { uid, cards }: OwnProps) => {
   const selectMode = userModeSelector(uid)
-  const other = otherStealParticipantSelector(uid)(state)
   const selectTier = highestTierSelector(uid)
-  const stealable = stealableCardsSelector(state)
 
   const mode = selectMode(state)
 
-  const theirCards =
-    mode === 'steal:pick'
-      ? stealable(other).map((card) => ({
-          card,
-          faceDown: highestTierSelector(other)(state) !== 1,
-        }))
-      : []
-
   return {
-    theirCards,
+    theirCards: cards,
     selected: [],
     reciprocal: stealPhaseSelector(state) === 'reciprocate',
     active: mode === 'steal:pick' || mode === 'steal:receive',
@@ -99,6 +93,7 @@ const mapDispatch = (dispatch: GameDispatch, { uid }: OwnProps) => {
 
 type OwnProps = {
   uid: string
+  cards: PlayerCard[]
 }
 
 const connector = connect(mapState, mapDispatch)

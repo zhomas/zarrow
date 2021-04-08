@@ -7,6 +7,7 @@ import {
   completeReveal,
 } from '..'
 import { createCard, createCardByID } from '../deck'
+import { confirmChain } from './common'
 
 import { playCardThunk } from './play'
 import { revealThunk } from './reveal'
@@ -373,6 +374,8 @@ it('burns correctly when a fourth queen is revealed', async (t) => {
     revealThunk({ cards: [createCardByID('QD')], playerID: 'a' }),
   )
 
+  await store.dispatch(confirmChain('QD'))
+
   await x
 
   t.log(store.getState())
@@ -410,6 +413,8 @@ it('performs a cross chain when i reveal a king', async (t) => {
   await store.dispatch(
     revealThunk({ cards: [createCardByID('KD')], playerID: 'a' }),
   )
+
+  await store.dispatch(confirmChain('KD'))
 
   await x
 
@@ -475,6 +480,8 @@ it('chains when a queen is revealed', async (t) => {
   await store.dispatch(
     revealThunk({ cards: [createCard('Q', 'H')], playerID: 'a' }),
   )
+
+  await store.dispatch(confirmChain('QH'))
 
   const state = store.getState()
 

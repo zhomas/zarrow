@@ -2,21 +2,12 @@ import { motion } from 'framer-motion'
 import { createDeck, UserMode } from 'game'
 import React, { FC } from 'react'
 
-const ids = createDeck().map((c) => c.id)
-
 interface ZoneProps {
   active: boolean
   playSelectedDisabled: boolean
   playSelected?: () => void
   cardsLength: number
   mode: UserMode
-}
-
-const variants = {
-  active: {
-    opacity: 1,
-    transition: { duration: 2 },
-  },
 }
 
 export const Hand: FC<ZoneProps> = ({

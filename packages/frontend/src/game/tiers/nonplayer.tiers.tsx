@@ -16,8 +16,8 @@ const Screen = styled.div`
   position: absolute;
   background: rgba(255, 0, 0, 0.3);
   top: 0;
-  left: -20px;
-  right: -20px;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 1;
   opacity: 0;

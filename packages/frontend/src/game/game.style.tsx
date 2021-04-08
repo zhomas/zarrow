@@ -73,21 +73,23 @@ export const StyledGame = styled.main`
 `
 
 export const Screen = styled.div`
-  background: rgb(0 0 0 / 82%);
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  grid-area: 2 / 2 / 5 / 5;
-  opacity: 0;
-  pointer-events: none;
+  &&& {
+    background: rgb(0 0 0 / 82%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    grid-area: 2 / 2 / 5 / 5;
+    opacity: 0;
+    pointer-events: none;
 
-  .targeting & {
-    opacity: 1;
-  }
+    .targeting & {
+      opacity: 1;
+    }
 
-  .revealing & {
-    opacity: 1;
+    .revealing & {
+      opacity: 1;
+    }
   }
 `

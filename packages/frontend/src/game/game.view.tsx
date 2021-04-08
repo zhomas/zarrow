@@ -10,6 +10,8 @@ import {
   highlightedLocationSelector,
   userModeSelector,
   confirmReplenish,
+  stealableCardsSelector,
+  highestTierSelector,
 } from 'game'
 import { connect, ConnectedProps } from 'react-redux'
 import { StyledGame } from './game.style'
@@ -20,6 +22,7 @@ import {
   useCardBuilder as useLocalCardContext,
   useTargeting,
 } from './game.hooks'
+import { usePregameContext } from './game.pregame.hooks'
 import { Zone } from './zone'
 import { ChainIt } from './chain-it'
 import { Sparkler } from './sparkler'
@@ -31,6 +34,8 @@ import { NonPlayerTiers } from './tiers/nonplayer.tiers'
 import { Targeter } from './targeter'
 import { Steal } from './steal'
 import { createCardByID } from 'game/dist/deck'
+import { PlayerCard } from 'game/dist/types'
+import { Pregame } from './pregame'
 
 const _GameView: FC<Props> = ({
   stack,
@@ -41,8 +46,10 @@ const _GameView: FC<Props> = ({
   confirmReplenish,
   pickupStack,
   highlight,
-  chains,
-  chainIt,
+  getCards,
+  getChainedCard,
+  mode,
+  dealID,
 }) => {
   const {
     buildHandCard,
@@ -50,33 +57,9 @@ const _GameView: FC<Props> = ({
     playSelectedCards,
   } = useLocalCardContext(uid)
 
+  const { getCardProps, selected } = usePregameContext(uid, dealID)
+
   const target = useTargeting(uid)
-
-  const getChainedCard = () => {
-    const [chained] = chains
-    if (chained) {
-      return createCardByID(chained)
-    }
-
-    return undefined
-  }
-
-  const getCards = (id: string) => {
-    const player = players.find((p) => p.id === id)
-    if (!player) throw new Error('impossible')
-    const chained = getChainedCard()
-    let { cards } = player
-
-    if (chainIt && chained) {
-      cards = cards.filter((c) => c.card.id !== chained.id)
-    }
-
-    return {
-      hand: cards.filter((c) => c.tier === 2).map((c) => c.card),
-      ups: cards.filter((c) => c.tier === 1).map((c) => c.card),
-      downs: cards.filter((c) => c.tier === 0).map((c) => c.card),
-    }
-  }
 
   const renderOpponent = () => {
     const opponent = players.find((p) => p.id !== uid)
@@ -87,6 +70,7 @@ const _GameView: FC<Props> = ({
     const onMouseLeave = () => target.setTarget('')
     return (
       <>
+        <Steal uid={uid} cards={cards.stealable} />
         <div className="h2">
           <EnemyHand ownerID={opponent.id} cards={cards.hand} />
         </div>
@@ -116,7 +100,7 @@ const _GameView: FC<Props> = ({
                 <PlayerHand
                   cards={player.hand}
                   ownerID={uid}
-                  curried={buildHandCard}
+                  curried={mode === 'pregame' ? getCardProps : buildHandCard}
                   playSelected={playSelectedCards}
                 />
               </div>
@@ -153,7 +137,7 @@ const _GameView: FC<Props> = ({
                 />
               </div>
               {screenComponent}
-              <Steal uid={uid} />
+              <Pregame selected={selected} uid={uid} />
               <ChainIt card={getChainedCard()} uid={uid} />
             </StyledGame>
             <button onClick={() => deal(52)}>Deal</button>
@@ -171,14 +155,60 @@ const _GameView: FC<Props> = ({
 const mapState = (state: GameState, ownProps: OwnProps) => {
   const getHighlight = highlightedLocationSelector(ownProps.uid)
   const selectMode = userModeSelector(ownProps.uid)
+  const getStealable = stealableCardsSelector(state)
+  const mode = selectMode(state)
+
+  const chains = state.pendingChains || []
+  const chainIt = state.chainIt?.show
+
+  const getChainedCard = () => {
+    const [chained] = chains
+    if (chained) {
+      return createCardByID(chained)
+    }
+
+    return undefined
+  }
+
+  const getCards = (id: string) => {
+    const player = state.players.find((p) => p.id === id)
+    if (!player) throw new Error('impossible')
+    const tierSelector = highestTierSelector(id)
+
+    const chained = getChainedCard()
+    let { cards } = player
+    const stealable = mode === 'steal:pick' ? getStealable(id) : []
+    const tier = tierSelector(state)
+
+    if (chainIt && chained) {
+      cards = cards.filter((c) => c.card.id !== chained.id)
+    }
+
+    cards = cards.filter((c) => !stealable.some((cd) => cd.id === c.card.id))
+
+    return {
+      mode,
+      hand: cards.filter((c) => c.tier === 2).map((c) => c.card),
+      ups: cards.filter((c) => c.tier === 1).map((c) => c.card),
+      downs: cards.filter((c) => c.tier === 0).map((c) => c.card),
+      stealable: stealable.map((c) => ({
+        card: c,
+        tier: tier,
+      })) as Array<PlayerCard>,
+    }
+  }
+
   return {
+    dealID: state.dealID || '',
     stack: state.stack,
     players: state.players,
     replenishPile: state.pickupPile,
     highlight: getHighlight(state),
-    mode: selectMode(state),
+    mode,
     chains: state.pendingChains || [],
     chainIt: state.chainIt?.show,
+    getCards,
+    getChainedCard,
   } as const
 }
 
@@ -189,7 +219,7 @@ const mapDispatch = (d: GameDispatch, ownProps: OwnProps) => {
       d(action)
     },
     deal: (size: number) => {
-      const action = deal({ deck: createDeck(size) })
+      const action = deal(createDeck(size))
       d(action)
     },
     confirmReplenish: () => {

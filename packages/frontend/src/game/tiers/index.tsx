@@ -13,45 +13,39 @@ interface Props {
   throb: boolean
 }
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-
-  flex: 1;
+const Spacer = styled.div`
+  height: 30px;
+  pointer-events: none;
 `
 
-const Ups = styled(motion.div)`
-  display: flex;
-  position: absolute;
-  bottom: 0;
-  z-index: 1;
-  max-width: 100%;
-
-  > *:last-child {
-    flex-basis: 126px;
-    flex-shrink: 0;
-  }
-`
-
-const Downs = styled(motion.div)`
+const CardsRow = styled(motion.div)`
   display: flex;
   justify-content: center;
   max-width: 100%;
+  margin: 0 auto;
   > *:last-child {
     flex-basis: 126px;
     flex-shrink: 0;
   }
+`
+
+const Wrapper = styled.div`
+  position: relative;
+`
+
+const Ups = styled(CardsRow)``
+
+const Downs = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
 `
 
 export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
   const getOffsetUps = () => {
     if (revealing) return -230
-
-    if (nudge === 'up') {
-      return -50
-    }
 
     return 0
   }
@@ -67,15 +61,18 @@ export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
 
   return (
     <Wrapper>
+      <Spacer />
       <Ups style={{ y: getOffsetUps(), width: getUpsWidth() }}>
         {ups.map((props) => (
           <FluidCard key={props.card.id} {...props} />
         ))}
       </Ups>
-      <Downs style={{ width: getDownsWidth() }}>
-        {downs.map((props) => (
-          <FluidCard key={props.card.id} {...props} />
-        ))}
+      <Downs>
+        <CardsRow style={{ width: getDownsWidth() }}>
+          {downs.map((props) => (
+            <FluidCard key={props.card.id} {...props} />
+          ))}
+        </CardsRow>
       </Downs>
       {throb && <Throbber point="right" left={-100} />}
     </Wrapper>

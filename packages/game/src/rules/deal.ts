@@ -8,15 +8,17 @@ const findFreeTier = (player: PlayerModel) => {
   const ups = player.cards.filter((c) => c.tier === 1)
 
   if (downs.length < 4) return 0
-  if (ups.length < 4) return 1
   return 2
 }
 
-const weave = (a: string[], b: string[]) =>
-  a.length ? [a[0], ...weave(b, a.slice(1))] : b
+interface Deck {
+  cards: CardModel[]
+  id: string
+}
 
-export const dealCards = (state: GameState, deck: CardModel[]) => {
+export const dealCards = (state: GameState, deck: Deck) => {
   const playerIds = state.players.map((p) => p.id)
+  const { cards, id } = deck
   let playerIndex = 0
   state.players = state.players.map((p) => {
     return {
@@ -25,9 +27,9 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
     }
   })
 
-  while (deck.length > 0) {
+  while (cards.length > 0) {
     if (state.players.every((p) => p.cards.length >= 12)) break
-    const card = deck.shift()
+    const card = cards.shift()
     const i = getWrappedIndex(playerIndex, state.players.length)
     const player = state.players[i]
     const target = findFreeTier(player)
@@ -35,7 +37,8 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
     playerIndex++
   }
 
-  state.pickupPile = deck
+  state.dealID = id
+  state.pickupPile = cards
   state.queue = [playerIds[0]]
   state.turnLocks = []
   state.burnt = []
@@ -53,4 +56,10 @@ export const dealCards = (state: GameState, deck: CardModel[]) => {
     reciprocatedSteals: 0,
   }
   state.pendingChains = []
+  state.pregame = state.players.reduce((obj, item) => {
+    return {
+      ...obj,
+      [item.id]: false,
+    }
+  }, {})
 }

@@ -129,7 +129,6 @@ export const useCardBuilder = (uid: string) => {
   const userMode = useSelector(userModeSelector(uid))
   const active = useSelector(activeUserSelector)
   const queening = useSelector(isQueening)
-  const kinging = useSelector(isKinging)
   const handCards = player?.cards.filter((c) => c.tier === 2)
 
   const focusedOnPlayerStrata = focused[1] === uid

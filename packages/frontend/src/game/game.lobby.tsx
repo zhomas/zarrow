@@ -72,7 +72,7 @@ const mapDispatch = (dispatch: GameDispatch, { uid }: OwnProps) => {
       dispatch(action)
     },
     deal: () => {
-      const action = deal({ deck: createDeck() })
+      const action = deal(createDeck())
       dispatch(action)
     },
   }

@@ -52,7 +52,7 @@ const mapDispatch = (dispatch: GameDispatch) => {
       dispatch(replace(s))
     },
     dealNewGame: () => {
-      const action = deal({ deck: createDeck(26) })
+      const action = deal(createDeck(26))
       dispatch(action)
     },
   }

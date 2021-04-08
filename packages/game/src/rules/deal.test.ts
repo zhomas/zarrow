@@ -25,8 +25,7 @@ it('deals a fresh game', (t) => {
   state.players.forEach((p) => {
     t.is(p.cards.length, 12)
     t.is(p.cards.filter((c) => c.tier === 0).length, 4)
-    t.is(p.cards.filter((c) => c.tier === 1).length, 4)
-    t.is(p.cards.filter((c) => c.tier === 2).length, 4)
+    t.is(p.cards.filter((c) => c.tier === 2).length, 8)
   })
 })
 

@@ -9,7 +9,7 @@ import {
 import { CardModel, PlayerModel, TurnLock } from './types'
 import { joinGame as join, changeFaction as faction } from './rules/create'
 
-import { createCardByID } from './deck'
+import { createCardByID, Deck } from './deck'
 import { sortHand as sort } from './rules/sort'
 import { playCardThunk } from './thunks/play'
 
@@ -22,8 +22,10 @@ import {
 } from './selectors'
 import { confirmChain } from './thunks/common'
 import { revealThunk } from './thunks'
+import { pregamePick } from './thunks/pregame'
 
 export interface GameState {
+  dealID?: string
   direction: number
   burning?: boolean
   animating?: boolean
@@ -50,6 +52,9 @@ export interface GameState {
   chainIt?: {
     show: boolean
     value: boolean
+  }
+  pregame?: {
+    [id: string]: boolean
   }
 }
 
@@ -81,6 +86,7 @@ export const initialState: GameState = {
     reciprocatedSteals: 0,
   },
   pendingChains: [],
+  pregame: {},
 }
 
 interface GameInitialiser {
@@ -121,6 +127,8 @@ const counterSlice = createSlice({
       state.animating = !!action.payload.animating
       state.chainIt = action.payload.chainIt
       state.pendingChains = action.payload.pendingChains || []
+      state.pregame = action.payload.pregame
+      state.dealID = action.payload.dealID
     },
     joinGame(state, action: PayloadAction<Join>) {
       join(state, action.payload.uid, action.payload.displayName)
@@ -128,8 +136,8 @@ const counterSlice = createSlice({
     setFaction(state, action: PayloadAction<Faction>) {
       faction(state, action.payload.uid, action.payload.faction)
     },
-    deal(state, action: PayloadAction<GameInitialiser>) {
-      dealCards(state, action.payload.deck)
+    deal(state, action: PayloadAction<Deck>) {
+      dealCards(state, action.payload)
     },
     addToStack(state, action: PayloadAction<PlayCard>) {
       const { cards } = action.payload
@@ -280,6 +288,17 @@ const counterSlice = createSlice({
       if (card.value === 'Q' || card.value === 'K') {
         state.pendingChains.push(card.id)
       }
+    })
+    builder.addCase(pregamePick.fulfilled, (state, action) => {
+      const { uid, cards } = action.meta.arg
+      const cardIDs = cards.map((c) => c.id)
+      const user = state.players.find((p) => p.id === uid)
+      user.cards = [
+        ...user.cards.filter((c) => !cardIDs.includes(c.card.id)),
+        ...cards.map((c) => ({ card: c, tier: 1 })),
+      ]
+
+      state.pregame[uid] = true
     })
     builder.addCase(confirmChain.fulfilled, (state, action) => {
       console.log('chain complete')

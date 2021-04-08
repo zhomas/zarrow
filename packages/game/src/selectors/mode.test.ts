@@ -4,6 +4,81 @@ import { createCard, createCardByID } from '../deck'
 import { playCardThunk } from '../thunks/play'
 import { userModeSelector } from './mode'
 
+it('is pregame when I have not chosen my face ups', (t) => {
+  const selector = userModeSelector('abc')
+  const highlight = highlightedLocationSelector('abc')
+  const state = {
+    pregame: {
+      abc: false,
+    },
+    burnt: [],
+    direction: 1,
+    pickupPile: [],
+    turnLocks: [],
+    queue: ['abc'],
+    afterimage: [],
+    stack: [],
+    players: [
+      {
+        id: 'abc',
+        faction: 0,
+        displayName: 'Tom',
+        cards: [
+          { card: createCard('3', 'S'), tier: 0 },
+          { card: createCard('4', 'S'), tier: 2 },
+        ],
+      },
+    ],
+    activeSteal: {
+      userSteals: 0,
+      reciprocatedSteals: 0,
+      participants: [],
+    },
+    pendingChains: [],
+  }
+
+  const mode = selector(state)
+  const high = highlight(state)
+
+  t.is(mode, 'pregame')
+  t.deepEqual(high, 'hand')
+})
+
+it('is not pregame when I have chosen my face ups', (t) => {
+  const selector = userModeSelector('abc')
+  const mode = selector({
+    pregame: {
+      abc: true,
+    },
+    burnt: [],
+    direction: 1,
+    pickupPile: [],
+    turnLocks: [],
+    queue: ['abc'],
+    afterimage: [],
+    stack: [],
+    players: [
+      {
+        id: 'abc',
+        faction: 0,
+        displayName: 'Tom',
+        cards: [
+          { card: createCard('3', 'S'), tier: 0 },
+          { card: createCard('4', 'S'), tier: 2 },
+        ],
+      },
+    ],
+    activeSteal: {
+      userSteals: 0,
+      reciprocatedSteals: 0,
+      participants: [],
+    },
+    pendingChains: [],
+  })
+
+  t.not(mode, 'pregame')
+})
+
 it('requires playing from the face ups when a card can play', (t) => {
   const selector = userModeSelector('abc')
   const mode = selector({

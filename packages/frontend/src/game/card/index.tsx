@@ -104,7 +104,12 @@ export const FluidCard: FC<Props> = ({
           transition: {
             type: 'tween',
             ease: 'easeOut',
-            duration: CARD_FLIGHT_TIME / 1000,
+          },
+        }}
+        transition={{
+          y: {
+            type: 'tween',
+            duration: 100,
           },
         }}
         style={{

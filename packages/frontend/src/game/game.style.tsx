@@ -2,8 +2,8 @@ import { styled } from '@linaria/react'
 
 export const StyledGame = styled.main`
   display: grid;
-  grid-template-columns: 40px 1fr 1fr 1fr 40px;
-  grid-template-rows: 40px 1fr 1fr 1fr 120px;
+  grid-template-columns: 40px 220px 1fr 220px 40px;
+  grid-template-rows: 40px 220px 1fr 220px 120px;
   grid-column-gap: 0px;
   grid-row-gap: 0px;
   background: #333333;

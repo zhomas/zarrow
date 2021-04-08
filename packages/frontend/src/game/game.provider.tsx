@@ -25,10 +25,12 @@ export const GameProvider: FC<ProviderProps> = ({
           ...state,
           stackEffect: state.stackEffect || '',
           focused: state.focused || '',
+          dealID: state.dealID || '',
           chainIt: state.chainIt || {
             show: false,
             value: false,
           },
+          pregame: state.pregame || {},
         }
 
         firebase.firestore().collection('games').doc(gid).set(data)

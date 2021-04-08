@@ -4,6 +4,11 @@ import type { FluidCardProps } from '../../typings'
 import { styled } from '@linaria/react'
 import { CARD_FLIGHT_TIME } from 'game'
 
+export const CARD_SIZE = {
+  width: 126 * 0.85,
+  height: 176 * 0.85,
+}
+
 type Props = FluidCardProps & {
   stackIndex?: number
   stackLength?: number
@@ -12,8 +17,8 @@ type Props = FluidCardProps & {
 }
 
 const CardBack = styled.div`
-  width: 126px;
-  height: 176px;
+  width: ${CARD_SIZE.width}px;
+  height: ${CARD_SIZE.height}px;
   background: #d71010;
   position: absolute;
   top: 0;
@@ -27,8 +32,8 @@ const CardFace = styled.div`
   border-radius: 10px;
   border: 1px solid #00000075;
   position: absolute;
-  width: 126px;
-  height: 176px;
+  width: ${CARD_SIZE.width}px;
+  height: ${CARD_SIZE.height}px;
   top: 0;
   left: 0;
 
@@ -40,8 +45,8 @@ const CardFace = styled.div`
 `
 
 const Wrapper = styled(motion.div)`
-  width: 126px;
-  height: 176px;
+  width: ${CARD_SIZE.width}px;
+  height: ${CARD_SIZE.height}px;
   position: relative;
   transform-style: preserve-3d;
 `
@@ -49,7 +54,8 @@ const WrapperWrapper = styled.div`
   flex: 1 1 40px;
   min-width: 25px;
   max-width: fit-content;
-  max-height: 176px;
+
+  max-height: ${CARD_SIZE.height}px;
 `
 
 const Checkbox = styled.input`

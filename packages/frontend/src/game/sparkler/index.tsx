@@ -4,6 +4,7 @@ import React, { FC, useEffect, useLayoutEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { styled } from '@linaria/react'
 import { time } from 'console'
+import { CARD_SIZE } from '../card'
 
 const wobbleRise: Variant = {
   x: 8,
@@ -34,8 +35,8 @@ const burn: Variant = {
 }
 
 const StackWrapper = styled(motion.div)`
-  width: 146px;
-  height: 196px;
+  width: ${CARD_SIZE.width + 20}px;
+  height: ${CARD_SIZE.height + 20}px;
 `
 
 const SparkleWrapper = styled(motion.div)`

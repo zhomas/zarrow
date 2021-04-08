@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import type { FluidCardProps } from '../../typings'
 import { styled } from '@linaria/react'
-import { FluidCard } from '../card'
+import { CARD_SIZE, FluidCard } from '../card'
 import { motion } from 'framer-motion'
 import { Throbber } from '../throbber'
 
@@ -23,13 +23,18 @@ const CardsRow = styled(motion.div)`
   justify-content: center;
   max-width: 100%;
   margin: 0 auto;
+  min-height: ${CARD_SIZE.height}px;
   > *:last-child {
-    flex-basis: 126px;
+    flex-basis: ${CARD_SIZE.width}px;
     flex-shrink: 0;
   }
 `
 
 const Wrapper = styled.div`
+  padding: 20px;
+`
+
+const InnerWrapper = styled.div`
   position: relative;
 `
 
@@ -40,41 +45,42 @@ const Downs = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  z-index: -1;
 `
 
 export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
   const getOffsetUps = () => {
-    if (revealing) return -230
+    if (revealing) return CARD_SIZE.height * -1
 
     return 0
   }
 
   const getUpsWidth = () => {
-    return (ups.length - 1) * 50 + 126
+    return (ups.length - 1) * 50 + CARD_SIZE.width
   }
 
   const getDownsWidth = () => {
     if (revealing) return 500
-    return (downs.length - 1) * 80 + 126
+    return (downs.length - 1) * 65 + CARD_SIZE.width
   }
 
   return (
     <Wrapper>
-      <Spacer />
-      <Ups style={{ y: getOffsetUps(), width: getUpsWidth() }}>
-        {ups.map((props) => (
-          <FluidCard key={props.card.id} {...props} />
-        ))}
-      </Ups>
-      <Downs>
-        <CardsRow style={{ width: getDownsWidth() }}>
-          {downs.map((props) => (
+      <InnerWrapper>
+        <Downs>
+          <CardsRow style={{ width: getDownsWidth() }}>
+            {downs.map((props) => (
+              <FluidCard key={props.card.id} {...props} />
+            ))}
+          </CardsRow>
+        </Downs>
+        <Spacer />
+        <Ups style={{ y: getOffsetUps(), width: getUpsWidth() }}>
+          {ups.map((props) => (
             <FluidCard key={props.card.id} {...props} />
           ))}
-        </CardsRow>
-      </Downs>
-      {throb && <Throbber point="right" left={-100} />}
+        </Ups>
+        {throb && <Throbber point="right" left={-100} />}
+      </InnerWrapper>
     </Wrapper>
   )
 }

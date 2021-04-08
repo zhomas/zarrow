@@ -11,7 +11,7 @@ import {
   highlightedLocationSelector,
   activeFupuSelector,
 } from 'game'
-import React, { FC } from 'react'
+import React, { FC, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { FluidCardProps } from '../../typings'
 import { FUPU } from '../fupu'
@@ -32,6 +32,12 @@ const _PlayerTiers: FC<Props> = ({
   uid,
   fupu,
 }) => {
+  useEffect(() => {
+    document.addEventListener('click', (e) => {
+      console.log(e.target)
+    })
+  }, [])
+
   const getFaceDownClickHandler = (c: CardModel) => {
     switch (mode) {
       case 'play:downs':

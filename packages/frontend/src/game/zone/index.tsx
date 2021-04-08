@@ -3,6 +3,7 @@ import { styled } from '@linaria/react'
 import { motion } from 'framer-motion'
 import { createDeck } from 'game'
 import React, { FC } from 'react'
+import { CARD_SIZE } from '../card'
 import { Throbber } from '../throbber'
 
 const ids = createDeck().cards.map((c) => c.id)
@@ -72,8 +73,8 @@ export const Zone: FC<ZoneProps> = ({
         <div
           style={{
             position: 'relative',
-            width: 126,
-            height: 176,
+            width: CARD_SIZE.width,
+            height: CARD_SIZE.height,
             pointerEvents: 'none',
             top: cards.length * -1.5,
           }}

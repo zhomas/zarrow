@@ -43,13 +43,7 @@ const _NonPlayerTiers: FC<Props> = ({
     onMouseLeave={onMouseLeave}
     onClick={onClick}
   >
-    <Tiers
-      ups={ups}
-      downs={downs}
-      revealing={false}
-      nudge={'down'}
-      throb={throb}
-    />
+    <Tiers ups={ups} downs={downs} revealing={false} throb={throb} />
     <Screen
       style={{
         opacity: targetMode === 'ace:hover' ? 1 : 0.5,

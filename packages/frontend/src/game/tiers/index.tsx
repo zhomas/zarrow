@@ -8,7 +8,6 @@ import { Throbber } from '../throbber'
 interface Props {
   ups: FluidCardProps[]
   downs: FluidCardProps[]
-  nudge: 'up' | 'down'
   revealing: boolean
   throb: boolean
 }
@@ -34,6 +33,9 @@ const Wrapper = styled.div`
   padding: 20px;
   display: inline-block;
   background: #000;
+  min-width: 298px;
+  min-height: 100%;
+  position: relative;
 `
 
 const InnerWrapper = styled.div`
@@ -50,7 +52,7 @@ const Downs = styled.div`
   right: 0;
 `
 
-export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
+export const Tiers: FC<Props> = ({ ups, downs, revealing, throb }) => {
   const getOffsetUps = () => {
     if (revealing) return CARD_SIZE.height * -1
 
@@ -84,8 +86,8 @@ export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
             <FluidCard key={props.card.id} {...props} />
           ))}
         </Ups>
-        {throb && <Throbber point="right" left={-100} />}
       </InnerWrapper>
+      {throb && <Throbber point="right" left={-50} top={'35%'} />}
     </Wrapper>
   )
 }

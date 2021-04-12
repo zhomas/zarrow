@@ -68,7 +68,6 @@ const _PlayerTiers: FC<Props> = ({
         ups={propsUp}
         downs={propsDown}
         revealing={revealing}
-        nudge={'up'}
         throb={throb}
       />
       <FUPU cards={fupuUps} uid={uid} />

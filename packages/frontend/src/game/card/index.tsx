@@ -1,19 +1,15 @@
-import React, { FC, useEffect } from 'react'
+import React, { FC } from 'react'
 import { AnimationProps, motion } from 'framer-motion'
 import type { FluidCardProps } from '../../typings'
 import { styled } from '@linaria/react'
-import { CARD_FLIGHT_TIME } from 'game'
 
 export const CARD_SIZE = {
-  width: 126 * 0.85,
-  height: 176 * 0.85,
+  width: Math.floor(126 * 0.85),
+  height: Math.floor(176 * 0.85),
 }
 
 type Props = FluidCardProps & {
-  stackIndex?: number
-  stackLength?: number
   style?: React.CSSProperties
-  animate?: AnimationProps['animate']
 }
 
 const CardBack = styled.div`
@@ -54,12 +50,7 @@ const WrapperWrapper = styled.div`
   flex: 1 1 40px;
   min-width: 25px;
   max-width: fit-content;
-
   max-height: ${CARD_SIZE.height}px;
-`
-
-const Checkbox = styled.input`
-  transform: scale(1.5);
 `
 
 export const FluidCard: FC<Props> = ({
@@ -70,10 +61,8 @@ export const FluidCard: FC<Props> = ({
   onMouseEnter,
   onMouseExit,
   selected,
-  selectable = false,
   variant = 'default',
   style,
-  stackIndex = 0,
 }) => {
   const getBGColor = () => {
     switch (variant) {

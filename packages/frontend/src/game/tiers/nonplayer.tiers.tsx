@@ -7,9 +7,7 @@ import { styled } from '@linaria/react'
 
 const Wrapper = styled.div`
   position: relative;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  text-align: center;
 `
 
 const Screen = styled.div`

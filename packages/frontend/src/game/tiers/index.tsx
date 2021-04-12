@@ -32,10 +32,13 @@ const CardsRow = styled(motion.div)`
 
 const Wrapper = styled.div`
   padding: 20px;
+  display: inline-block;
+  background: #000;
 `
 
 const InnerWrapper = styled.div`
   position: relative;
+  margin: 0 auto;
 `
 
 const Ups = styled(CardsRow)``
@@ -63,9 +66,11 @@ export const Tiers: FC<Props> = ({ ups, downs, nudge, revealing, throb }) => {
     return (downs.length - 1) * 65 + CARD_SIZE.width
   }
 
+  const width = Math.max(getUpsWidth(), getDownsWidth())
+
   return (
     <Wrapper>
-      <InnerWrapper>
+      <InnerWrapper style={{ width }}>
         <Downs>
           <CardsRow style={{ width: getDownsWidth() }}>
             {downs.map((props) => (

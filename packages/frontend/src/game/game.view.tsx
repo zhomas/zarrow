@@ -122,7 +122,7 @@ const _GameView: FC<Props> = ({
                     onPrompt={pickupStack}
                     promptActive={highlight === 'stack'}
                     cards={stack.map((c, i) => (
-                      <FluidCard key={c.id} card={c} stackIndex={i} />
+                      <FluidCard key={c.id} card={c} />
                     ))}
                   />
                 </Sparkler>

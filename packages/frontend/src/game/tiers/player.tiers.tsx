@@ -63,7 +63,7 @@ const _PlayerTiers: FC<Props> = ({
   const fupuUps = fupu ? ups : []
 
   return (
-    <>
+    <div style={{ textAlign: 'center' }}>
       <Tiers
         ups={propsUp}
         downs={propsDown}
@@ -72,7 +72,7 @@ const _PlayerTiers: FC<Props> = ({
         throb={throb}
       />
       <FUPU cards={fupuUps} uid={uid} />
-    </>
+    </div>
   )
 }
 

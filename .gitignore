@@ -1,4 +1,5 @@
 **/**/dist
+**/**/.linaria_cache
 node_modules
 
 # dependencies

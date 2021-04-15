@@ -137,8 +137,8 @@ const counterSlice = createSlice({
     setFaction(state, action: PayloadAction<Faction>) {
       faction(state, action.payload.uid, action.payload.faction)
     },
-    deal(state, action: PayloadAction<GameInitialiser>) {
-      dealCards(state, action.payload.deck, action.payload.skipPregame)
+    deal(state, action: PayloadAction<Deck>) {
+      dealCards(state, action.payload, false)
     },
     addToStack(state, action: PayloadAction<PlayCard>) {
       const { cards } = action.payload

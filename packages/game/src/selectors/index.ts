@@ -61,7 +61,9 @@ export const shouldBurn = (state: GameState, ...extras: CardModel[]) => {
 
 export const shouldMiniburn = (state: GameState) => {
   const { stack } = state
+  const active = activePlayerSelector(state)
   if (!stack.length) return false
+  if (active.cards.length === 0) return false // magic does not activate
   return ['Q', 'K'].includes(stack[0].value)
 }
 

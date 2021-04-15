@@ -307,6 +307,52 @@ it('burns after use', async (t) => {
   t.is(stackDestinationSelector(store.getState()).id, 'QD')
 })
 
+it('does not burn when its my final card', async (t) => {
+  const store = getStore({
+    queue: ['jAUByOPFOiXXYmR8lgF8rlUujmt1'],
+    stack: [],
+    players: [
+      {
+        id: 'jAUByOPFOiXXYmR8lgF8rlUujmt1',
+        displayName: 'Tom',
+        faction: 0,
+        cards: [
+          { card: { value: 'Q', id: 'QD', suit: 'D' }, tier: 0, stolen: false },
+        ],
+      },
+      {
+        faction: 1,
+        displayName: 'Boris',
+        id: 'NRUF3fQBIvTw8GkKMAoaMH9z6wC2',
+        cards: [
+          { card: { value: '6', id: '6S', suit: 'S' }, stolen: false, tier: 0 },
+          { card: { id: 'QS', suit: 'S', value: 'Q' }, stolen: false, tier: 0 },
+          { card: { suit: 'H', id: 'AH', value: 'A' }, tier: 2 },
+          { card: { id: '6D', suit: 'D', value: '6' }, tier: 2 },
+          { card: { id: '7H', value: '7', suit: 'H' }, tier: 2 },
+          { card: { suit: 'S', value: '3', id: '3S' }, tier: 2 },
+        ],
+      },
+    ],
+  })
+
+  const x = store.dispatch(
+    playCardThunk({
+      cards: [createCard('Q', 'D')],
+      playerID: 'jAUByOPFOiXXYmR8lgF8rlUujmt1',
+    }),
+  )
+
+  await new Promise((r) => setTimeout(r, 1000))
+
+  t.is(isQueenLocked(store.getState()), false)
+
+  await x
+  t.log(store.getState())
+  t.is(store.getState().stack.length, 1)
+  t.is(store.getState().burnt.length, 0)
+})
+
 it('executes a full burn when a fourth queen is played', async (t) => {
   const store = getStore({
     stack: [createCardByID('3D')],

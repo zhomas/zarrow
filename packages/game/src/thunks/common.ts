@@ -55,7 +55,12 @@ export const playCardInternal = async (
   getState: () => GameState,
 ) => {
   dispatch(addToStack({ cards }))
-  await sleep(CARD_FLIGHT_TIME + 50)
+
+  if (cards.some((c) => c.id === 'QD')) {
+    console.log('miniburn', shouldMiniburn(getState()))
+  }
+
+  await sleep(CARD_FLIGHT_TIME + 10)
 
   const ready = () => {
     const st = getState()
@@ -84,17 +89,6 @@ export const playCardInternal = async (
   dispatch(applyCardEffect(cards))
 
   await sleepUntil(ready)
-
-  // const { pendingChains } = getState()
-
-  // if (pendingChains.length > 0) {
-  //   const cards = pendingChains.map((cID) => createCardByID(cID))
-
-  //   for (const card of cards) {
-  //     console.log('showing pending chain', card)
-  //     await dispatch(showChainConfirm(card))
-  //   }
-  // }
 
   return { burn: false }
 }

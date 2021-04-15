@@ -19,7 +19,6 @@ const Screen = styled.div`
   bottom: 0;
   z-index: 1;
   opacity: 0;
-  pointer-events: none;
 `
 
 const NameWrapper = styled.span`
@@ -38,15 +37,15 @@ const _NonPlayerTiers: FC<Props> = ({
   targetMode,
   name,
 }) => (
-  <Wrapper
-    onMouseEnter={onMouseEnter}
-    onMouseLeave={onMouseLeave}
-    onClick={onClick}
-  >
+  <Wrapper>
     <Tiers ups={ups} downs={downs} revealing={false} throb={throb}>
       <Screen
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        onClick={onClick}
         style={{
-          opacity: targetMode === 'ace:hover' ? 1 : 0.5,
+          cursor: targetMode === 'ace:hover' ? 'pointer' : 'default',
+          opacity: targetMode === 'ace:hover' ? 1 : 0,
         }}
       />
     </Tiers>

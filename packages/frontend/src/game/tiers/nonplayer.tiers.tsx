@@ -43,12 +43,13 @@ const _NonPlayerTiers: FC<Props> = ({
     onMouseLeave={onMouseLeave}
     onClick={onClick}
   >
-    <Tiers ups={ups} downs={downs} revealing={false} throb={throb} />
-    <Screen
-      style={{
-        opacity: targetMode === 'ace:hover' ? 1 : 0.5,
-      }}
-    />
+    <Tiers ups={ups} downs={downs} revealing={false} throb={throb}>
+      <Screen
+        style={{
+          opacity: targetMode === 'ace:hover' ? 1 : 0.5,
+        }}
+      />
+    </Tiers>
     <NameWrapper>{name}</NameWrapper>
   </Wrapper>
 )

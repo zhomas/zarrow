@@ -1,4 +1,4 @@
-import { createCardByID } from '../deck'
+import { createCardByID, Deck } from '../deck'
 import { GameState } from '../game.slice'
 import { CardModel, PlayerModel } from '../types'
 import { getWrappedIndex } from '../utils'
@@ -11,12 +11,11 @@ const findFreeTier = (player: PlayerModel) => {
   return 2
 }
 
-interface Deck {
-  cards: CardModel[]
-  id: string
-}
-
-export const dealCards = (state: GameState, deck: Deck) => {
+export const dealCards = (
+  state: GameState,
+  deck: Deck,
+  skipPregame = false,
+) => {
   const playerIds = state.players.map((p) => p.id)
   const { cards, id } = deck
   let playerIndex = 0

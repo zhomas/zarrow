@@ -52,7 +52,13 @@ const Downs = styled.div`
   right: 0;
 `
 
-export const Tiers: FC<Props> = ({ ups, downs, revealing, throb }) => {
+export const Tiers: FC<Props> = ({
+  ups,
+  downs,
+  revealing,
+  throb,
+  children,
+}) => {
   const getOffsetUps = () => {
     if (revealing) return CARD_SIZE.height * -1
 
@@ -88,6 +94,7 @@ export const Tiers: FC<Props> = ({ ups, downs, revealing, throb }) => {
         </Ups>
       </InnerWrapper>
       {throb && <Throbber point="right" left={-50} top={'35%'} />}
+      {children}
     </Wrapper>
   )
 }

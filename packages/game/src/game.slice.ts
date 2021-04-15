@@ -90,7 +90,8 @@ export const initialState: GameState = {
 }
 
 interface GameInitialiser {
-  deck: CardModel[]
+  deck: Deck
+  skipPregame?: boolean
 }
 
 interface PlayCard {
@@ -136,8 +137,8 @@ const counterSlice = createSlice({
     setFaction(state, action: PayloadAction<Faction>) {
       faction(state, action.payload.uid, action.payload.faction)
     },
-    deal(state, action: PayloadAction<Deck>) {
-      dealCards(state, action.payload)
+    deal(state, action: PayloadAction<GameInitialiser>) {
+      dealCards(state, action.payload.deck, action.payload.skipPregame)
     },
     addToStack(state, action: PayloadAction<PlayCard>) {
       const { cards } = action.payload

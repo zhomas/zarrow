@@ -48,7 +48,7 @@ export const shouldBurn = (state: GameState, ...extras: CardModel[]) => {
 
   // Check 8s
   let eights = 0
-  for (const card of stack) {
+  for (const card of pool) {
     if (card.value === '8') {
       eights++
     } else {

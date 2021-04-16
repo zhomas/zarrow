@@ -56,10 +56,6 @@ export const playCardInternal = async (
 ) => {
   dispatch(addToStack({ cards }))
 
-  if (cards.some((c) => c.id === 'QD')) {
-    console.log('miniburn', shouldMiniburn(getState()))
-  }
-
   await sleep(CARD_FLIGHT_TIME + 10)
 
   const ready = () => {

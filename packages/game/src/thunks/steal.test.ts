@@ -1,6 +1,6 @@
 import it from 'ava'
 import { stealSingleCard, getStore, stealPhaseSelector, GameState } from '..'
-import { createCard } from '../deck'
+import { createCard, createCardByID } from '../deck'
 import { hasLock } from '../selectors'
 import { playCardThunk } from './play'
 import { stealCardThunk } from './steal'
@@ -227,4 +227,42 @@ it('chains another king', async (t) => {
   await x
 
   t.is(store.getState().activeSteal.userSteals, 1)
+})
+
+it('increments the turn after a steal', async (t) => {
+  const store = getStore({
+    queue: ['a'],
+    players: [
+      {
+        id: 'a',
+        faction: 0,
+        displayName: '',
+        cards: [
+          { card: createCard('3', 'C'), tier: 2 },
+          { card: createCard('K', 'D'), tier: 2 },
+        ],
+      },
+      {
+        id: 'b',
+        faction: 1,
+        displayName: '',
+        cards: [{ card: createCard('2', 'H'), tier: 2 }],
+      },
+    ],
+    pickupPile: [createCardByID('JD'), createCardByID('4C')],
+  })
+
+  const x = store.dispatch(
+    playCardThunk({
+      cards: [createCard('K', 'D')],
+      playerID: 'a',
+    }),
+  )
+
+  store.dispatch(stealSingleCard({ cardID: '2H', userID: 'a' }))
+  store.dispatch(stealSingleCard({ cardID: '3C', userID: 'b' }))
+
+  await x
+
+  t.truthy(store.getState().queue[0], 'b')
 })
